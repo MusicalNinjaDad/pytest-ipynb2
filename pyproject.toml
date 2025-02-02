@@ -163,5 +163,9 @@ inputs = ["pytest_ipynb2"]
     ]
 
     "**/*.ipynb" = [
-        "T201", # Allow `print` in Jupyter notebooks
+        "T201",    # Allow `print` in Jupyter notebooks
+        "ANN",     # Missing type annotations
+        "S101",    # Use of `assert`
+        "PLR2004", # Magic number comparisons
+        "D1",      # Don't REQUIRE docstrings in notebooks - but lint them if they are there
     ]
