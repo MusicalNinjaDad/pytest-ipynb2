@@ -11,6 +11,9 @@ def testnotebook():
     assert notebook.exists()
     return notebook
 
-def test_codecells(testnotebook):
-    codecells = getcodecells(testnotebook)
-    assert len(codecells) == 3
+@pytest.fixture
+def testnotebook_codecells(testnotebook):
+    return getcodecells(testnotebook)
+
+def test_codecells(testnotebook_codecells):
+    assert len(testnotebook_codecells) == 3
