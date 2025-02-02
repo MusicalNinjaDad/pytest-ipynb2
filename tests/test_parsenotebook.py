@@ -15,5 +15,8 @@ def testnotebook():
 def testnotebook_codecells(testnotebook):
     return getcodecells(testnotebook)
 
-def test_codecells(testnotebook_codecells):
+def test_codecells_number(testnotebook_codecells):
     assert len(testnotebook_codecells) == 3
+
+def test_codecells_indexes(testnotebook_codecells):
+    assert list(testnotebook_codecells.keys()) == [1,3,4]

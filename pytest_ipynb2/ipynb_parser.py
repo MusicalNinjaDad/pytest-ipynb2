@@ -4,8 +4,8 @@ import json
 from pathlib import Path
 
 
-def getcodecells(notebook: Path) -> list[dict]:
+def getcodecells(notebook: Path) -> dict[dict]:
     """Return parsed code cells from a notebook."""
     rawcontents = notebook.read_text()
     contents = json.loads(rawcontents)
-    return [cell for cell in contents["cells"] if cell["cell_type"] == "code"]
+    return {cellnr: cell for cellnr, cell in enumerate(contents["cells"]) if cell["cell_type"] == "code"}
