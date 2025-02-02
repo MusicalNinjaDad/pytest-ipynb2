@@ -8,4 +8,6 @@ def getcodecells(notebook: Path) -> dict[int, dict]:
     """Return parsed code cells from a notebook."""
     rawcontents = notebook.read_text()
     contents = json.loads(rawcontents)
-    return {cellnr: cell for cellnr, cell in enumerate(contents["cells"]) if cell["cell_type"] == "code"}
+    return {
+        cellnr: "".join(cell["source"]) for cellnr, cell in enumerate(contents["cells"]) if cell["cell_type"] == "code"
+    }

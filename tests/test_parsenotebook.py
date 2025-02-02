@@ -1,4 +1,5 @@
 from pathlib import Path
+from textwrap import dedent
 
 import pytest
 
@@ -12,11 +13,19 @@ def testnotebook():
     return notebook
 
 @pytest.fixture
-def testnotebook_codecells(testnotebook):
+def testnotebook_codecells(testnotebook: Path) -> dict[int, dict]:
     return getcodecells(testnotebook)
 
-def test_codecells_number(testnotebook_codecells):
+def test_codecells_number(testnotebook_codecells: dict):
     assert len(testnotebook_codecells) == 3
 
-def test_codecells_indexes(testnotebook_codecells):
+def test_codecells_indexes(testnotebook_codecells: dict):
     assert list(testnotebook_codecells.keys()) == [1,3,4]
+
+def test_codecell4(testnotebook_codecells: dict):
+    expected = dedent("""\
+        %%ipytest
+
+        def test_adder():
+            assert adder(1,2) == 3""")
+    assert testnotebook_codecells[4] == expected
