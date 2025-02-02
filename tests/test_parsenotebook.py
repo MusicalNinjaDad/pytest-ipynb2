@@ -13,7 +13,7 @@ def testnotebook():
     return notebook
 
 @pytest.fixture
-def testnotebook_codecells(testnotebook: Path) -> dict[int, dict]:
+def testnotebook_codecells(testnotebook: Path) -> dict:
     return getcodecells(testnotebook)
 
 def test_codecells_number(testnotebook_codecells: dict):

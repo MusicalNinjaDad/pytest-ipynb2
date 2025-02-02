@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 
 
-def getcodecells(notebook: Path) -> dict[int, dict]:
+def getcodecells(notebook: Path) -> dict[int, str]:
     """Return parsed code cells from a notebook."""
     rawcontents = notebook.read_text()
     contents = json.loads(rawcontents)
