@@ -17,6 +17,7 @@
     dependencies = [
         "ipython",
         "ipytest",
+        "nbformat>=5.10.4",
         "pytest",
         "typing-extensions; python_version < '3.11'",
     ]

@@ -3,22 +3,21 @@ from textwrap import dedent
 
 import pytest
 
-from pytest_ipynb2 import getcodecells, gettestcells
+from pytest_ipynb2 import Notebook
 
 
 @pytest.fixture
 def testnotebook():
     notebook = Path("tests/assets/notebook.ipynb").absolute()
-    assert notebook.exists()
-    return notebook
+    return Notebook(notebook)
 
 @pytest.fixture
-def testnotebook_codecells(testnotebook: Path) -> dict:
-    return getcodecells(testnotebook)
+def testnotebook_codecells(testnotebook) -> dict:
+    return testnotebook.getcodecells()
 
 @pytest.fixture
-def testnotebook_testcells(testnotebook: Path) -> dict:
-    return gettestcells(testnotebook)
+def testnotebook_testcells(testnotebook) -> dict:
+    return testnotebook.gettestcells()
 
 def test_codecells_number(testnotebook_codecells: dict):
     assert len(testnotebook_codecells) == 3

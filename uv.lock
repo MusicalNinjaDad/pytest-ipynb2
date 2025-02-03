@@ -1766,6 +1766,7 @@ dependencies = [
     { name = "ipytest" },
     { name = "ipython", version = "8.18.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
     { name = "ipython", version = "8.32.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
+    { name = "nbformat" },
     { name = "pytest" },
     { name = "typing-extensions", marker = "python_full_version < '3.11'" },
 ]
@@ -1811,6 +1812,7 @@ typing = [
 requires-dist = [
     { name = "ipytest" },
     { name = "ipython" },
+    { name = "nbformat", specifier = ">=5.10.4" },
     { name = "pytest" },
     { name = "typing-extensions", marker = "python_full_version < '3.11'" },
 ]
