@@ -35,5 +35,8 @@ def test_testcells_indexes(testnotebook_testcells: dict):
 def test_testcell_contents(testnotebook_testcells: dict):
     expected = dedent("""\
         def test_adder():
-            assert adder(1,2) == 3""")
+            assert adder(1,2) == 3
+
+        def test_globals():
+            assert x == 1""")
     assert testnotebook_testcells[4] == expected
