@@ -105,7 +105,7 @@ class CollectionTree:
 
 
 @pytest.fixture
-def expectedtree(example_dir: pytest.Pytester):
+def expectedtree(example_dir: pytest.Pytester):  # noqa: ARG001
     tree = {
         # (f"<Dir {example_dir.path.name}>", pytest.Dir): {
             ("<Module test_module.py>", pytest.Module): {
