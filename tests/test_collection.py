@@ -91,10 +91,10 @@ class CollectionTree:
     def __eq__(self, value: Self):
         for node, nodecontents in self.contents.items():  # noqa: RET503 - self.contents should never be empty
             othernode = value.contents[node]
-            if nodecontents is None:
-                return isinstance(othernode,pytest.Item) or othernode is None
-            if othernode is None:
-                return isinstance(nodecontents,pytest.Item) or nodecontents is None
+            if nodecontents is None and isinstance(othernode,pytest.Item):
+                return True
+            if othernode is None and isinstance(nodecontents,pytest.Item):
+                return True
             return othernode == nodecontents
 
     @classmethod
