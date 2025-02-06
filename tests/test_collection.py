@@ -69,7 +69,7 @@ class CollectionTree:
 
     def __init__(self,
                  contents: dict[tuple[str,type], dict | None | Self | pytest.Item],
-                 item: pytest.Node | None,
+                 item: pytest.Item | pytest.Collector | None,
                 ):
         self.contents = contents
         self.item = item
