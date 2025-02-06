@@ -116,7 +116,8 @@ class CollectionTree:
     @classmethod
     def from_items(cls, items: list[pytest.Item]):
         """Create a CollectionTree from a list of collection items, as returned by `pytester.genitems()`."""
-        parents = {item.parent for item in items}
+        converteditems = [cls.from_item(item) if not isinstance(item, cls) else item for item in items]
+        parents = {item.node.parent for item in converteditems}
         items_byparent = {parent: {item for item in items if item.parent == parent} for parent in parents}
         for parent, children in items_byparent.items():
             if parent.parent is None:
