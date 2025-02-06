@@ -96,16 +96,18 @@ class CollectionTree:
     def from_items(cls, items: list[pytest.Item]):
         """Create a CollectionTree from a list of collection items, as returned by `pytester.genitems()`."""
         parents = {item.parent for item in items}
-        items_byparent = {
-            (repr(parent), type(parent)): 
-                cls({(repr(item), type(item)): item for item in items if item.parent == parent})
-            for parent in parents
-        }
-        return cls(items_byparent)
+        items_byparent = {parent: {item for item in items if item.parent == parent} for parent in parents}
+        for parent, children in items_byparent.items():
+            return cls({
+                (repr(parent), type(parent)): 
+                    cls({(repr(item), type(item)): item for item in children if item.parent == parent}),
+            })
+        msg = "Items cannot be empty."
+        raise ValueError(msg)
 
 
 @pytest.fixture
-def expectedtree(example_dir: pytest.Pytester):  # noqa: ARG001
+def expectedtree(example_dir: pytest.Pytester):
     tree = {
         # (f"<Dir {example_dir.path.name}>", pytest.Dir): {
             ("<Module test_module.py>", pytest.Module): {
