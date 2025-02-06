@@ -73,11 +73,6 @@ class CollectionTree:
                 ):
         self.children = children
         self.node = node
-        try:
-            self.parent = node.parent
-        except AttributeError:
-            self.parent = None
-
 
     def items(self):
         return self.children.items()
