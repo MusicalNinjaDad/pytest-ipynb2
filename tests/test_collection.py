@@ -69,7 +69,7 @@ class CollectionTree:
 
     def __init__(self,
                  contents: dict[tuple[str,type], dict | None | Self | pytest.Item],
-                 item: pytest.Item | pytest.Collector | None,
+                 item: pytest.Item | pytest.Collector | None = None,
                 ):
         self.contents = contents
         self.item = item
@@ -112,7 +112,7 @@ class CollectionTree:
 
     @classmethod
     def from_item(cls, item: pytest.Item):
-        return cls({(repr(item), type(item)): item})
+        return cls(contents={(repr(item), type(item)): None}, item=item)
 
     @classmethod
     def from_items(cls, items: list[pytest.Item]):
