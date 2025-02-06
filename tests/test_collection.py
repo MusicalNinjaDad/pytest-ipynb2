@@ -98,9 +98,17 @@ class CollectionTree:
         parents = {item.parent for item in items}
         items_byparent = {parent: {item for item in items if item.parent == parent} for parent in parents}
         for parent, children in items_byparent.items():
+            if parent.parent is None:
+                return cls({
+                    (repr(parent), type(parent)): 
+                        cls({(repr(item), type(item)): item for item in children if item.parent == parent}),
+                })
             return cls({
-                (repr(parent), type(parent)): 
-                    cls({(repr(item), type(item)): item for item in children if item.parent == parent}),
+                (repr(parent.parent), type(parent.parent)):
+                    cls({
+                        (repr(parent), type(parent)): 
+                            cls({(repr(item), type(item)): item for item in children if item.parent == parent}),
+                    }),
             })
         msg = "Items cannot be empty."
         raise ValueError(msg)
@@ -109,12 +117,12 @@ class CollectionTree:
 @pytest.fixture
 def expectedtree(example_dir: pytest.Pytester):
     tree = {
-        # (f"<Dir {example_dir.path.name}>", pytest.Dir): {
+        (f"<Dir {example_dir.path.name}>", pytest.Dir): {
             ("<Module test_module.py>", pytest.Module): {
                 ("<Function test_adder>", pytest.Function): None,
                 ("<Function test_globals>", pytest.Function): None,
             },
-        # },
+        },
     }
     return CollectionTree(tree)
 
