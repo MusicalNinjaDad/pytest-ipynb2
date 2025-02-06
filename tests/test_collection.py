@@ -67,7 +67,11 @@ def test_collection_depth(collection_nodes: CollectedDir):
 class CollectionTree:
     """A (recursible) tree of pytest collection Nodes."""
 
-    def __init__(self, contents: dict[tuple[str,type], dict | None | Self | pytest.Item]):
+    def __init__(self,
+                 contents: dict[tuple[str,type], dict | None | Self | pytest.Item],
+                 *_,
+                 item: pytest.Node | None = None,
+                ):
         """
         Create a dummy CollectionTree from a dict of dicts with following format:
         
@@ -80,12 +84,14 @@ class CollectionTree:
         }
 
         """  # noqa: D415
+        if item is not None: self.item = item
         self.contents = {
             node: 
                 nodecontents if nodecontents is None or isinstance(nodecontents,pytest.Item)
                 else CollectionTree(nodecontents)
             for node, nodecontents in contents.items()
         }
+        
 
     def items(self):
         return self.contents.items()
