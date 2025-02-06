@@ -111,7 +111,7 @@ class CollectionTree:
 
     @classmethod
     def from_item(cls, item: pytest.Item):
-        return cls(children={(repr(item), type(item)): None}, node=item)
+        return cls(children={(repr(item), type(item)): item}, node=item)
 
     @classmethod
     def from_items(cls, items: list[pytest.Item]):
