@@ -88,12 +88,18 @@ class CollectionTree:
     @classmethod
     def from_items(cls, items: list[pytest.Item]):
         """Create a CollectionTree from a list of collection items, as returned by `pytester.genitems()`."""
-        parent = items[0].parent
+        parents = {item.parent for item in items}
+        items_byparent = {
+            parent:
+                {item for item in items if item.parent == parent}
+            for parent in parents
+        }
         treedict = {
             (repr(parent), type(parent)): {
                 (repr(item), type(item)): None
                 for item in items
-            },
+            }
+            for parent, items in items_byparent.items()
         }
         return cls(treedict)
 
