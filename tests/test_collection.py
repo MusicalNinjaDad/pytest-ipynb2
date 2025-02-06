@@ -2,6 +2,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from typing import Self
 
 import pytest
 
@@ -77,12 +81,15 @@ class CollectionTree:
 
         """  # noqa: D415
         self.contents = {
-            node: None if nodecontents is None else CollectionTree(nodecontents)
+            node: None if nodecontents is None or isinstance(nodecontents,pytest.Item) else CollectionTree(nodecontents)
             for node, nodecontents in contents.items()
         }
 
-    def __eq__(self, value):
-        for node, nodecontents in self.contents.items():
+    def items(self):
+        return self.contents.items()
+
+    def __eq__(self, value: Self):
+        for node, nodecontents in self.contents.items():  # noqa: RET503 - self.contents should never be empty
             return value.contents[node] == nodecontents
 
     @classmethod
@@ -90,18 +97,11 @@ class CollectionTree:
         """Create a CollectionTree from a list of collection items, as returned by `pytester.genitems()`."""
         parents = {item.parent for item in items}
         items_byparent = {
-            parent:
-                {item for item in items if item.parent == parent}
+            (repr(parent), type(parent)): 
+                cls({(repr(item), type(item)): None for item in items if item.parent == parent})
             for parent in parents
         }
-        treedict = {
-            (repr(parent), type(parent)): {
-                (repr(item), type(item)): None
-                for item in items
-            }
-            for parent, items in items_byparent.items()
-        }
-        return cls(treedict)
+        return cls(items_byparent)
 
 
 @pytest.fixture
