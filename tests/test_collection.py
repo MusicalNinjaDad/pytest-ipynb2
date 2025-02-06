@@ -69,29 +69,11 @@ class CollectionTree:
 
     def __init__(self,
                  contents: dict[tuple[str,type], dict | None | Self | pytest.Item],
-                 *_,
                  item: pytest.Node | None = None,
                 ):
-        """
-        Create a dummy CollectionTree from a dict of dicts with following format:
-        
-        { (str: name, type: Nodetype):
-            { (str: name, type: Nodetype): (if node is a Collector)
-                { , ...
-                }
-            }
-            | None (if node is an Item)
-        }
+        self.contents = contents
+        self.item = item
 
-        """  # noqa: D415
-        if item is not None: self.item = item
-        self.contents = {
-            node: 
-                nodecontents if nodecontents is None or isinstance(nodecontents,pytest.Item)
-                else CollectionTree(nodecontents)
-            for node, nodecontents in contents.items()
-        }
-        
 
     def items(self):
         return self.contents.items()
@@ -104,6 +86,33 @@ class CollectionTree:
             if othernode is None and isinstance(nodecontents,pytest.Item):
                 return True
             return othernode == nodecontents
+
+    @classmethod
+    def from_dict(cls, contents: dict[tuple[str,type], dict | None | Self]):
+        """
+        Create a dummy CollectionTree from a dict of dicts with following format:
+        
+        ```
+        { (str: name, type: Nodetype):
+            { (str: name, type: Nodetype): (if node is a Collector)
+                { , ...
+                }
+            }
+            | None (if node is an Item)
+        }
+        ```
+        """  # noqa: D415
+        contents = {
+            node: 
+                nodecontents if nodecontents is None
+                else cls.from_dict(nodecontents)
+            for node, nodecontents in contents.items()
+        }
+        return cls(contents, item=None)
+
+    @classmethod
+    def from_item(cls, item: pytest.Item):
+        return cls({(repr(item), type(item)): item})
 
     @classmethod
     def from_items(cls, items: list[pytest.Item]):
@@ -137,7 +146,7 @@ def expectedtree(example_dir: pytest.Pytester):
             },
         },
     }
-    return CollectionTree(tree)
+    return CollectionTree.from_dict(tree)
 
 def test_collectiontree(expectedtree: CollectionTree, collection_nodes: CollectedDir):
     tree = CollectionTree.from_items(collection_nodes.items)
