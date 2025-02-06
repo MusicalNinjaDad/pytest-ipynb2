@@ -81,7 +81,9 @@ class CollectionTree:
 
         """  # noqa: D415
         self.contents = {
-            node: nodecontents if nodecontents is None or isinstance(nodecontents,pytest.Item) else CollectionTree(nodecontents)
+            node: 
+                nodecontents if nodecontents is None or isinstance(nodecontents,pytest.Item)
+                else CollectionTree(nodecontents)
             for node, nodecontents in contents.items()
         }
 
