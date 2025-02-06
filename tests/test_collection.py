@@ -24,9 +24,11 @@ def test_pytestersetup(example_dir: pytest.Pytester):
     assert expected_file.exists(), str(list(example_dir.path.iterdir()))
 
 def test_collection(example_dir: pytest.Pytester):
-    file_node = example_dir.getpathnode("test_module.py")
-    assert type(file_node) is pytest.Module
-    testcases = example_dir.genitems([file_node])
-    assert len(testcases) == 2
-    assert all(type(testcase) is pytest.Function for testcase in testcases)
-    assert [testcase.name for testcase in testcases] == ["test_adder", "test_globals"]
+    dir_node = example_dir.getpathnode(example_dir.path)
+    assert type(dir_node) is pytest.Dir
+    collection_items = example_dir.genitems([dir_node])
+    assert len(collection_items) == 2
+    assert all(type(testcase) is pytest.Function for testcase in collection_items)
+    assert all(testcase.parent.name == "test_module.py" for testcase in collection_items)
+    assert all(type(testcase.parent) is pytest.Module for testcase in collection_items)
+    assert [testcase.name for testcase in collection_items] == ["test_adder", "test_globals"]
