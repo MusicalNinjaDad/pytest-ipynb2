@@ -98,7 +98,7 @@ class CollectionTree:
         parents = {item.parent for item in items}
         items_byparent = {
             (repr(parent), type(parent)): 
-                cls({(repr(item), type(item)): None for item in items if item.parent == parent})
+                cls({(repr(item), type(item)): item for item in items if item.parent == parent})
             for parent in parents
         }
         return cls(items_byparent)
