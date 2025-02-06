@@ -98,7 +98,7 @@ exclude_also = [
     show_contexts = true
 
 [tool.pytype]
-    inputs = ["pytest_ipynb2"]
+    inputs = ["pytest_ipynb2", "tests"]
 
 [tool.ruff]
     line-length = 120
