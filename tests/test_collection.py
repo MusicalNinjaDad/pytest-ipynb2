@@ -5,6 +5,12 @@ import pytest
 
 @pytest.fixture
 def example_module() -> Path:
+    """
+    Location of example file.
+    
+    As a fixture: using a constant causes resolution errors due to pytester messing with the path.
+    If used directly in a test, fixture MUST be called BEFORE the pytester fixture to avoid path resolution issues.
+    """
     return Path("tests/assets/notebook.py").absolute()
 
 @pytest.fixture
