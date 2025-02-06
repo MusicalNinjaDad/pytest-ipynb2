@@ -68,19 +68,23 @@ class CollectionTree:
     """A (recursible) tree of pytest collection Nodes."""
 
     def __init__(self,
-                 contents: dict[tuple[str,type], dict | None | Self | pytest.Item],
-                 item: pytest.Item | pytest.Collector | None = None,
+                 children: dict[tuple[str,type], dict | None | Self | pytest.Item],
+                 node: pytest.Item | pytest.Collector | None = None,
                 ):
-        self.contents = contents
-        self.item = item
+        self.children = children
+        self.node = node
+        try:
+            self.parent = node.parent
+        except AttributeError:
+            self.parent = None
 
 
     def items(self):
-        return self.contents.items()
+        return self.children.items()
 
     def __eq__(self, value: Self):
-        for node, nodecontents in self.contents.items():  # noqa: RET503 - self.contents should never be empty
-            othernode = value.contents[node]
+        for node, nodecontents in self.children.items():  # noqa: RET503 - self.contents should never be empty
+            othernode = value.children[node]
             if nodecontents is None and isinstance(othernode,pytest.Item):
                 return True
             if othernode is None and isinstance(nodecontents,pytest.Item):
@@ -108,11 +112,11 @@ class CollectionTree:
                 else cls.from_dict(nodecontents)
             for node, nodecontents in contents.items()
         }
-        return cls(contents, item=None)
+        return cls(children=contents, node=None)
 
     @classmethod
     def from_item(cls, item: pytest.Item):
-        return cls(contents={(repr(item), type(item)): None}, item=item)
+        return cls(children={(repr(item), type(item)): None}, node=item)
 
     @classmethod
     def from_items(cls, items: list[pytest.Item]):
