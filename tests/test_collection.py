@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -57,3 +59,57 @@ def test_collectedItems_parents(collection_nodes: CollectedDir):
 
 def test_collection_depth(collection_nodes: CollectedDir):
     assert all(testcase.parent.parent is collection_nodes.dir_node for testcase in collection_nodes.items)
+
+class CollectionTree:
+    """A (recursible) tree of pytest collection Nodes."""
+
+    def __init__(self, contents: dict[tuple[str,type], dict | None]):
+        """
+        Create a dummy CollectionTree from a dict of dicts with following format:
+        
+        { (str: name, type: Nodetype):
+            { (str: name, type: Nodetype): (if node is a Collector)
+                { , ...
+                }
+            }
+            | None (if node is an Item)
+        }
+
+        """  # noqa: D415
+        self.contents = {
+            node: None if nodecontents is None else CollectionTree(nodecontents)
+            for node, nodecontents in contents.items()
+        }
+
+    def __eq__(self, value):
+        for node, nodecontents in self.contents.items():
+            return value.contents[node] == nodecontents
+
+    @classmethod
+    def from_items(cls, items: list[pytest.Item]):
+        """Create a CollectionTree from a list of collection items, as returned by `pytester.genitems()`."""
+        parent = items[0].parent
+        treedict = {
+            (repr(parent), type(parent)): {
+                (repr(item), type(item)): None
+                for item in items
+            },
+        }
+        return cls(treedict)
+
+
+@pytest.fixture
+def expectedtree(example_dir: pytest.Pytester):
+    tree = {
+        # (f"<Dir {example_dir.path.name}>", pytest.Dir): {
+            ("<Module test_module.py>", pytest.Module): {
+                ("<Function test_adder>", pytest.Function): None,
+                ("<Function test_globals>", pytest.Function): None,
+            },
+        # },
+    }
+    return CollectionTree(tree)
+
+def test_collectiontree(expectedtree: CollectionTree, collection_nodes: CollectedDir):
+    tree = CollectionTree.from_items(collection_nodes.items)
+    assert expectedtree == tree
