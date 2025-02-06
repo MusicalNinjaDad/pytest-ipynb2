@@ -16,7 +16,7 @@ def example_module() -> Path:
 
 @pytest.fixture
 def example_dir(example_module: Path, pytester: pytest.Pytester) -> pytest.Pytester:
-    """The contents of the code cells in `notebook.ipynb` as `test_module.py` in an instantiated `Pytester` setup."""
+    """The contents of `notebook.py` as `test_module.py` in an instantiated `Pytester` setup."""
     pytester.makepyfile(test_module=example_module.read_text())
     return pytester
 
