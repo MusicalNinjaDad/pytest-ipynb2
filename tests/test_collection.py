@@ -81,7 +81,7 @@ class CollectionTree:
 
         """  # noqa: D415
         self.contents = {
-            node: None if nodecontents is None or isinstance(nodecontents,pytest.Item) else CollectionTree(nodecontents)
+            node: nodecontents if nodecontents is None or isinstance(nodecontents,pytest.Item) else CollectionTree(nodecontents)
             for node, nodecontents in contents.items()
         }
 
@@ -90,7 +90,12 @@ class CollectionTree:
 
     def __eq__(self, value: Self):
         for node, nodecontents in self.contents.items():  # noqa: RET503 - self.contents should never be empty
-            return value.contents[node] == nodecontents
+            othernode = value.contents[node]
+            if nodecontents is None:
+                return isinstance(othernode,pytest.Item) or othernode is None
+            if othernode is None:
+                return isinstance(nodecontents,pytest.Item) or nodecontents is None
+            return othernode == nodecontents
 
     @classmethod
     def from_items(cls, items: list[pytest.Item]):
