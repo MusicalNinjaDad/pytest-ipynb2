@@ -64,27 +64,35 @@ def test_collectedItems_parents(collection_nodes: CollectedDir):
 def test_collection_depth(collection_nodes: CollectedDir):
     assert all(testcase.parent.parent is collection_nodes.dir_node for testcase in collection_nodes.items)
 
+@dataclass
+class DummyNode:
+    name: str
+    nodetype: type
+
+    def __eq__(self, other: pytest.Item | pytest.Collector | Self):
+        if isinstance(other, self):
+            return self.name == other.name and self.nodetype == other.nodetype
+        return self.name == repr(other) and self.nodetype is type(other)
+
 class CollectionTree:
     """A (recursible) tree of pytest collection Nodes."""
 
     def __init__(self,
-                 children: dict[tuple[str,type], dict | None | Self | pytest.Item],
-                 node: pytest.Item | pytest.Collector | None = None,
+                 *_,
+                 topnode: pytest.Item | pytest.Collector | DummyNode,
+                 children: list[CollectionTree] | None,
                 ):
         self.children = children
-        self.node = node
+        self.topnode = topnode
 
-    def items(self):
-        return self.children.items()
-
-    def __eq__(self, value: Self):
-        for node, nodecontents in self.children.items():  # noqa: RET503 - self.contents should never be empty
-            othernode = value.children[node]
-            if nodecontents is None and isinstance(othernode,pytest.Item):
-                return True
-            if othernode is None and isinstance(nodecontents,pytest.Item):
-                return True
-            return othernode == nodecontents
+    def __eq__(self, other: Self):
+        try:
+            return self.children == other.children and self.topnode == other.topnode
+        except AttributeError:
+            return False
+        
+    def __repr__(self):
+        pass
 
     @classmethod
     def from_dict(cls, contents: dict[tuple[str,type], dict | None | Self]):
@@ -101,37 +109,42 @@ class CollectionTree:
         }
         ```
         """  # noqa: D415
-        contents = {
-            node: 
-                nodecontents if nodecontents is None
-                else cls.from_dict(nodecontents)
-            for node, nodecontents in contents.items()
-        }
-        return cls(children=contents, node=None)
+        if len(contents) != 1:
+            msg = f"Please provide a dict with exaclty 1 entry, not {contents}"
+            raise ValueError(msg)
+        for topnodedetails, contentsdict in contents.items():
+            for childnode, grandchildren in contentsdict.items():
+                if grandchildren is None:
+                    return cls(topnode = childnode, children = None)
+            return cls(
+                topnode = DummyNode(*topnodedetails),
+                children=[cls.from_dict({childnode: grandchildren}) ],
+            )
+        msg = f"Something really wierd happened when creating CollectionTree from: {contents}"
+        raise RuntimeError(msg)
+        
+
 
     @classmethod
     def from_item(cls, item: pytest.Item):
-        return cls(children={(repr(item), type(item)): item}, node=item)
+        return cls(topnode=item, children=None)
 
     @classmethod
     def from_items(cls, items: list[pytest.Item]):
         """Create a CollectionTree from a list of collection items, as returned by `pytester.genitems()`."""
         converteditems = [cls.from_item(item) if not isinstance(item, cls) else item for item in items]
-        parents = {item.node.parent for item in converteditems}
-        items_byparent = {parent: {item for item in items if item.parent == parent} for parent in parents}
+        parents = {item.topnode.parent for item in converteditems}
+        items_byparent = {
+            parent: [item for item in converteditems if item.topnode.parent == parent]
+            for parent in parents
+        }
         for parent, children in items_byparent.items():
-            if parent.parent is None:
-                return cls({
-                    (repr(parent), type(parent)): 
-                        cls({(repr(item), type(item)): item for item in children if item.parent == parent}),
-                })
-            return cls({
-                (repr(parent.parent), type(parent.parent)):
-                    cls({
-                        (repr(parent), type(parent)): 
-                            cls({(repr(item), type(item)): item for item in children if item.parent == parent}),
-                    }),
-            })
+            if parent.parent is None: # Top of tree
+                return cls(topnode=parent, children=children)
+            return cls(
+                topnode = parent.parent,
+                children = [cls(topnode=parent, children=children)],
+            )
         msg = "Items cannot be empty."
         raise ValueError(msg)
 
