@@ -92,6 +92,7 @@ class CollectionTree:
             return False
         
     def __repr__(self):
+        # TODO add a decent repr so it's easier to fix issues with from_dict
         pass
 
     @classmethod
