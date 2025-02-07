@@ -102,16 +102,25 @@ class CollectionTree:
                  node: pytest.Item | pytest.Collector | _DummyNode,
                  children: list[CollectionTree] | None,
                 ):
+        """Do not directly initiatise a CollectionTree, use the constructors `from_items()` or `from_dict()` instead."""
         self.children = children
+        """
+        either:
+        - node is `pytest.Collector`: `list[CollectionTree]` of child nodes
+        - node is `pytest.Item`: `None`
+        """
         self.node = node
+        """The actual collected node."""
 
     def __eq__(self, other: Self):
+        """CollectionTrees are equal if their children and node attributes are equal."""
         try:
             return self.children == other.children and self.node == other.node
         except AttributeError:
             return False
         
     def __repr__(self):
+        """Indented, multiline representation of the tree to simplify interpreting test failures."""
         if self.children is None:
             children = ""
         else:
@@ -125,14 +134,27 @@ class CollectionTree:
         Create a dummy CollectionTree from a dict of dicts with following format:
         
         ```
-        { (str: name, type: Nodetype):
-            { (str: name, type: Nodetype): (if node is a Collector)
-                { , ...
+        {(str: name, type: Nodetype):
+            (str: name, type: Nodetype): {
+                (str: name, type: Nodetype): None,
+                (str: name, type: Nodetype): None
                 }
             }
-            | None (if node is an Item)
         }
         ```
+
+        For example:
+        ```
+        tree = {
+            (f"<Dir {example_dir.path.name}>", pytest.Dir): {
+                ("<Module test_module.py>", pytest.Module): {
+                    ("<Function test_adder>", pytest.Function): None,
+                    ("<Function test_globals>", pytest.Function): None,
+                },
+            },
+        }
+        ```
+
         """  # noqa: D415
         if len(tree) != 1:
             msg = f"Please provide a dict with exactly 1 entry, not {tree}"
