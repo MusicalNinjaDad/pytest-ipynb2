@@ -65,22 +65,28 @@ def test_collectedItems_parents(collection_nodes: CollectedDir):
 def test_collection_depth(collection_nodes: CollectedDir):
     assert all(testcase.parent.parent is collection_nodes.dir_node for testcase in collection_nodes.items)
 
-@dataclass
-class DummyNode:
-    name: str
-    nodetype: type
-
-    def __eq__(self, other: pytest.Item | pytest.Collector | Self):
-        if isinstance(other, type(self)):
-            return self.name == other.name and self.nodetype == other.nodetype
-        return self.name == repr(other) and self.nodetype is type(other)
-
 class CollectionTree:
     """A (recursible) tree of pytest collection Nodes."""
 
+    @dataclass
+    class _DummyNode:
+        """
+        A dummy node for a `CollectionTree`, used by `CollectionTree.from_dict()`.
+
+        Compares equal to a genuine `pytest.Node` of the correct type AND where `repr(Node)` == `DummyNode.name`.
+        """
+
+        name: str
+        nodetype: type
+
+        def __eq__(self, other: pytest.Item | pytest.Collector | Self):
+            if isinstance(other, type(self)):
+                return self.name == other.name and self.nodetype == other.nodetype
+            return self.name == repr(other) and self.nodetype is type(other)
+
     def __init__(self,
                  *_,
-                 node: pytest.Item | pytest.Collector | DummyNode,
+                 node: pytest.Item | pytest.Collector | _DummyNode,
                  children: list[CollectionTree] | None,
                 ):
         self.children = children
@@ -119,7 +125,7 @@ class CollectionTree:
             msg = f"Please provide a dict with exactly 1 entry, not {tree}"
             raise ValueError(msg)
         nodedetails, children = next(iter(tree.items()))
-        node = DummyNode(*nodedetails)
+        node = cls._DummyNode(*nodedetails)
         if children is None:
             return cls(node = node, children = None)
         return cls(
