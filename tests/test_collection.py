@@ -78,6 +78,7 @@ class CollectionTree:
 
         name: str
         nodetype: type
+        parent: Self | None = None
 
         def __eq__(self, other: pytest.Item | pytest.Collector | Self):
             if isinstance(other, type(self)):
@@ -110,7 +111,7 @@ class CollectionTree:
             
 
     @classmethod
-    def from_dict(cls, tree: dict[tuple[str,type], dict | None | Self]):
+    def from_dict(cls, tree: dict[tuple[str,type], dict | None]):
         """
         Create a dummy CollectionTree from a dict of dicts with following format:
         
