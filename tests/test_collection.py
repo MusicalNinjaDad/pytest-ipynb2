@@ -70,7 +70,7 @@ class DummyNode:
     nodetype: type
 
     def __eq__(self, other: pytest.Item | pytest.Collector | Self):
-        if isinstance(other, self):
+        if isinstance(other, type(self)):
             return self.name == other.name and self.nodetype == other.nodetype
         return self.name == repr(other) and self.nodetype is type(other)
 
@@ -79,15 +79,15 @@ class CollectionTree:
 
     def __init__(self,
                  *_,
-                 topnode: pytest.Item | pytest.Collector | DummyNode,
+                 node: pytest.Item | pytest.Collector | DummyNode,
                  children: list[CollectionTree] | None,
                 ):
         self.children = children
-        self.topnode = topnode
+        self.node = node
 
     def __eq__(self, other: Self):
         try:
-            return self.children == other.children and self.topnode == other.topnode
+            return self.children == other.children and self.node == other.node
         except AttributeError:
             return False
         
@@ -96,7 +96,7 @@ class CollectionTree:
         pass
 
     @classmethod
-    def from_dict(cls, contents: dict[tuple[str,type], dict | None | Self]):
+    def from_dict(cls, tree: dict[tuple[str,type], dict | None | Self]):
         """
         Create a dummy CollectionTree from a dict of dicts with following format:
         
@@ -110,41 +110,37 @@ class CollectionTree:
         }
         ```
         """  # noqa: D415
-        if len(contents) != 1:
-            msg = f"Please provide a dict with exaclty 1 entry, not {contents}"
+        if len(tree) != 1:
+            msg = f"Please provide a dict with exactly 1 entry, not {tree}"
             raise ValueError(msg)
-        for topnodedetails, contentsdict in contents.items():
-            for childnode, grandchildren in contentsdict.items():
-                if grandchildren is None:
-                    return cls(topnode = childnode, children = None)
-            return cls(
-                topnode = DummyNode(*topnodedetails),
-                children=[cls.from_dict({childnode: grandchildren}) ],
-            )
-        msg = f"Something really wierd happened when creating CollectionTree from: {contents}"
-        raise RuntimeError(msg)
-        
-
+        nodedetails, children = next(iter(tree.items()))
+        node = DummyNode(*nodedetails)
+        if children is None:
+            return cls(node = node, children = None)
+        return cls(
+            node = node,
+            children = [cls.from_dict({childnode: grandchildren}) for childnode, grandchildren in children.items()],
+        )
 
     @classmethod
     def from_item(cls, item: pytest.Item):
-        return cls(topnode=item, children=None)
+        return cls(node=item, children=None)
 
     @classmethod
     def from_items(cls, items: list[pytest.Item]):
         """Create a CollectionTree from a list of collection items, as returned by `pytester.genitems()`."""
         converteditems = [cls.from_item(item) if not isinstance(item, cls) else item for item in items]
-        parents = {item.topnode.parent for item in converteditems}
+        parents = {item.node.parent for item in converteditems}
         items_byparent = {
-            parent: [item for item in converteditems if item.topnode.parent == parent]
+            parent: [item for item in converteditems if item.node.parent == parent]
             for parent in parents
         }
         for parent, children in items_byparent.items():
             if parent.parent is None: # Top of tree
-                return cls(topnode=parent, children=children)
+                return cls(node=parent, children=children)
             return cls(
-                topnode = parent.parent,
-                children = [cls(topnode=parent, children=children)],
+                node = parent.parent,
+                children = [cls(node=parent, children=children)],
             )
         msg = "Items cannot be empty."
         raise ValueError(msg)
