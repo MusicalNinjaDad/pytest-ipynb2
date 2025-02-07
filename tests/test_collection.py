@@ -163,15 +163,20 @@ def expectedtree(example_dir: pytest.Pytester):
     }
     return CollectionTree.from_dict(tree)
 
-
-def test_expectedtree(expectedtree: CollectionTree, example_dir: pytest.Pytester):
+def test_expectedtree_repr(expectedtree: CollectionTree, example_dir: pytest.Pytester):
     assert repr(expectedtree) == dedent(f"""\
-    DummyNode(name='<Dir {example_dir.path.name}>', nodetype=<class '_pytest.main.Dir'>)
-        DummyNode(name='<Module test_module.py>', nodetype=<class '_pytest.python.Module'>)
-            DummyNode(name='<Function test_adder>', nodetype=<class '_pytest.python.Function'>)
-            DummyNode(name='<Function test_globals>', nodetype=<class '_pytest.python.Function'>)
+        DummyNode(name='<Dir {example_dir.path.name}>', nodetype=<class '_pytest.main.Dir'>)
+            DummyNode(name='<Module test_module.py>', nodetype=<class '_pytest.python.Module'>)
+                DummyNode(name='<Function test_adder>', nodetype=<class '_pytest.python.Function'>)
+                DummyNode(name='<Function test_globals>', nodetype=<class '_pytest.python.Function'>)
         """)
 
 def test_collectiontree(expectedtree: CollectionTree, collection_nodes: CollectedDir):
     tree = CollectionTree.from_items(collection_nodes.items)
     assert expectedtree == tree
+    assert repr(tree) == dedent(f"""\
+        <Dir {collection_nodes.pytester_instance.path.name}>
+            <Module test_module.py>
+                <Function test_adder>
+                <Function test_globals>
+        """)
