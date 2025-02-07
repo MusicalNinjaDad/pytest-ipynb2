@@ -83,6 +83,9 @@ class CollectionTree:
             if isinstance(other, type(self)):
                 return self.name == other.name and self.nodetype == other.nodetype
             return self.name == repr(other) and self.nodetype is type(other)
+        
+        def __repr__(self):
+            return f"{self.name} ({self.nodetype})"
 
     def __init__(self,
                  *_,
@@ -171,10 +174,10 @@ def expectedtree(example_dir: pytest.Pytester):
 
 def test_expectedtree_repr(expectedtree: CollectionTree, example_dir: pytest.Pytester):
     assert repr(expectedtree) == dedent(f"""\
-        DummyNode(name='<Dir {example_dir.path.name}>', nodetype=<class '_pytest.main.Dir'>)
-            DummyNode(name='<Module test_module.py>', nodetype=<class '_pytest.python.Module'>)
-                DummyNode(name='<Function test_adder>', nodetype=<class '_pytest.python.Function'>)
-                DummyNode(name='<Function test_globals>', nodetype=<class '_pytest.python.Function'>)
+        <Dir {example_dir.path.name}> (<class '_pytest.main.Dir'>)
+            <Module test_module.py> (<class '_pytest.python.Module'>)
+                <Function test_adder> (<class '_pytest.python.Function'>)
+                <Function test_globals> (<class '_pytest.python.Function'>)
         """)
 
 def test_collectiontree(expectedtree: CollectionTree, collection_nodes: CollectedDir):
