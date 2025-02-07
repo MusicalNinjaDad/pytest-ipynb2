@@ -66,7 +66,16 @@ def test_collection_depth(collection_nodes: CollectedDir):
     assert all(testcase.parent.parent is collection_nodes.dir_node for testcase in collection_nodes.items)
 
 class CollectionTree:
-    """A (recursible) tree of pytest collection Nodes."""
+    """
+    A (top-down) tree of pytest collection Nodes.
+    
+    Designed to enable testing the results of collection plugins via:
+    ```
+    assert CollectionTree.from_items(pytester.genitems([...])) == CollectionTree.from_dict({...})
+    ```
+
+    WARNING: Currently only handles a single tree (one top-level node)
+    """
 
     @dataclass
     class _DummyNode:
