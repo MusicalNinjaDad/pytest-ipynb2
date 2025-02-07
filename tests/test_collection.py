@@ -106,7 +106,7 @@ class CollectionTree:
         self.children = children
         """
         either:
-        - node is `pytest.Collector`: `list[CollectionTree]` of child nodes
+        - node is `pytest.Collector`: a `list[CollectionTree]` of child nodes
         - node is `pytest.Item`: `None`
         """
         self.node = node
