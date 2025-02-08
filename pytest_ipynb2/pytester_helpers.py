@@ -4,11 +4,14 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from textwrap import indent
-from typing import TYPE_CHECKING, Self
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    import pytest
+    from contextlib import suppress
 
+    import pytest
+    with suppress(ImportError): # not type-checking on python < 3.11
+        from typing import Self
 
 class CollectionTree:
     """
