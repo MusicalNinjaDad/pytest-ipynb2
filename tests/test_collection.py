@@ -136,8 +136,10 @@ class CollectionTree:
             raise ValueError(msg)
         nodedetails, children = next(iter(tree.items()))
         node = cls._DummyNode(*nodedetails)
+
         if children is None:
             return cls(node=node, children=None)
+
         return cls(
             node=node,
             children=[cls.from_dict({childnode: grandchildren}) for childnode, grandchildren in children.items()],
@@ -189,14 +191,13 @@ class CollectionTree:
             return NotImplemented
         return self.children == other_children and self.node == other_node
 
-
     def __repr__(self):
         """Indented, multiline representation of the tree to simplify interpreting test failures."""
         if self.children is None:
-            children = ""
+            children_repr = ""
         else:
-            children = indent("\n".join(repr(child).rstrip() for child in self.children), "    ")
-        return f"{self.node!r}\n{children}\n"
+            children_repr = indent("\n".join(repr(child).rstrip() for child in self.children), "    ")
+        return f"{self.node!r}\n{children_repr}\n"
 
 
 @pytest.fixture
