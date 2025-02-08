@@ -154,6 +154,7 @@ class CollectionTree:
         name: str
         nodetype: type
         parent: Self | None = None
+        """Currently always None but required to avoid attribute errors if type checking Union[pytest.Node,_DummNode]"""
 
         def __eq__(self, other: pytest.Item | pytest.Collector | Self):
             if isinstance(other, type(self)):
@@ -173,8 +174,8 @@ class CollectionTree:
         self.children = children
         """
         either:
-        - node is `pytest.Collector`: a `list[CollectionTree]` of child nodes
-        - node is `pytest.Item`: `None`
+        - if node is `pytest.Collector`: a `list[CollectionTree]` of child nodes
+        - if node is `pytest.Item`: `None`
         """
         self.node = node
         """The actual collected node."""
