@@ -88,6 +88,61 @@ class CollectionTree:
     WARNING: Currently only handles a single tree (one top-level node)
     """
 
+    @classmethod
+    def from_items(cls, items: list[pytest.Item]):
+        """Create a CollectionTree from a list of collection items, as returned by `pytester.genitems()`."""
+        converteditems = [cls(node=item, children=None) if not isinstance(item, cls) else item for item in items]
+        parents = {item.node.parent for item in converteditems}
+        items_byparent = {parent: [item for item in converteditems if item.node.parent == parent] for parent in parents}
+        for parent, children in items_byparent.items():
+            if parent.parent is None:  # Top of tree
+                return cls(node=parent, children=children)
+            return cls(
+                node=parent.parent,
+                children=[cls(node=parent, children=children)],
+            )
+        msg = "Items cannot be empty."
+        raise ValueError(msg)
+
+    @classmethod
+    def from_dict(cls, tree: dict[tuple[str, type], dict | None]):
+        """
+        Create a dummy CollectionTree from a dict of dicts with following format:
+
+        ```
+        {(str: name, type: Nodetype):
+            (str: name, type: Nodetype): {
+                (str: name, type: Nodetype): None,
+                (str: name, type: Nodetype): None
+                }
+            }
+        }
+        ```
+
+        For example:
+        ```
+        tree = {
+            (f"<Dir {example_dir.path.name}>", pytest.Dir): {
+                ("<Module test_module.py>", pytest.Module): {
+                    ("<Function test_adder>", pytest.Function): None,
+                    ("<Function test_globals>", pytest.Function): None,
+                },
+            },
+        }
+        ```
+        """  # noqa: D415
+        if len(tree) != 1:
+            msg = f"Please provide a dict with exactly 1 entry, not {tree}"
+            raise ValueError(msg)
+        nodedetails, children = next(iter(tree.items()))
+        node = cls._DummyNode(*nodedetails)
+        if children is None:
+            return cls(node=node, children=None)
+        return cls(
+            node=node,
+            children=[cls.from_dict({childnode: grandchildren}) for childnode, grandchildren in children.items()],
+        )
+
     @dataclass
     class _DummyNode:
         """
@@ -138,61 +193,6 @@ class CollectionTree:
         else:
             children = indent("\n".join(repr(child).rstrip() for child in self.children), "    ")
         return f"{self.node!r}\n{children}\n"
-
-    @classmethod
-    def from_dict(cls, tree: dict[tuple[str, type], dict | None]):
-        """
-        Create a dummy CollectionTree from a dict of dicts with following format:
-
-        ```
-        {(str: name, type: Nodetype):
-            (str: name, type: Nodetype): {
-                (str: name, type: Nodetype): None,
-                (str: name, type: Nodetype): None
-                }
-            }
-        }
-        ```
-
-        For example:
-        ```
-        tree = {
-            (f"<Dir {example_dir.path.name}>", pytest.Dir): {
-                ("<Module test_module.py>", pytest.Module): {
-                    ("<Function test_adder>", pytest.Function): None,
-                    ("<Function test_globals>", pytest.Function): None,
-                },
-            },
-        }
-        ```
-        """  # noqa: D415
-        if len(tree) != 1:
-            msg = f"Please provide a dict with exactly 1 entry, not {tree}"
-            raise ValueError(msg)
-        nodedetails, children = next(iter(tree.items()))
-        node = cls._DummyNode(*nodedetails)
-        if children is None:
-            return cls(node=node, children=None)
-        return cls(
-            node=node,
-            children=[cls.from_dict({childnode: grandchildren}) for childnode, grandchildren in children.items()],
-        )
-
-    @classmethod
-    def from_items(cls, items: list[pytest.Item]):
-        """Create a CollectionTree from a list of collection items, as returned by `pytester.genitems()`."""
-        converteditems = [cls(node=item, children=None) if not isinstance(item, cls) else item for item in items]
-        parents = {item.node.parent for item in converteditems}
-        items_byparent = {parent: [item for item in converteditems if item.node.parent == parent] for parent in parents}
-        for parent, children in items_byparent.items():
-            if parent.parent is None:  # Top of tree
-                return cls(node=parent, children=children)
-            return cls(
-                node=parent.parent,
-                children=[cls(node=parent, children=children)],
-            )
-        msg = "Items cannot be empty."
-        raise ValueError(msg)
 
 
 @pytest.fixture
