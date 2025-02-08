@@ -95,12 +95,15 @@ class CollectionTree:
         parents = {item.node.parent for item in converteditems}
         items_byparent = {parent: [item for item in converteditems if item.node.parent == parent] for parent in parents}
         for parent, children in items_byparent.items():
-            if parent.parent is None:  # Top of tree
-                return cls(node=parent, children=children)
-            return cls(
-                node=parent.parent,
-                children=[cls(node=parent, children=children)],
-            )
+            if parent.parent is not None:
+                return cls(
+                    node=parent.parent,
+                    children=[cls(node=parent, children=children)],
+                )
+
+            # Top of tree
+            return cls(node=parent, children=children)
+
         msg = "Items cannot be empty."
         raise ValueError(msg)
 
@@ -137,13 +140,13 @@ class CollectionTree:
         nodedetails, children = next(iter(tree.items()))
         node = cls._DummyNode(*nodedetails)
 
-        if children is None:
-            return cls(node=node, children=None)
+        if children is not None:
+            return cls(
+                node=node,
+                children=[cls.from_dict({childnode: grandchildren}) for childnode, grandchildren in children.items()],
+            )
 
-        return cls(
-            node=node,
-            children=[cls.from_dict({childnode: grandchildren}) for childnode, grandchildren in children.items()],
-        )
+        return cls(node=node, children=None)
 
     @dataclass
     class _DummyNode:
