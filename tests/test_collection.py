@@ -183,9 +183,12 @@ class CollectionTree:
     def __eq__(self, other: Self):
         """CollectionTrees are equal if their children and node attributes are equal."""
         try:
-            return self.children == other.children and self.node == other.node
+            other_children = other.children
+            other_node = other.node
         except AttributeError:
-            return False
+            return NotImplemented
+        return self.children == other_children and self.node == other_node
+
 
     def __repr__(self):
         """Indented, multiline representation of the tree to simplify interpreting test failures."""
