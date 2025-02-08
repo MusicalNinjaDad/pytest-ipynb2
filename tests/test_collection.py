@@ -21,15 +21,18 @@ def example_module() -> Path:
     """
     return Path("tests/assets/notebook.py").absolute()
 
+
 @pytest.fixture
 def example_dir(example_module: Path, pytester: pytest.Pytester) -> pytest.Pytester:
     """The contents of `notebook.py` as `test_module.py` in an instantiated `Pytester` setup."""
     pytester.makepyfile(test_module=example_module.read_text())
     return pytester
 
+
 def test_pytestersetup(example_dir: pytest.Pytester):
     expected_file = example_dir.path / "test_module.py"
     assert expected_file.exists(), str(list(example_dir.path.iterdir()))
+
 
 @dataclass
 class CollectedDir:
@@ -37,38 +40,46 @@ class CollectedDir:
     dir_node: pytest.Dir
     items: list[pytest.Item]
 
+
 @pytest.fixture
 def collection_nodes(example_dir: pytest.Pytester) -> CollectedDir:
     dir_node = example_dir.getpathnode(example_dir.path)
     return CollectedDir(
         pytester_instance=example_dir,
         dir_node=dir_node,
-        items = example_dir.genitems([dir_node]),
+        items=example_dir.genitems([dir_node]),
     )
+
 
 def test_collectedDir_type(collection_nodes: CollectedDir):
     assert type(collection_nodes.dir_node) is pytest.Dir
-    
+
+
 def test_collectedItems_count(collection_nodes: CollectedDir):
     assert len(collection_nodes.items) == 2
+
 
 def test_collectedItems_types(collection_nodes: CollectedDir):
     assert all(type(testcase) is pytest.Function for testcase in collection_nodes.items)
 
+
 def test_collectedItems_names(collection_nodes: CollectedDir):
     assert [testcase.name for testcase in collection_nodes.items] == ["test_adder", "test_globals"]
+
 
 def test_collectedItems_parents(collection_nodes: CollectedDir):
     assert all(testcase.parent.name == "test_module.py" for testcase in collection_nodes.items)
     assert all(type(testcase.parent) is pytest.Module for testcase in collection_nodes.items)
 
+
 def test_collection_depth(collection_nodes: CollectedDir):
     assert all(testcase.parent.parent is collection_nodes.dir_node for testcase in collection_nodes.items)
+
 
 class CollectionTree:
     """
     A (top-down) tree of pytest collection Nodes.
-    
+
     Designed to enable testing the results of collection plugins via:
     ```
     assert CollectionTree.from_items(pytester.genitems([...])) == CollectionTree.from_dict({...})
@@ -93,15 +104,16 @@ class CollectionTree:
             if isinstance(other, type(self)):
                 return self.name == other.name and self.nodetype == other.nodetype
             return self.name == repr(other) and self.nodetype is type(other)
-        
+
         def __repr__(self):
             return f"{self.name} ({self.nodetype})"
 
-    def __init__(self,
-                 *_,
-                 node: pytest.Item | pytest.Collector | _DummyNode,
-                 children: list[CollectionTree] | None,
-                ):
+    def __init__(
+        self,
+        *_,
+        node: pytest.Item | pytest.Collector | _DummyNode,
+        children: list[CollectionTree] | None,
+    ):
         """Do not directly initiatise a CollectionTree, use the constructors `from_items()` or `from_dict()` instead."""
         self.children = children
         """
@@ -118,7 +130,7 @@ class CollectionTree:
             return self.children == other.children and self.node == other.node
         except AttributeError:
             return False
-        
+
     def __repr__(self):
         """Indented, multiline representation of the tree to simplify interpreting test failures."""
         if self.children is None:
@@ -126,13 +138,12 @@ class CollectionTree:
         else:
             children = indent("\n".join(repr(child).rstrip() for child in self.children), "    ")
         return f"{self.node!r}\n{children}\n"
-            
 
     @classmethod
-    def from_dict(cls, tree: dict[tuple[str,type], dict | None]):
+    def from_dict(cls, tree: dict[tuple[str, type], dict | None]):
         """
         Create a dummy CollectionTree from a dict of dicts with following format:
-        
+
         ```
         {(str: name, type: Nodetype):
             (str: name, type: Nodetype): {
@@ -154,7 +165,6 @@ class CollectionTree:
             },
         }
         ```
-
         """  # noqa: D415
         if len(tree) != 1:
             msg = f"Please provide a dict with exactly 1 entry, not {tree}"
@@ -162,10 +172,10 @@ class CollectionTree:
         nodedetails, children = next(iter(tree.items()))
         node = cls._DummyNode(*nodedetails)
         if children is None:
-            return cls(node = node, children = None)
+            return cls(node=node, children=None)
         return cls(
-            node = node,
-            children = [cls.from_dict({childnode: grandchildren}) for childnode, grandchildren in children.items()],
+            node=node,
+            children=[cls.from_dict({childnode: grandchildren}) for childnode, grandchildren in children.items()],
         )
 
     @classmethod
@@ -173,16 +183,13 @@ class CollectionTree:
         """Create a CollectionTree from a list of collection items, as returned by `pytester.genitems()`."""
         converteditems = [cls(node=item, children=None) if not isinstance(item, cls) else item for item in items]
         parents = {item.node.parent for item in converteditems}
-        items_byparent = {
-            parent: [item for item in converteditems if item.node.parent == parent]
-            for parent in parents
-        }
+        items_byparent = {parent: [item for item in converteditems if item.node.parent == parent] for parent in parents}
         for parent, children in items_byparent.items():
-            if parent.parent is None: # Top of tree
+            if parent.parent is None:  # Top of tree
                 return cls(node=parent, children=children)
             return cls(
-                node = parent.parent,
-                children = [cls(node=parent, children=children)],
+                node=parent.parent,
+                children=[cls(node=parent, children=children)],
             )
         msg = "Items cannot be empty."
         raise ValueError(msg)
@@ -200,6 +207,7 @@ def expectedtree(example_dir: pytest.Pytester):
     }
     return CollectionTree.from_dict(tree)
 
+
 def test_expectedtree_repr(expectedtree: CollectionTree, example_dir: pytest.Pytester):
     assert repr(expectedtree) == dedent(f"""\
         <Dir {example_dir.path.name}> (<class '_pytest.main.Dir'>)
@@ -207,6 +215,7 @@ def test_expectedtree_repr(expectedtree: CollectionTree, example_dir: pytest.Pyt
                 <Function test_adder> (<class '_pytest.python.Function'>)
                 <Function test_globals> (<class '_pytest.python.Function'>)
         """)
+
 
 def test_collectiontree(expectedtree: CollectionTree, collection_nodes: CollectedDir):
     tree = CollectionTree.from_items(collection_nodes.items)
