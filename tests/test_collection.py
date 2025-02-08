@@ -31,6 +31,18 @@ def test_pytestersetup(example_dir: pytest.Pytester):
     expected_file = example_dir.path / "test_module.py"
     assert expected_file.exists(), str(list(example_dir.path.iterdir()))
 
+@pytest.fixture
+def example_dir2files(example_module: Path, pytester: pytest.Pytester) -> pytest.Pytester:
+    """The contents of `notebook.py` as `test_module.py` in an instantiated `Pytester` setup."""
+    pytester.makepyfile(test_module=example_module.read_text())
+    pytester.makepyfile(test_othermodule=example_module.read_text())
+    return pytester
+
+def test_pytestersetup2files(example_dir2files: pytest.Pytester):
+    expected_files = ["test_module.py", "test_othermodule.py"]
+    for expected_file in expected_files:
+        assert (example_dir2files.path / expected_file).exists(), str(list(example_dir2files.path.iterdir()))
+
 
 @dataclass
 class CollectedDir:
