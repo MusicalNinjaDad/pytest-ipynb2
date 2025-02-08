@@ -40,8 +40,8 @@ def example_dir2files(example_module: Path, pytester: pytest.Pytester) -> pytest
 
 def test_pytestersetup2files(example_dir2files: pytest.Pytester):
     expected_files = ["test_module.py", "test_othermodule.py"]
-    for expected_file in expected_files:
-        assert (example_dir2files.path / expected_file).exists(), str(list(example_dir2files.path.iterdir()))
+    files_exist = ((example_dir2files.path / expected_file).exists() for expected_file in expected_files)
+    assert all(files_exist), str(list(example_dir2files.path.iterdir()))
 
 
 @dataclass
