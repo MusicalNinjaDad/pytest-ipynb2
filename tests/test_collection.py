@@ -32,20 +32,6 @@ def test_pytestersetup(example_dir: pytest.Pytester):
     assert expected_file.exists(), str(list(example_dir.path.iterdir()))
 
 
-@pytest.fixture
-def example_dir2files(example_module: Path, pytester: pytest.Pytester) -> pytest.Pytester:
-    """The contents of `notebook.py` as `test_module.py` in an instantiated `Pytester` setup."""
-    pytester.makepyfile(test_module=example_module.read_text())
-    pytester.makepyfile(test_othermodule=example_module.read_text())
-    return pytester
-
-
-def test_pytestersetup2files(example_dir2files: pytest.Pytester):
-    expected_files = ["test_module.py", "test_othermodule.py"]
-    files_exist = ((example_dir2files.path / expected_file).exists() for expected_file in expected_files)
-    assert all(files_exist), str(list(example_dir2files.path.iterdir()))
-
-
 @dataclass
 class CollectedDir:
     pytester_instance: pytest.Pytester
@@ -122,6 +108,30 @@ def test_collectiontree(expectedtree: CollectionTree, collection_nodes: Collecte
 
 
 @pytest.fixture
+def example_dir2files(example_module: Path, pytester: pytest.Pytester) -> pytest.Pytester:
+    """The contents of `notebook.py` as `test_module.py` in an instantiated `Pytester` setup."""
+    pytester.makepyfile(test_module=example_module.read_text())
+    pytester.makepyfile(test_othermodule=example_module.read_text())
+    return pytester
+
+
+def test_pytestersetup2files(example_dir2files: pytest.Pytester):
+    expected_files = ["test_module.py", "test_othermodule.py"]
+    files_exist = ((example_dir2files.path / expected_file).exists() for expected_file in expected_files)
+    assert all(files_exist), str(list(example_dir2files.path.iterdir()))
+
+
+@pytest.fixture
+def collection_nodes_2files(example_dir2files: pytest.Pytester) -> CollectedDir:
+    dir_node = example_dir2files.getpathnode(example_dir2files.path)
+    return CollectedDir(
+        pytester_instance=example_dir2files,
+        dir_node=dir_node,
+        items=example_dir2files.genitems([dir_node]),
+    )
+
+
+@pytest.fixture
 def expectedtree_2files(example_dir2files: pytest.Pytester):
     tree = {
         (f"<Dir {example_dir2files.path.name}>", pytest.Dir): {
@@ -147,4 +157,18 @@ def test_expectedtree_2files_repr(expectedtree_2files: CollectionTree, example_d
             <Module test_othermodule.py> (<class '_pytest.python.Module'>)
                 <Function test_adder> (<class '_pytest.python.Function'>)
                 <Function test_globals> (<class '_pytest.python.Function'>)
+        """)
+
+
+def test_collectiontree_2files(expectedtree_2files: CollectionTree, collection_nodes_2files: CollectedDir):
+    tree = CollectionTree.from_items(collection_nodes_2files.items)
+    assert expectedtree_2files == tree
+    assert repr(tree) == dedent(f"""\
+        <Dir {collection_nodes_2files.pytester_instance.path.name}>
+            <Module test_module.py>
+                <Function test_adder>
+                <Function test_globals>
+            <Module test_othermodule.py>
+                <Function test_adder>
+                <Function test_globals>
         """)
