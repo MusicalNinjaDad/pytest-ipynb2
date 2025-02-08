@@ -122,7 +122,7 @@ class CollectionTree:
         For example:
         ```
         tree = {
-            (f"<Dir {example_dir.path.name}>", pytest.Dir): {
+            (f"<Dir {pytester.path.name}>", pytest.Dir): {
                 ("<Module test_module.py>", pytest.Module): {
                     ("<Function test_adder>", pytest.Function): None,
                     ("<Function test_globals>", pytest.Function): None,
