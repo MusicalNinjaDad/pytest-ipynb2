@@ -6,10 +6,11 @@ from dataclasses import dataclass
 from textwrap import indent
 from typing import TYPE_CHECKING
 
+import pytest
+
 if TYPE_CHECKING:
     from contextlib import suppress
 
-    import pytest
     with suppress(ImportError): # not type-checking on python < 3.11
         from typing import Self
 
@@ -26,37 +27,34 @@ class CollectionTree:
     """
 
     @classmethod
-    def from_items(cls, items: list[pytest.Item]) -> Self:
+    def from_items(cls, items: list[pytest.Item] | set[pytest.Item]) -> Self:
         """Create a CollectionTree from a list of collection items, as returned by `pytester.genitems()`."""
         def _from_item(item: pytest.Item | Self) -> Self:
             return cls(node=item, children=None) if not isinstance(item, cls) else item
         
-        converteditems = {_from_item(item) for item in items}
+        items = {_from_item(item) for item in items}
 
-        def _build_tree_bottom_up(items: set[Self]) -> set[Self]:
+        def _get_parents_as_CollectionTrees(items: set[Self]) -> set[Self]:  # noqa: N802
             """
-            Walk up the tree.
+            Walk up the tree one step. (Not recursive, does provide sentinel or repeat).
             
             Returns a set of CollectionTree items for the parents of those provided.
-            Stops when all items have no parent.
             """
-
-
-        parents = {item.node.parent for item in converteditems}
-        items_byparent = {parent: [item for item in converteditems if item.node.parent == parent] for parent in parents}
+            parents = {item.node.parent for item in items}
+            items_byparent = {
+                parent: {item for item in items if item.node.parent == parent}
+                for parent in parents
+            }
+            return {
+                cls(node = parent, children = list(children))
+                for parent, children in items_byparent.items()
+            }
         
-        for parent, children in items_byparent.items():
-            if parent.parent is not None:
-                return cls(
-                    node=parent.parent,
-                    children=[cls(node=parent, children=children)],
-                )
+        if all(isinstance(item.node.parent, pytest.Session) for item in items):
+            #TODO use the session as the root node
+            return next(iter(items)) # Return only first item for now
 
-            # Top of tree
-            return cls(node=parent, children=children)
-
-        msg = "Items cannot be empty."
-        raise ValueError(msg)
+        return cls.from_items(_get_parents_as_CollectionTrees(items))
 
     @classmethod
     def from_dict(cls, tree: dict[tuple[str, type], dict | None]) -> Self:
@@ -127,7 +125,7 @@ class CollectionTree:
         children: list[CollectionTree] | None,
     ):
         """Do not directly initiatise a CollectionTree, use the constructors `from_items()` or `from_dict()` instead."""
-        self.children = children
+        self.children = children if children is None else tuple(children)
         """
         either:
         - if node is `pytest.Collector`: a `list[CollectionTree]` of child nodes
