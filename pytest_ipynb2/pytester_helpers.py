@@ -40,7 +40,11 @@ class CollectionTree:
             
             Returns a set of CollectionTree items for the parents of those provided.
             """
-            parents = {item.node.parent for item in items}
+            parents = []
+            for item in items:
+                parent = item.node.parent
+                if parent not in parents:
+                    parents.append(parent)
             items_byparent = {
                 parent: [item for item in items if item.node.parent == parent]
                 for parent in parents
