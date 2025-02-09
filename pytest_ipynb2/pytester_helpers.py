@@ -27,14 +27,14 @@ class CollectionTree:
     """
 
     @classmethod
-    def from_items(cls, items: list[pytest.Item] | set[pytest.Item]) -> Self:
+    def from_items(cls, items: list[pytest.Item]) -> Self:
         """Create a CollectionTree from a list of collection items, as returned by `pytester.genitems()`."""
         def _from_item(item: pytest.Item | Self) -> Self:
             return cls(node=item, children=None) if not isinstance(item, cls) else item
         
-        items = {_from_item(item) for item in items}
+        items = [_from_item(item) for item in items]
 
-        def _get_parents_as_CollectionTrees(items: set[Self]) -> set[Self]:  # noqa: N802
+        def _get_parents_as_CollectionTrees(items: list[Self]) -> list[Self]:  # noqa: N802
             """
             Walk up the tree one step. (Not recursive, does provide sentinel or repeat).
             
@@ -42,13 +42,13 @@ class CollectionTree:
             """
             parents = {item.node.parent for item in items}
             items_byparent = {
-                parent: {item for item in items if item.node.parent == parent}
+                parent: [item for item in items if item.node.parent == parent]
                 for parent in parents
             }
-            return {
+            return [
                 cls(node = parent, children = list(children))
                 for parent, children in items_byparent.items()
-            }
+            ]
         
         if all(isinstance(item.node.parent, pytest.Session) for item in items):
             #TODO use the session as the root node
@@ -125,7 +125,7 @@ class CollectionTree:
         children: list[CollectionTree] | None,
     ):
         """Do not directly initiatise a CollectionTree, use the constructors `from_items()` or `from_dict()` instead."""
-        self.children = children if children is None else tuple(children)
+        self.children = children
         """
         either:
         - if node is `pytest.Collector`: a `list[CollectionTree]` of child nodes
@@ -142,10 +142,6 @@ class CollectionTree:
         except AttributeError:
             return NotImplemented
         return self.children == other_children and self.node == other_node
-
-    def __hash__(self) -> int:
-        """Hases based on children and node."""
-        return hash((self.node, self.children))
 
     def __repr__(self) -> str:
         """Indented, multiline representation of the tree to simplify interpreting test failures."""
