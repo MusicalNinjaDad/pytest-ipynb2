@@ -31,7 +31,17 @@ class CollectionTree:
         def _from_item(item: pytest.Item | Self) -> Self:
             return cls(node=item, children=None) if not isinstance(item, cls) else item
         
-        converteditems = [_from_item(item) for item in items]
+        converteditems = {_from_item(item) for item in items}
+
+        def _build_tree_bottom_up(items: set[Self]) -> set[Self]:
+            """
+            Walk up the tree.
+            
+            Returns a set of CollectionTree items for the parents of those provided.
+            Stops when all items have no parent.
+            """
+
+
         parents = {item.node.parent for item in converteditems}
         items_byparent = {parent: [item for item in converteditems if item.node.parent == parent] for parent in parents}
         
@@ -134,6 +144,10 @@ class CollectionTree:
         except AttributeError:
             return NotImplemented
         return self.children == other_children and self.node == other_node
+
+    def __hash__(self) -> int:
+        """Hases based on children and node."""
+        return hash((self.node, self.children))
 
     def __repr__(self) -> str:
         """Indented, multiline representation of the tree to simplify interpreting test failures."""
