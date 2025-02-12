@@ -30,7 +30,7 @@ class CollectionTree:
     def from_items(cls, items: list[pytest.Item]) -> Self:
         """Create a CollectionTree from a list of collection items, as returned by `pytester.genitems()`."""
         def _from_item(item: pytest.Item | Self) -> Self:
-            return cls(node=item, children=None) if not isinstance(item, cls) else item
+            return item if isinstance(item, cls) else cls(node=item, children=None)
         
         items = [_from_item(item) for item in items]
 
@@ -51,7 +51,8 @@ class CollectionTree:
             ]
         
         if all(isinstance(item.node, pytest.Session) for item in items):
-            return next(iter(items)) # Should only be one session
+            assert len(items) == 1, "There should only ever be one session node."  # noqa: S101
+            return next(iter(items))
 
         return cls.from_items(_get_parents_as_CollectionTrees(items))
 
@@ -113,9 +114,13 @@ class CollectionTree:
         """Currently always None but required to avoid attribute errors if type checking Union[pytest.Node,_DummNode]"""
 
         def __eq__(self, other: pytest.Item | pytest.Collector | Self) -> bool:
-            if isinstance(other, type(self)):
-                return self.name == other.name and self.nodetype == other.nodetype
-            return self.name == repr(other) and self.nodetype is type(other)
+            try:
+                samename = self.name == other.name
+                sametype = self.nodetype == other.nodetype
+            except AttributeError:
+                samename = self.name == repr(other)
+                sametype = self.nodetype is type(other)
+            return samename and sametype
 
         def __repr__(self) -> str:
             return f"{self.name} ({self.nodetype})"
