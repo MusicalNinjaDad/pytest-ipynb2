@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from textwrap import dedent
@@ -127,6 +128,16 @@ def test_eq():
     assert tree1 == tree2
     assert tree1 != tree_dict
     assert tree_dict != tree1
+
+
+def test_from_dict_single_root():
+    tree_dict = {
+        ("<Function test_adder>", pytest.Function): None,
+        ("<Function test_globals>", pytest.Function): None,
+    }
+    expected_msg = re.escape(f"Please provide a dict with exactly 1 top-level entry (root), not {tree_dict}")
+    with pytest.raises(ValueError, match=expected_msg):
+        CollectionTree.from_dict(tree_dict)
 
 
 @pytest.mark.parametrize(

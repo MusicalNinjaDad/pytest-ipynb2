@@ -83,7 +83,7 @@ class CollectionTree:
         ```
         """  # noqa: D415
         if len(tree) != 1:
-            msg = f"Please provide a dict with exactly 1 entry, not {tree}"
+            msg = f"Please provide a dict with exactly 1 top-level entry (root), not {tree}"
             raise ValueError(msg)
         nodedetails, children = next(iter(tree.items()))
         node = cls._DummyNode(*nodedetails)
