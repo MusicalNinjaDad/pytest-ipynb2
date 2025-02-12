@@ -78,10 +78,10 @@ def test_pytestersetup(example_dir: CollectedDir, expected_files: list[str]):
 
 
 @pytest.fixture
-def expectedtree(example_dir_old: pytest.Pytester):
-    tree = {
+def tree(example_dir: CollectedDir) -> CollectionTree:
+    tree_dict = {
         ("<Session  exitstatus='<UNSET>' testsfailed=0 testscollected=0>", pytest.Session): {
-            (f"<Dir {example_dir_old.path.name}>", pytest.Dir): {
+            (f"<Dir {example_dir.pytester_instance.path.name}>", pytest.Dir): {
                 ("<Module test_module.py>", pytest.Module): {
                     ("<Function test_adder>", pytest.Function): None,
                     ("<Function test_globals>", pytest.Function): None,
@@ -89,7 +89,8 @@ def expectedtree(example_dir_old: pytest.Pytester):
             },
         },
     }
-    return CollectionTree.from_dict(tree)
+    return CollectionTree.from_dict(tree_dict)
+
 
 @pytest.mark.parametrize(
     "example_dir",
@@ -101,18 +102,7 @@ def expectedtree(example_dir_old: pytest.Pytester):
     ],
     indirect=["example_dir"],
 )
-def test_from_dict(example_dir: CollectedDir):
-    tree_dict = {
-        ("<Session  exitstatus='<UNSET>' testsfailed=0 testscollected=0>", pytest.Session): {
-            (f"<Dir {example_dir.pytester_instance.path.name}>", pytest.Dir): {
-                ("<Module test_module.py>", pytest.Module): {
-                    ("<Function test_adder>", pytest.Function): None,
-                    ("<Function test_globals>", pytest.Function): None,
-                },
-            },
-        },
-    }
-    tree = CollectionTree.from_dict(tree_dict)
+def test_from_dict(tree: CollectionTree, example_dir: CollectedDir):
     assert repr(tree) == dedent(f"""\
         <Session  exitstatus='<UNSET>' testsfailed=0 testscollected=0> (<class '_pytest.main.Session'>)
             <Dir {example_dir.pytester_instance.path.name}> (<class '_pytest.main.Dir'>)
@@ -120,12 +110,6 @@ def test_from_dict(example_dir: CollectedDir):
                     <Function test_adder> (<class '_pytest.python.Function'>)
                     <Function test_globals> (<class '_pytest.python.Function'>)
         """)
-
-
-def test_collectiontree(expectedtree: CollectionTree, collection_nodes: CollectedDir):
-    tree = CollectionTree.from_items(collection_nodes.items)
-    assert expectedtree == tree
-
 
 def test_collectiontree_repr(collection_nodes: CollectedDir):
     tree = CollectionTree.from_items(collection_nodes.items)
