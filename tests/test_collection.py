@@ -9,6 +9,13 @@ import pytest
 from pytest_ipynb2.pytester_helpers import CollectionTree
 
 
+@dataclass
+class CollectedDir:
+    pytester_instance: pytest.Pytester
+    dir_node: pytest.Dir
+    items: list[pytest.Item]
+
+
 @pytest.fixture
 def example_module() -> Path:
     """
@@ -26,6 +33,14 @@ def example_dir_old(example_module: Path, pytester: pytest.Pytester) -> pytest.P
     pytester.makepyfile(test_module=example_module.read_text())
     return pytester
 
+@pytest.fixture
+def collection_nodes(example_dir_old: pytest.Pytester) -> CollectedDir:
+    dir_node = example_dir_old.getpathnode(example_dir_old.path)
+    return CollectedDir(
+        pytester_instance=example_dir_old,
+        dir_node=dir_node,
+        items=example_dir_old.genitems([dir_node]),
+    )
 
 @pytest.fixture
 def example_dir(request: pytest.FixtureRequest, pytester: pytest.Pytester) -> CollectedDir:
@@ -60,23 +75,6 @@ def test_pytestersetup(example_dir: CollectedDir, expected_files: list[str]):
     tmp_path = example_dir.pytester_instance.path
     files_exist = ((tmp_path / expected_file).exists() for expected_file in expected_files)
     assert all(files_exist), f"These are not the files you are looking for: {list(tmp_path.iterdir())}"
-
-
-@dataclass
-class CollectedDir:
-    pytester_instance: pytest.Pytester
-    dir_node: pytest.Dir
-    items: list[pytest.Item]
-
-
-@pytest.fixture
-def collection_nodes(example_dir_old: pytest.Pytester) -> CollectedDir:
-    dir_node = example_dir_old.getpathnode(example_dir_old.path)
-    return CollectedDir(
-        pytester_instance=example_dir_old,
-        dir_node=dir_node,
-        items=example_dir_old.genitems([dir_node]),
-    )
 
 
 @pytest.fixture
