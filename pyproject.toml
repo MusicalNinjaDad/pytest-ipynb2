@@ -63,6 +63,7 @@
         "mkdocs",
         "mkdocstrings[python]",
         "mkdocs-material",
+        "pymdown-extensions",
     ]
     dev = [
         {include-group = "lint"},
