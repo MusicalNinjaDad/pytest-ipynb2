@@ -50,8 +50,9 @@ def example_dir(request: pytest.FixtureRequest, pytester: pytest.Pytester) -> py
         indirect=["example_dir"],
 )
 def test_pytestersetup(example_dir: pytest.Pytester, expected_files: list[str]):
-    files_exist = ((example_dir.path / expected_file).exists() for expected_file in expected_files)
-    assert all(files_exist), f"These are not the files you are looking for: {list(example_dir.path.iterdir())}"
+    tmp_path = example_dir.path
+    files_exist = ((tmp_path / expected_file).exists() for expected_file in expected_files)
+    assert all(files_exist), f"These are not the files you are looking for: {list(tmp_path.iterdir())}"
 
 
 @dataclass
