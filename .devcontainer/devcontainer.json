@@ -43,7 +43,10 @@
                     // - https://github.com/DavidAnson/vscode-markdownlint/issues/180
                     // - https://github.com/DavidAnson/vscode-markdownlint/issues/302
                     // - https://github.com/DavidAnson/markdownlint/issues/209
-                    "MD046": false // {"style": "fenced"} leads to errors on codeblocks in admonitions
+                    "MD046": false, // {"style": "fenced"} leads to errors on codeblocks in admonitions
+                    "MD024": {
+                        "siblings_only": true
+                    }
                 },
                 "[markdown]": {
                     "editor.tabSize": 2
