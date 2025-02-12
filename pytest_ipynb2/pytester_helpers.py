@@ -1,4 +1,4 @@
-"""Helper classes and funtions to support testing this plugin with pytester."""
+"""Helper classes and functions to support testing this plugin with pytester."""
 
 from __future__ import annotations
 
