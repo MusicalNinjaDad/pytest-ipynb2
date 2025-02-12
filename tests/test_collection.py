@@ -78,7 +78,7 @@ def test_pytestersetup(example_dir: CollectedDir, expected_files: list[str]):
 
 
 @pytest.fixture
-def expected_tree(request: pytest.FixtureRequest, example_dir: CollectedDir) -> ExpectedTree:
+def expected_tree(request: pytest.FixtureRequest, example_dir: CollectedDir) -> CollectionTree:
     trees = {
         "test_module": {
             ("<Session  exitstatus='<UNSET>' testsfailed=0 testscollected=0>", pytest.Session): {
@@ -114,15 +114,20 @@ def test_from_dict(expected_tree: CollectionTree, example_dir: CollectedDir):
                     <Function test_globals> (<class '_pytest.python.Function'>)
         """)
 
-def test_collectiontree_repr(collection_nodes: CollectedDir):
-    tree = CollectionTree.from_items(collection_nodes.items)
-    assert repr(tree) == dedent(f"""\
-        <Session  exitstatus='<UNSET>' testsfailed=0 testscollected=0>
-            <Dir {collection_nodes.pytester_instance.path.name}>
-                <Module test_module.py>
-                    <Function test_adder>
-                    <Function test_globals>
-        """)
+@pytest.mark.parametrize(
+    ["example_dir", "expected_tree"],
+    [
+        pytest.param(
+            [Path("tests/assets/module.py").absolute()],
+            "test_module",
+            id="One File",
+        ),
+    ],
+    indirect=True,
+)
+def test_from_items(example_dir: CollectedDir, expected_tree: CollectionTree):
+    tree = CollectionTree.from_items(example_dir.items)
+    assert tree == expected_tree
 
 
 @pytest.fixture
