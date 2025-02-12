@@ -5,6 +5,11 @@ repo_name: MusicalNinjaDad/pytest-ipynb2
 watch:
 - pytest_ipynb2 # To update live preview when docstrings change
 
+nav:
+  - index.md
+  - python-api.md
+  - test_helpers.md
+
 theme:
   name: "material"
   icon:
@@ -64,7 +69,3 @@ markdown_extensions:
 - pymdownx.emoji:
     emoji_index: !!python/name:material.extensions.emoji.twemoji
     emoji_generator: !!python/name:material.extensions.emoji.to_svg
-
-nav:
-  - index.md
-  - python-api.md

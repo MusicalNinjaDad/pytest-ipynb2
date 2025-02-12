@@ -22,8 +22,6 @@ class CollectionTree:
     ```
     assert CollectionTree.from_items(pytester.genitems([...])) == CollectionTree.from_dict({...})
     ```
-
-    WARNING: Currently only handles a single tree (one top-level node)
     """
 
     @classmethod
@@ -35,11 +33,7 @@ class CollectionTree:
         items = [_from_item(item) for item in items]
 
         def _get_parents_as_CollectionTrees(items: list[Self]) -> list[Self]:  # noqa: N802
-            """
-            Walk up the tree one step. (Not recursive, does provide sentinel or repeat).
-            
-            Returns a set of CollectionTree items for the parents of those provided.
-            """
+            """Returns a list of CollectionTree items for the parents of those provided."""
             parents = (item.node.parent for item in items)
             items_byparent = {
                 parent: [item for item in items if item.node.parent == parent]
@@ -73,14 +67,17 @@ class CollectionTree:
 
         For example:
         ```
-        tree = {
-            (f"<Dir {pytester.path.name}>", pytest.Dir): {
-                ("<Module test_module.py>", pytest.Module): {
-                    ("<Function test_adder>", pytest.Function): None,
-                    ("<Function test_globals>", pytest.Function): None,
+        tree_dict = {
+            ("<Session  exitstatus='<UNSET>' testsfailed=0 testscollected=0>", pytest.Session): {
+                ("<Dir tests>", pytest.Dir): {
+                    ("<Module test_module.py>", pytest.Module): {
+                        ("<Function test_adder>", pytest.Function): None,
+                        ("<Function test_globals>", pytest.Function): None,
+                    },
                 },
             },
         }
+        tree = CollectionTree.from_dict(tree_dict)
         ```
         """  # noqa: D415
         if len(tree) != 1:
@@ -111,7 +108,7 @@ class CollectionTree:
         name: str
         nodetype: type
         parent: Self | None = None
-        """Currently always None but required to avoid attribute errors if type checking Union[pytest.Node,_DummNode]"""
+        """Always `None` but required to avoid attribute errors if type checking `Union[pytest.Node,_DummyNode]`"""
 
         def __eq__(self, other: pytest.Item | pytest.Collector | Self) -> bool:
             try:
@@ -135,6 +132,7 @@ class CollectionTree:
         self.children = children
         """
         either:
+        
         - if node is `pytest.Collector`: a `list[CollectionTree]` of child nodes
         - if node is `pytest.Item`: `None`
         """
