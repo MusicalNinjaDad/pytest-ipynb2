@@ -21,12 +21,23 @@ def example_module() -> Path:
 
 
 @pytest.fixture
-def example_dir(example_module: Path, pytester: pytest.Pytester) -> pytest.Pytester:
+def example_dir_old(example_module: Path, pytester: pytest.Pytester) -> pytest.Pytester:
     """The contents of `notebook.py` as `test_module.py` in an instantiated `Pytester` setup."""
     pytester.makepyfile(test_module=example_module.read_text())
     return pytester
 
+@pytest.fixture
+def example_dir(request: pytest.FixtureRequest, pytester: pytest.Pytester) -> pytest.Pytester:
+    """Parameterised fixture. Requires a list of `Path`s to copy into a pytester instance."""
+    files = {f"test_{example.stem}": example.read_text() for example in request.param}
+    pytester.makepyfile(**files)
+    return pytester
 
+@pytest.mark.parametrize(
+        "example_dir",
+        [[Path("tests/assets/module.py").absolute()]],
+        indirect=True,
+)
 def test_pytestersetup(example_dir: pytest.Pytester):
     expected_file = example_dir.path / "test_module.py"
     assert expected_file.exists(), str(list(example_dir.path.iterdir()))
@@ -40,12 +51,12 @@ class CollectedDir:
 
 
 @pytest.fixture
-def collection_nodes(example_dir: pytest.Pytester) -> CollectedDir:
-    dir_node = example_dir.getpathnode(example_dir.path)
+def collection_nodes(example_dir_old: pytest.Pytester) -> CollectedDir:
+    dir_node = example_dir_old.getpathnode(example_dir_old.path)
     return CollectedDir(
-        pytester_instance=example_dir,
+        pytester_instance=example_dir_old,
         dir_node=dir_node,
-        items=example_dir.genitems([dir_node]),
+        items=example_dir_old.genitems([dir_node]),
     )
 
 
@@ -75,10 +86,10 @@ def test_collection_depth(collection_nodes: CollectedDir):
 
 
 @pytest.fixture
-def expectedtree(example_dir: pytest.Pytester):
+def expectedtree(example_dir_old: pytest.Pytester):
     tree = {
         ("<Session  exitstatus='<UNSET>' testsfailed=0 testscollected=0>", pytest.Session): {
-            (f"<Dir {example_dir.path.name}>", pytest.Dir): {
+            (f"<Dir {example_dir_old.path.name}>", pytest.Dir): {
                 ("<Module test_module.py>", pytest.Module): {
                     ("<Function test_adder>", pytest.Function): None,
                     ("<Function test_globals>", pytest.Function): None,
@@ -89,10 +100,10 @@ def expectedtree(example_dir: pytest.Pytester):
     return CollectionTree.from_dict(tree)
 
 
-def test_expectedtree_repr(expectedtree: CollectionTree, example_dir: pytest.Pytester):
+def test_expectedtree_repr(expectedtree: CollectionTree, example_dir_old: pytest.Pytester):
     assert repr(expectedtree) == dedent(f"""\
         <Session  exitstatus='<UNSET>' testsfailed=0 testscollected=0> (<class '_pytest.main.Session'>)
-            <Dir {example_dir.path.name}> (<class '_pytest.main.Dir'>)
+            <Dir {example_dir_old.path.name}> (<class '_pytest.main.Dir'>)
                 <Module test_module.py> (<class '_pytest.python.Module'>)
                     <Function test_adder> (<class '_pytest.python.Function'>)
                     <Function test_globals> (<class '_pytest.python.Function'>)
