@@ -26,31 +26,38 @@ def example_dir_old(example_module: Path, pytester: pytest.Pytester) -> pytest.P
     pytester.makepyfile(test_module=example_module.read_text())
     return pytester
 
+
 @pytest.fixture
-def example_dir(request: pytest.FixtureRequest, pytester: pytest.Pytester) -> pytest.Pytester:
+def example_dir(request: pytest.FixtureRequest, pytester: pytest.Pytester) -> CollectedDir:
     """Parameterised fixture. Requires a list of `Path`s to copy into a pytester instance."""
     files = {f"test_{example.stem}": example.read_text() for example in request.param}
     pytester.makepyfile(**files)
-    return pytester
+    dir_node = pytester.getpathnode(pytester.path)
+    return CollectedDir(
+        pytester_instance=pytester,
+        dir_node=dir_node,
+        items=pytester.genitems([dir_node]),
+    )
+
 
 @pytest.mark.parametrize(
-        ["example_dir", "expected_files"],
-        [
-            pytest.param(
-                [Path("tests/assets/module.py").absolute()],
-                ["test_module.py"],
-                id="One File",
-            ),
-            pytest.param(
-                [Path("tests/assets/module.py").absolute(), Path("tests/assets/othermodule.py").absolute()],
-                ["test_module.py", "test_othermodule.py"],
-                id="Two files",
-            ),
-        ],
-        indirect=["example_dir"],
+    ["example_dir", "expected_files"],
+    [
+        pytest.param(
+            [Path("tests/assets/module.py").absolute()],
+            ["test_module.py"],
+            id="One File",
+        ),
+        pytest.param(
+            [Path("tests/assets/module.py").absolute(), Path("tests/assets/othermodule.py").absolute()],
+            ["test_module.py", "test_othermodule.py"],
+            id="Two files",
+        ),
+    ],
+    indirect=["example_dir"],
 )
-def test_pytestersetup(example_dir: pytest.Pytester, expected_files: list[str]):
-    tmp_path = example_dir.path
+def test_pytestersetup(example_dir: CollectedDir, expected_files: list[str]):
+    tmp_path = example_dir.pytester_instance.path
     files_exist = ((tmp_path / expected_file).exists() for expected_file in expected_files)
     assert all(files_exist), f"These are not the files you are looking for: {list(tmp_path.iterdir())}"
 
@@ -125,6 +132,7 @@ def test_expectedtree_repr(expectedtree: CollectionTree, example_dir_old: pytest
 def test_collectiontree(expectedtree: CollectionTree, collection_nodes: CollectedDir):
     tree = CollectionTree.from_items(collection_nodes.items)
     assert expectedtree == tree
+
 
 def test_collectiontree_repr(collection_nodes: CollectedDir):
     tree = CollectionTree.from_items(collection_nodes.items)
