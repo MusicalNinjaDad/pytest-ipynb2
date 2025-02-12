@@ -91,11 +91,31 @@ def expectedtree(example_dir_old: pytest.Pytester):
     }
     return CollectionTree.from_dict(tree)
 
-
-def test_expectedtree_repr(expectedtree: CollectionTree, example_dir_old: pytest.Pytester):
-    assert repr(expectedtree) == dedent(f"""\
+@pytest.mark.parametrize(
+    "example_dir",
+    [
+        pytest.param(
+            [Path("tests/assets/module.py").absolute()],
+            id="One File",
+        ),
+    ],
+    indirect=["example_dir"],
+)
+def test_from_dict(example_dir: CollectedDir):
+    tree_dict = {
+        ("<Session  exitstatus='<UNSET>' testsfailed=0 testscollected=0>", pytest.Session): {
+            (f"<Dir {example_dir.pytester_instance.path.name}>", pytest.Dir): {
+                ("<Module test_module.py>", pytest.Module): {
+                    ("<Function test_adder>", pytest.Function): None,
+                    ("<Function test_globals>", pytest.Function): None,
+                },
+            },
+        },
+    }
+    tree = CollectionTree.from_dict(tree_dict)
+    assert repr(tree) == dedent(f"""\
         <Session  exitstatus='<UNSET>' testsfailed=0 testscollected=0> (<class '_pytest.main.Session'>)
-            <Dir {example_dir_old.path.name}> (<class '_pytest.main.Dir'>)
+            <Dir {example_dir.pytester_instance.path.name}> (<class '_pytest.main.Dir'>)
                 <Module test_module.py> (<class '_pytest.python.Module'>)
                     <Function test_adder> (<class '_pytest.python.Function'>)
                     <Function test_globals> (<class '_pytest.python.Function'>)
