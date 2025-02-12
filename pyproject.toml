@@ -86,7 +86,7 @@
 
 [tool.coverage.run]
     branch = true
-    omit = ["tests/*"]
+    source = ["pytest_ipynb2"]
 
 [tool.coverage.report]
 exclude_also = [
