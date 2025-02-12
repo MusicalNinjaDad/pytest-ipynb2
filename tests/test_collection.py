@@ -34,13 +34,24 @@ def example_dir(request: pytest.FixtureRequest, pytester: pytest.Pytester) -> py
     return pytester
 
 @pytest.mark.parametrize(
-        "example_dir",
-        [[Path("tests/assets/module.py").absolute()]],
-        indirect=True,
+        ["example_dir", "expected_files"],
+        [
+            pytest.param(
+                [Path("tests/assets/module.py").absolute()],
+                ["test_module.py"],
+                id="One File",
+            ),
+            pytest.param(
+                [Path("tests/assets/module.py").absolute(), Path("tests/assets/othermodule.py").absolute()],
+                ["test_module.py", "test_othermodule.py"],
+                id="Two files",
+            ),
+        ],
+        indirect=["example_dir"],
 )
-def test_pytestersetup(example_dir: pytest.Pytester):
-    expected_file = example_dir.path / "test_module.py"
-    assert expected_file.exists(), str(list(example_dir.path.iterdir()))
+def test_pytestersetup(example_dir: pytest.Pytester, expected_files: list[str]):
+    files_exist = ((example_dir.path / expected_file).exists() for expected_file in expected_files)
+    assert all(files_exist), f"These are not the files you are looking for: {list(example_dir.path.iterdir())}"
 
 
 @dataclass
