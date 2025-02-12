@@ -50,7 +50,7 @@ check:
 
 #run coverage analysis on python code
 cov:
-  uv run pytest --cov --cov-report html:pycov --cov-report term --cov-context=test
+  uv run pytest --cov --cov-report html:pycov --cov-report term --cov-report xml:cov.xml --cov-context=test
 
 # serve python coverage results on localhost:8000 (doesn't run coverage analysis)
 show-cov:
