@@ -51,6 +51,53 @@ def test_pytestersetup(example_dir: CollectedDir, expected_files: list[str]):
     assert all(files_exist), f"These are not the files you are looking for: {list(tmp_path.iterdir())}"
 
 
+def test_repr():
+    tree_dict = {
+        ("<Session  exitstatus='<UNSET>' testsfailed=0 testscollected=0>", pytest.Session): {
+            ("<Dir tests>", pytest.Dir): {
+                ("<Module test_module.py>", pytest.Module): {
+                    ("<Function test_adder>", pytest.Function): None,
+                    ("<Function test_globals>", pytest.Function): None,
+                },
+                ("<Module test_othermodule.py>", pytest.Module): {
+                    ("<Function test_adder>", pytest.Function): None,
+                    ("<Function test_globals>", pytest.Function): None,
+                },
+            },
+        },
+    }
+    tree = CollectionTree.from_dict(tree_dict)
+    assert repr(tree) == dedent("""\
+        <Session  exitstatus='<UNSET>' testsfailed=0 testscollected=0> (<class '_pytest.main.Session'>)
+            <Dir tests> (<class '_pytest.main.Dir'>)
+                <Module test_module.py> (<class '_pytest.python.Module'>)
+                    <Function test_adder> (<class '_pytest.python.Function'>)
+                    <Function test_globals> (<class '_pytest.python.Function'>)
+                <Module test_othermodule.py> (<class '_pytest.python.Module'>)
+                    <Function test_adder> (<class '_pytest.python.Function'>)
+                    <Function test_globals> (<class '_pytest.python.Function'>)
+        """)
+
+
+def test_eq():
+    tree_dict = {
+        ("<Session  exitstatus='<UNSET>' testsfailed=0 testscollected=0>", pytest.Session): {
+            ("<Dir tests>", pytest.Dir): {
+                ("<Module test_module.py>", pytest.Module): {
+                    ("<Function test_adder>", pytest.Function): None,
+                    ("<Function test_globals>", pytest.Function): None,
+                },
+            },
+        },
+    }
+    tree1 = CollectionTree.from_dict(tree_dict)
+    tree2 = CollectionTree.from_dict(tree_dict)
+    assert tree1 is not tree2
+    assert tree1 == tree2
+    assert tree1 != tree_dict
+    assert tree_dict != tree1
+
+
 @pytest.fixture
 def expected_tree(request: pytest.FixtureRequest, example_dir: CollectedDir) -> CollectionTree:
     trees = {
@@ -80,50 +127,6 @@ def expected_tree(request: pytest.FixtureRequest, example_dir: CollectedDir) -> 
         },
     }
     return CollectionTree.from_dict(trees[request.param])
-
-
-@pytest.mark.parametrize(
-    ["example_dir", "expected_tree"],
-    [
-        pytest.param(
-            [Path("tests/assets/module.py").absolute(), Path("tests/assets/othermodule.py").absolute()],
-            "two_modules",
-            id="Two modules",
-        ),
-    ],
-    indirect=True,
-)
-def test_from_dict(expected_tree: CollectionTree, example_dir: CollectedDir):
-    assert repr(expected_tree) == dedent(f"""\
-        <Session  exitstatus='<UNSET>' testsfailed=0 testscollected=0> (<class '_pytest.main.Session'>)
-            <Dir {example_dir.pytester_instance.path.name}> (<class '_pytest.main.Dir'>)
-                <Module test_module.py> (<class '_pytest.python.Module'>)
-                    <Function test_adder> (<class '_pytest.python.Function'>)
-                    <Function test_globals> (<class '_pytest.python.Function'>)
-                <Module test_othermodule.py> (<class '_pytest.python.Module'>)
-                    <Function test_adder> (<class '_pytest.python.Function'>)
-                    <Function test_globals> (<class '_pytest.python.Function'>)
-        """)
-    assert expected_tree != {
-        ("<Session  exitstatus='<UNSET>' testsfailed=0 testscollected=0>", pytest.Session): {
-            (f"<Dir {example_dir.pytester_instance.path.name}>", pytest.Dir): {
-                ("<Module test_module.py>", pytest.Module): {
-                    ("<Function test_adder>", pytest.Function): None,
-                    ("<Function test_globals>", pytest.Function): None,
-                },
-            },
-        },
-    }
-    assert {
-        ("<Session  exitstatus='<UNSET>' testsfailed=0 testscollected=0>", pytest.Session): {
-            (f"<Dir {example_dir.pytester_instance.path.name}>", pytest.Dir): {
-                ("<Module test_module.py>", pytest.Module): {
-                    ("<Function test_adder>", pytest.Function): None,
-                    ("<Function test_globals>", pytest.Function): None,
-                },
-            },
-        },
-    } != expected_tree
 
 
 @pytest.mark.parametrize(
