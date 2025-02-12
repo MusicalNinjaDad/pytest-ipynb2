@@ -104,6 +104,26 @@ def test_from_dict(expected_tree: CollectionTree, example_dir: CollectedDir):
                     <Function test_adder> (<class '_pytest.python.Function'>)
                     <Function test_globals> (<class '_pytest.python.Function'>)
         """)
+    assert expected_tree != {
+        ("<Session  exitstatus='<UNSET>' testsfailed=0 testscollected=0>", pytest.Session): {
+            (f"<Dir {example_dir.pytester_instance.path.name}>", pytest.Dir): {
+                ("<Module test_module.py>", pytest.Module): {
+                    ("<Function test_adder>", pytest.Function): None,
+                    ("<Function test_globals>", pytest.Function): None,
+                },
+            },
+        },
+    }
+    assert {
+        ("<Session  exitstatus='<UNSET>' testsfailed=0 testscollected=0>", pytest.Session): {
+            (f"<Dir {example_dir.pytester_instance.path.name}>", pytest.Dir): {
+                ("<Module test_module.py>", pytest.Module): {
+                    ("<Function test_adder>", pytest.Function): None,
+                    ("<Function test_globals>", pytest.Function): None,
+                },
+            },
+        },
+    } != expected_tree
 
 
 @pytest.mark.parametrize(
