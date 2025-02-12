@@ -1,0 +1,5 @@
+# Additional linting rules applied to PRs and `main`branch
+extend = "pyproject.toml"
+lint.extend-select = [
+    "TD",  # TODOs need a description, even outside of `main`
+]

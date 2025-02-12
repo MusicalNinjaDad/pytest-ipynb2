@@ -40,10 +40,23 @@ jobs:
         
   lint:
     runs-on: ubuntu-latest
+    env:
+      ruff_args: ""
+      python-version: '3.13'
     steps:
     - uses: actions/checkout@v4
-    - name: Ruff
-      uses: chartboost/ruff-action@v1
+    - name: Set stricter linting rules for PR / `main`
+      run: |
+        if [[ "${{ github.event_name }}" == "pull_request" || ( "${{ github.event_name }}" == "push" && "${{ github.ref }}" == "refs/heads/main" ) ]]; then
+          echo "ruff_args=--config ruff-main.toml" >> $GITHUB_ENV
+        fi
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
+      with:
+        python-version: ${{ env.python-version }}
+    - name: lint with ruff ${{ env.ruff_args }}
+      run: |
+        uv run --no-default-groups --group lint ruff check . ${{ env.ruff_args }}
 
   type-check:
     env:
