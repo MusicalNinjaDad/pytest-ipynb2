@@ -77,10 +77,12 @@ def test_collection_depth(collection_nodes: CollectedDir):
 @pytest.fixture
 def expectedtree(example_dir: pytest.Pytester):
     tree = {
-        (f"<Dir {example_dir.path.name}>", pytest.Dir): {
-            ("<Module test_module.py>", pytest.Module): {
-                ("<Function test_adder>", pytest.Function): None,
-                ("<Function test_globals>", pytest.Function): None,
+        ("<Session  exitstatus='<UNSET>' testsfailed=0 testscollected=0>", pytest.Session): {
+            (f"<Dir {example_dir.path.name}>", pytest.Dir): {
+                ("<Module test_module.py>", pytest.Module): {
+                    ("<Function test_adder>", pytest.Function): None,
+                    ("<Function test_globals>", pytest.Function): None,
+                },
             },
         },
     }
@@ -89,21 +91,26 @@ def expectedtree(example_dir: pytest.Pytester):
 
 def test_expectedtree_repr(expectedtree: CollectionTree, example_dir: pytest.Pytester):
     assert repr(expectedtree) == dedent(f"""\
-        <Dir {example_dir.path.name}> (<class '_pytest.main.Dir'>)
-            <Module test_module.py> (<class '_pytest.python.Module'>)
-                <Function test_adder> (<class '_pytest.python.Function'>)
-                <Function test_globals> (<class '_pytest.python.Function'>)
+        <Session  exitstatus='<UNSET>' testsfailed=0 testscollected=0> (<class '_pytest.main.Session'>)
+            <Dir {example_dir.path.name}> (<class '_pytest.main.Dir'>)
+                <Module test_module.py> (<class '_pytest.python.Module'>)
+                    <Function test_adder> (<class '_pytest.python.Function'>)
+                    <Function test_globals> (<class '_pytest.python.Function'>)
         """)
 
 
 def test_collectiontree(expectedtree: CollectionTree, collection_nodes: CollectedDir):
     tree = CollectionTree.from_items(collection_nodes.items)
     assert expectedtree == tree
+
+def test_collectiontree_repr(collection_nodes: CollectedDir):
+    tree = CollectionTree.from_items(collection_nodes.items)
     assert repr(tree) == dedent(f"""\
-        <Dir {collection_nodes.pytester_instance.path.name}>
-            <Module test_module.py>
-                <Function test_adder>
-                <Function test_globals>
+        <Session  exitstatus='<UNSET>' testsfailed=0 testscollected=0>
+            <Dir {collection_nodes.pytester_instance.path.name}>
+                <Module test_module.py>
+                    <Function test_adder>
+                    <Function test_globals>
         """)
 
 
@@ -134,14 +141,16 @@ def collection_nodes_2files(example_dir2files: pytest.Pytester) -> CollectedDir:
 @pytest.fixture
 def expectedtree_2files(example_dir2files: pytest.Pytester):
     tree = {
-        (f"<Dir {example_dir2files.path.name}>", pytest.Dir): {
-            ("<Module test_module.py>", pytest.Module): {
-                ("<Function test_adder>", pytest.Function): None,
-                ("<Function test_globals>", pytest.Function): None,
-            },
-            ("<Module test_othermodule.py>", pytest.Module): {
-                ("<Function test_adder>", pytest.Function): None,
-                ("<Function test_globals>", pytest.Function): None,
+        ("<Session  exitstatus='<UNSET>' testsfailed=0 testscollected=0>", pytest.Session): {
+            (f"<Dir {example_dir2files.path.name}>", pytest.Dir): {
+                ("<Module test_module.py>", pytest.Module): {
+                    ("<Function test_adder>", pytest.Function): None,
+                    ("<Function test_globals>", pytest.Function): None,
+                },
+                ("<Module test_othermodule.py>", pytest.Module): {
+                    ("<Function test_adder>", pytest.Function): None,
+                    ("<Function test_globals>", pytest.Function): None,
+                },
             },
         },
     }
@@ -150,25 +159,17 @@ def expectedtree_2files(example_dir2files: pytest.Pytester):
 
 def test_expectedtree_2files_repr(expectedtree_2files: CollectionTree, example_dir2files: pytest.Pytester):
     assert repr(expectedtree_2files) == dedent(f"""\
-        <Dir {example_dir2files.path.name}> (<class '_pytest.main.Dir'>)
-            <Module test_module.py> (<class '_pytest.python.Module'>)
-                <Function test_adder> (<class '_pytest.python.Function'>)
-                <Function test_globals> (<class '_pytest.python.Function'>)
-            <Module test_othermodule.py> (<class '_pytest.python.Module'>)
-                <Function test_adder> (<class '_pytest.python.Function'>)
-                <Function test_globals> (<class '_pytest.python.Function'>)
+        <Session  exitstatus='<UNSET>' testsfailed=0 testscollected=0> (<class '_pytest.main.Session'>)
+            <Dir {example_dir2files.path.name}> (<class '_pytest.main.Dir'>)
+                <Module test_module.py> (<class '_pytest.python.Module'>)
+                    <Function test_adder> (<class '_pytest.python.Function'>)
+                    <Function test_globals> (<class '_pytest.python.Function'>)
+                <Module test_othermodule.py> (<class '_pytest.python.Module'>)
+                    <Function test_adder> (<class '_pytest.python.Function'>)
+                    <Function test_globals> (<class '_pytest.python.Function'>)
         """)
 
 
 def test_collectiontree_2files(expectedtree_2files: CollectionTree, collection_nodes_2files: CollectedDir):
     tree = CollectionTree.from_items(collection_nodes_2files.items)
     assert expectedtree_2files == tree
-    assert repr(tree) == dedent(f"""\
-        <Dir {collection_nodes_2files.pytester_instance.path.name}>
-            <Module test_module.py>
-                <Function test_adder>
-                <Function test_globals>
-            <Module test_othermodule.py>
-                <Function test_adder>
-                <Function test_globals>
-        """)

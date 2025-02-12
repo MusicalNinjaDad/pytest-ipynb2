@@ -50,9 +50,8 @@ class CollectionTree:
                 for parent, children in items_byparent.items()
             ]
         
-        if all(isinstance(item.node.parent, pytest.Session) for item in items):
-            #TODO use the session as the root node
-            return next(iter(items)) # Return only first item for now
+        if all(isinstance(item.node, pytest.Session) for item in items):
+            return next(iter(items)) # Should only be one session
 
         return cls.from_items(_get_parents_as_CollectionTrees(items))
 
@@ -92,7 +91,10 @@ class CollectionTree:
         if children is not None:
             return cls(
                 node=node,
-                children=[cls.from_dict({childnode: grandchildren}) for childnode, grandchildren in children.items()],
+                children=[
+                    cls.from_dict({childnode: grandchildren})
+                    for childnode, grandchildren in children.items()
+                ],
             )
 
         return cls(node=node, children=None)
