@@ -86,7 +86,7 @@
 
 [tool.coverage.run]
     branch = true
-    omit = ["tests/*"]
+    source = ["pytest_ipynb2"]
 
 [tool.coverage.report]
 exclude_also = [
@@ -99,7 +99,11 @@ exclude_also = [
     show_contexts = true
 
 [tool.pytype]
-    inputs = ["pytest_ipynb2"]
+    inputs = ["pytest_ipynb2", "tests"]
+    exclude = ["tests/assets"]
+    keep_going = true
+    jobs = "auto"
+    none_is_not_bool = true
 
 [tool.ruff]
     line-length = 120
