@@ -21,9 +21,10 @@
                 "ms-toolsai.jupyter",
                 // configs, docs, etc.
                 "DavidAnson.vscode-markdownlint",
-                "tamasfe.even-better-toml",
-                // Coverage gutters
-                "ryanluker.vscode-coverage-gutters"
+                "tamasfe.even-better-toml"
+                // DISABLE spell checking for now as exclusions not working ... TODO
+                // "streetsidesoftware.code-spell-checker",
+                // "streetsidesoftware.code-spell-checker-british-english"
             ],
             "settings": {
                 // python
@@ -47,8 +48,10 @@
                 "[markdown]": {
                     "editor.tabSize": 2
                 },
-                // Coverage gutters
-                "coverage-gutters.coverageReportFileName": "pycov/**/index.html",
+                // DISABLE spell checking for now as exclusions not working ... TODO
+                // "cSpell.language": "en",
+                // "cSpell.checkOnlyEnabledFileTypes": true,
+                // "cSpell.enabledFileTypes": {"markdown": true, "json": false},
                 // shell
                 "terminal.integrated.defaultProfile.linux": "bash",
                 "terminal.integrated.profiles.linux": {
