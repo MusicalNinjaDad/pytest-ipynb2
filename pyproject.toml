@@ -17,6 +17,7 @@
     dependencies = [
         "ipython",
         "ipytest",
+        "nbformat>=5.10.4",
         "pytest",
         "typing-extensions; python_version < '3.11'",
     ]
@@ -52,9 +53,7 @@
         "pytype; python_version <= '3.12'",
         "typing_extensions", # required for Python3.10 and below
     ]
-    test = [
-        "pytest-doctest-mkdocstrings",
-        ]
+    test = ["pytest-doctest-mkdocstrings"]
     cov = [
         {include-group = "test"},
         "pytest-cov",
@@ -64,14 +63,15 @@
         "mkdocs",
         "mkdocstrings[python]",
         "mkdocs-material",
+        "pymdown-extensions",
     ]
     dev = [
-        "jupyter",
         {include-group = "lint"},
         {include-group = "typing"},
         {include-group = "test"},
         {include-group = "cov"},
         {include-group = "doc"},
+        "jupyter", # python's toml decoder won't accept a text entry at the start of the array, only at the end!!
     ]
 
 [tool.pytest.ini_options]
@@ -99,7 +99,7 @@ exclude_also = [
     show_contexts = true
 
 [tool.pytype]
-inputs = ["pytest_ipynb2"]
+    inputs = ["pytest_ipynb2"]
 
 [tool.ruff]
     line-length = 120
@@ -163,5 +163,9 @@ inputs = ["pytest_ipynb2"]
     ]
 
     "**/*.ipynb" = [
-        "T201", # Allow `print` in Jupyter notebooks
+        "T201",    # Allow `print` in Jupyter notebooks
+        "ANN",     # Missing type annotations
+        "S101",    # Use of `assert`
+        "PLR2004", # Magic number comparisons
+        "D1",      # Don't REQUIRE docstrings in notebooks - but lint them if they are there
     ]
