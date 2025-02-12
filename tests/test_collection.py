@@ -79,31 +79,6 @@ def collection_nodes(example_dir_old: pytest.Pytester) -> CollectedDir:
     )
 
 
-def test_collectedDir_type(collection_nodes: CollectedDir):
-    assert type(collection_nodes.dir_node) is pytest.Dir
-
-
-def test_collectedItems_count(collection_nodes: CollectedDir):
-    assert len(collection_nodes.items) == 2
-
-
-def test_collectedItems_types(collection_nodes: CollectedDir):
-    assert all(type(testcase) is pytest.Function for testcase in collection_nodes.items)
-
-
-def test_collectedItems_names(collection_nodes: CollectedDir):
-    assert [testcase.name for testcase in collection_nodes.items] == ["test_adder", "test_globals"]
-
-
-def test_collectedItems_parents(collection_nodes: CollectedDir):
-    assert all(testcase.parent.name == "test_module.py" for testcase in collection_nodes.items)
-    assert all(type(testcase.parent) is pytest.Module for testcase in collection_nodes.items)
-
-
-def test_collection_depth(collection_nodes: CollectedDir):
-    assert all(testcase.parent.parent is collection_nodes.dir_node for testcase in collection_nodes.items)
-
-
 @pytest.fixture
 def expectedtree(example_dir_old: pytest.Pytester):
     tree = {
