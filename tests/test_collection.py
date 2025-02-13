@@ -30,3 +30,20 @@ def test_cell_collected(example_dir: CollectedDir):
     }
     expected_tree = CollectionTree.from_dict(tree_dict)
     assert CollectionTree.from_items(example_dir.items) == expected_tree
+
+
+@pytest.mark.parametrize(
+    "example_dir",
+    [
+        pytest.param([Path("tests/assets/notebook.ipynb").absolute()], id="Simple Notebook"),
+    ],
+    indirect=True,
+)
+def test_notebook_collection(example_dir: CollectedDir):
+    pt = example_dir.pytester_instance
+    pt.makeconftest("pytest_plugins = ['pytest_ipynb2.plugin']")
+    files = list(pt.getpathnode(pt.path).collect())
+    assert files
+    assert len(files) == 1
+    assert files[0].name == "notebook.ipynb"
+    assert repr(files[0]) == "<NotebookCollector notebook.ipynb>"
