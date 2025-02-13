@@ -11,7 +11,13 @@ from pytest_ipynb2.pytester_helpers import CollectionTree, ExampleDir
 @pytest.mark.parametrize(
     "example_dir",
     [
-        pytest.param([Path("tests/assets/notebook.ipynb").absolute()], id="Simple Notebook"),
+        pytest.param(
+            ExampleDir(
+                files=[Path("tests/assets/notebook.ipynb").absolute()],
+                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
+            ),
+            id="Simple Notebook",
+        ),
     ],
     indirect=True,
 )
