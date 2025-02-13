@@ -51,3 +51,22 @@ def test_notebook_collection(example_dir: CollectedDir):
     assert len(files) == 1
     assert files[0].name == "notebook.ipynb"
     assert repr(files[0]) == "<NotebookCollector notebook.ipynb>"
+
+
+@pytest.mark.parametrize(
+    "example_dir",
+    [
+        pytest.param(
+            ExampleDir(
+                files=[Path("tests/assets/notebook.ipynb").absolute()],
+                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
+            ),
+            id="Simple Notebook",
+        ),
+    ],
+    indirect=True,
+)
+def test_cell_collection(example_dir: CollectedDir):
+    files = list(example_dir.dir_node.collect())
+    cells = list(files[0].collect())
+    assert cells
