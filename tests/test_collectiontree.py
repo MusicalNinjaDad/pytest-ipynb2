@@ -105,12 +105,12 @@ def test_from_dict_single_root():
     ["example_dir", "expected_tree"],
     [
         pytest.param(
-            [Path("tests/assets/module.py").absolute()],
+            [Path("tests/assets/test_module.py").absolute()],
             "test_module",
             id="One module",
         ),
         pytest.param(
-            [Path("tests/assets/module.py").absolute(), Path("tests/assets/othermodule.py").absolute()],
+            [Path("tests/assets/test_module.py").absolute(), Path("tests/assets/test_othermodule.py").absolute()],
             "two_modules",
             id="Two modules",
         ),

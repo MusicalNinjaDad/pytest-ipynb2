@@ -4,7 +4,6 @@ import pytest
 
 pytest_plugins = ["pytester"]
 
-
 @dataclass
 class CollectedDir:
     """
@@ -23,12 +22,8 @@ class CollectedDir:
 @pytest.fixture
 def example_dir(request: pytest.FixtureRequest, pytester: pytest.Pytester) -> CollectedDir:
     """Parameterised fixture. Requires a list of `Path`s to copy into a pytester instance."""
-    pyfiles = {f"test_{example.stem}": example.read_text() for example in request.param if example.suffix == ".py"}
-    if pyfiles:
-        pytester.makepyfile(**pyfiles)
-    notebooks = [f"{example}" for example in request.param if example.suffix == ".ipynb"]
-    for notebook in notebooks:
-        pytester.copy_example(notebook)
+    for filetocopy in request.param:
+        pytester.copy_example(str(filetocopy))
     dir_node = pytester.getpathnode(pytester.path)
     return CollectedDir(
         pytester_instance=pytester,

@@ -81,6 +81,7 @@
         "--doctest-mdcodeblocks",
         "--doctest-glob=*.pyi",
         "--doctest-glob=*.md",
+        "--ignore=tests/assets",
     ]
     testpaths = ["tests", "pytest_ipynb2"]
 

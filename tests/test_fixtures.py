@@ -8,12 +8,12 @@ from conftest import CollectedDir
     ["example_dir", "expected_files"],
     [
         pytest.param(
-            [Path("tests/assets/module.py").absolute()],
+            [Path("tests/assets/test_module.py").absolute()],
             ["test_module.py"],
             id="One File",
         ),
         pytest.param(
-            [Path("tests/assets/module.py").absolute(), Path("tests/assets/othermodule.py").absolute()],
+            [Path("tests/assets/test_module.py").absolute(), Path("tests/assets/test_othermodule.py").absolute()],
             ["test_module.py", "test_othermodule.py"],
             id="Two files",
         ),
