@@ -3,12 +3,30 @@ from pathlib import Path
 import pytest
 from conftest import CollectedDir
 
+import pytest_ipynb2
+from pytest_ipynb2.pytester_helpers import CollectionTree
 
+
+@pytest.mark.xfail
 @pytest.mark.parametrize(
         "example_dir",
         [
             pytest.param([Path("tests/assets/notebook.ipynb").absolute()],id="Simple Notebook"),
         ],
+        indirect=True,
 )
 def test_cell_collected(example_dir:CollectedDir):
-    pass
+    tree_dict = {
+        ("<Session  exitstatus='<UNSET>' testsfailed=0 testscollected=0>", pytest.Session): {
+            (f"<Dir {example_dir.pytester_instance.path.name}>", pytest.Dir): {
+                ("<Notebook notebook.ipynb>", pytest_ipynb2.Notebook): {
+                    ("<Cell 4>", pytest_ipynb2.Cell): {
+                        ("<Function test_adder>", pytest.Function): None,
+                        ("<Function test_globals>", pytest.Function): None,
+                    },
+                },
+            },
+        },
+    }
+    expected_tree = CollectionTree.from_dict(tree_dict)
+    assert CollectionTree.from_items(example_dir.items) == expected_tree

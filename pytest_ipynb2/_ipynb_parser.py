@@ -6,6 +6,9 @@ from pathlib import Path
 import nbformat
 
 
+class Cell:
+    ...
+
 class Notebook:
     """
     An ipython Notebook.
