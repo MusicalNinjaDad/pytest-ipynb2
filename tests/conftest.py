@@ -16,9 +16,14 @@ class ExampleDirRequest(Protocol):
 @pytest.fixture
 def example_dir(request: ExampleDirRequest, pytester: pytest.Pytester) -> CollectedDir:
     """Parameterised fixture. Requires a list of `Path`s to copy into a pytester instance."""
+    if request.param.conftest:
+        pytester.makeconftest(request.param.conftest)
+
     for filetocopy in request.param.files:
         pytester.copy_example(str(filetocopy))
+
     dir_node = pytester.getpathnode(pytester.path)
+
     return CollectedDir(
         pytester_instance=pytester,
         dir_node=dir_node,

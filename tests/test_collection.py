@@ -37,7 +37,8 @@ def test_cell_collected(example_dir: CollectedDir):
     [
         pytest.param(
             ExampleDir(
-                [Path("tests/assets/notebook.ipynb").absolute()],
+                files = [Path("tests/assets/notebook.ipynb").absolute()],
+                conftest = "pytest_plugins = ['pytest_ipynb2.plugin']",
             ),
             id="Simple Notebook",
         ),
@@ -46,7 +47,6 @@ def test_cell_collected(example_dir: CollectedDir):
 )
 def test_notebook_collection(example_dir: CollectedDir):
     pt = example_dir.pytester_instance
-    pt.makeconftest("pytest_plugins = ['pytest_ipynb2.plugin']")
     files = list(pt.getpathnode(pt.path).collect())
     assert files
     assert len(files) == 1
