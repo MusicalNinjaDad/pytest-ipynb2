@@ -2,24 +2,30 @@ from pathlib import Path
 
 import pytest
 
-from pytest_ipynb2.pytester_helpers import CollectedDir
+from pytest_ipynb2.pytester_helpers import CollectedDir, ExampleDir
 
 
 @pytest.mark.parametrize(
     ["example_dir", "expected_files"],
     [
         pytest.param(
-            [Path("tests/assets/test_module.py").absolute()],
+            ExampleDir(
+                [Path("tests/assets/test_module.py").absolute()],
+            ),
             ["test_module.py"],
             id="One File",
         ),
         pytest.param(
-            [Path("tests/assets/test_module.py").absolute(), Path("tests/assets/test_othermodule.py").absolute()],
+            ExampleDir(
+                [Path("tests/assets/test_module.py").absolute(), Path("tests/assets/test_othermodule.py").absolute()],
+            ),
             ["test_module.py", "test_othermodule.py"],
             id="Two files",
         ),
         pytest.param(
-            [Path("tests/assets/notebook.ipynb").absolute()],
+            ExampleDir(
+                [Path("tests/assets/notebook.ipynb").absolute()],
+            ),
             ["notebook.ipynb"],
             id="Simple Notebook",
         ),

@@ -1,6 +1,6 @@
 import pytest
 
-from pytest_ipynb2.pytester_helpers import CollectedDir
+from pytest_ipynb2.pytester_helpers import CollectedDir, ExampleDir
 
 pytest_plugins = ["pytester"]
 
@@ -8,7 +8,7 @@ pytest_plugins = ["pytester"]
 @pytest.fixture
 def example_dir(request: pytest.FixtureRequest, pytester: pytest.Pytester) -> CollectedDir:
     """Parameterised fixture. Requires a list of `Path`s to copy into a pytester instance."""
-    for filetocopy in request.param:
+    for filetocopy in request.param.files:
         pytester.copy_example(str(filetocopy))
     dir_node = pytester.getpathnode(pytester.path)
     return CollectedDir(

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from pathlib import Path
 from textwrap import indent
 from typing import TYPE_CHECKING
 
@@ -174,3 +175,11 @@ class CollectedDir:
     pytester_instance: pytest.Pytester
     dir_node: pytest.Dir
     items: list[pytest.Item]
+
+
+@dataclass
+class ExampleDir:
+    """The various elements to set up a pytester instance."""
+
+    files: list[Path]
+    conftest: str = ""

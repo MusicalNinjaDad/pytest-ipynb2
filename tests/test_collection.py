@@ -4,7 +4,7 @@ import pytest
 from conftest import CollectedDir
 
 import pytest_ipynb2
-from pytest_ipynb2.pytester_helpers import CollectionTree
+from pytest_ipynb2.pytester_helpers import CollectionTree, ExampleDir
 
 
 @pytest.mark.xfail
@@ -35,7 +35,12 @@ def test_cell_collected(example_dir: CollectedDir):
 @pytest.mark.parametrize(
     "example_dir",
     [
-        pytest.param([Path("tests/assets/notebook.ipynb").absolute()], id="Simple Notebook"),
+        pytest.param(
+            ExampleDir(
+                [Path("tests/assets/notebook.ipynb").absolute()],
+            ),
+            id="Simple Notebook",
+        ),
     ],
     indirect=True,
 )

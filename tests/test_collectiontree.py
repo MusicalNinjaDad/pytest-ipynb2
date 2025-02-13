@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from pytest_ipynb2.pytester_helpers import CollectionTree
+from pytest_ipynb2.pytester_helpers import CollectionTree, ExampleDir
 
 if TYPE_CHECKING:
     from pytest_ipynb2.pytester_helpers import CollectedDir
@@ -105,12 +105,16 @@ def test_from_dict_single_root():
     ["example_dir", "expected_tree"],
     [
         pytest.param(
-            [Path("tests/assets/test_module.py").absolute()],
+            ExampleDir(
+                files = [Path("tests/assets/test_module.py").absolute()],
+            ),
             "test_module",
             id="One module",
         ),
         pytest.param(
-            [Path("tests/assets/test_module.py").absolute(), Path("tests/assets/test_othermodule.py").absolute()],
+            ExampleDir(
+                [Path("tests/assets/test_module.py").absolute(), Path("tests/assets/test_othermodule.py").absolute()],
+            ),
             "two_modules",
             id="Two modules",
         ),
