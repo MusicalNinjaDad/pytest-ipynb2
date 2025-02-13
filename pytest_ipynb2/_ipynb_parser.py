@@ -6,8 +6,8 @@ from pathlib import Path
 import nbformat
 
 
-class Cell:
-    ...
+class Cell: ...
+
 
 class Notebook:
     """

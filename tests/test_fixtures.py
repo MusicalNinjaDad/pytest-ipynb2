@@ -21,7 +21,8 @@ from pytest_ipynb2.pytester_helpers import CollectedDir
         pytest.param(
             [Path("tests/assets/notebook.ipynb").absolute()],
             ["notebook.ipynb"],
-            id="Simple Notebook"),
+            id="Simple Notebook",
+        ),
     ],
     indirect=["example_dir"],
 )

@@ -9,13 +9,13 @@ from pytest_ipynb2.pytester_helpers import CollectionTree
 
 @pytest.mark.xfail
 @pytest.mark.parametrize(
-        "example_dir",
-        [
-            pytest.param([Path("tests/assets/notebook.ipynb").absolute()],id="Simple Notebook"),
-        ],
-        indirect=True,
+    "example_dir",
+    [
+        pytest.param([Path("tests/assets/notebook.ipynb").absolute()], id="Simple Notebook"),
+    ],
+    indirect=True,
 )
-def test_cell_collected(example_dir:CollectedDir):
+def test_cell_collected(example_dir: CollectedDir):
     tree_dict = {
         ("<Session  exitstatus='<UNSET>' testsfailed=0 testscollected=0>", pytest.Session): {
             (f"<Dir {example_dir.pytester_instance.path.name}>", pytest.Dir): {
