@@ -1,22 +1,8 @@
-from dataclasses import dataclass
-
 import pytest
 
+from pytest_ipynb2.pytester_helpers import CollectedDir
+
 pytest_plugins = ["pytester"]
-
-@dataclass
-class CollectedDir:
-    """
-    The various elements required to test directory collection.
-
-    - `pytester_instance`: pytest.Pytester
-    - `dir_node`: pytest.Dir
-    - `items`: list[pytest.Item]
-    """
-
-    pytester_instance: pytest.Pytester
-    dir_node: pytest.Dir
-    items: list[pytest.Item]
 
 
 @pytest.fixture

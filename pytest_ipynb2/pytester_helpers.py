@@ -159,3 +159,18 @@ class CollectionTree:
         else:
             children_repr = indent("\n".join(repr(child).rstrip() for child in self.children), "    ")
         return f"{self.node!r}\n{children_repr}\n"
+
+
+@dataclass
+class CollectedDir:
+    """
+    The various elements required to test directory collection.
+
+    - `pytester_instance`: pytest.Pytester
+    - `dir_node`: pytest.Dir
+    - `items`: list[pytest.Item]
+    """
+
+    pytester_instance: pytest.Pytester
+    dir_node: pytest.Dir
+    items: list[pytest.Item]

@@ -10,7 +10,7 @@ import pytest
 from pytest_ipynb2.pytester_helpers import CollectionTree
 
 if TYPE_CHECKING:
-    from conftest import CollectedDir
+    from pytest_ipynb2.pytester_helpers import CollectedDir
 
 
 @pytest.fixture

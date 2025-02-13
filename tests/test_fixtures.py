@@ -1,7 +1,8 @@
 from pathlib import Path
 
 import pytest
-from conftest import CollectedDir
+
+from pytest_ipynb2.pytester_helpers import CollectedDir
 
 
 @pytest.mark.parametrize(
