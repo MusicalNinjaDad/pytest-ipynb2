@@ -76,3 +76,26 @@ def test_cell_collection(example_dir: CollectedDir):
     files = list(example_dir.dir_node.collect())
     cells = list(files[0].collect())
     assert cells
+    assert len(cells) == 1
+    assert cells[0].name == "Cell 4"
+    assert repr(cells[0]) == "<NotebookCellCollector Cell 4>"
+
+@pytest.mark.xfail
+@pytest.mark.parametrize(
+    "example_dir",
+    [
+        pytest.param(
+            ExampleDir(
+                files=[Path("tests/assets/notebook.ipynb").absolute()],
+                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
+            ),
+            id="Simple Notebook",
+        ),
+    ],
+    indirect=True,
+)
+def test_functions(example_dir: CollectedDir):
+    files = list(example_dir.dir_node.collect())
+    cells = list(files[0].collect())
+    functions = list(cells[0].collect())
+    assert functions
