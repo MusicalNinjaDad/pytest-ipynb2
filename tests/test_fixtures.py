@@ -17,6 +17,10 @@ from conftest import CollectedDir
             ["test_module.py", "test_othermodule.py"],
             id="Two files",
         ),
+        pytest.param(
+            [Path("tests/assets/notebook.ipynb").absolute()],
+            ["notebook.ipynb"],
+            id="Simple Notebook"),
     ],
     indirect=["example_dir"],
 )
