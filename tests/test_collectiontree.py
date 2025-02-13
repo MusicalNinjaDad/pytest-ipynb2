@@ -1,33 +1,16 @@
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass
 from pathlib import Path
 from textwrap import dedent
+from typing import TYPE_CHECKING
 
 import pytest
 
 from pytest_ipynb2.pytester_helpers import CollectionTree
 
-
-@dataclass
-class CollectedDir:
-    pytester_instance: pytest.Pytester
-    dir_node: pytest.Dir
-    items: list[pytest.Item]
-
-
-@pytest.fixture
-def example_dir(request: pytest.FixtureRequest, pytester: pytest.Pytester) -> CollectedDir:
-    """Parameterised fixture. Requires a list of `Path`s to copy into a pytester instance."""
-    files = {f"test_{example.stem}": example.read_text() for example in request.param}
-    pytester.makepyfile(**files)
-    dir_node = pytester.getpathnode(pytester.path)
-    return CollectedDir(
-        pytester_instance=pytester,
-        dir_node=dir_node,
-        items=pytester.genitems([dir_node]),
-    )
+if TYPE_CHECKING:
+    from conftest import CollectedDir
 
 
 @pytest.fixture
@@ -60,27 +43,6 @@ def expected_tree(request: pytest.FixtureRequest, example_dir: CollectedDir) -> 
     }
     return CollectionTree.from_dict(trees[request.param])
 
-
-@pytest.mark.parametrize(
-    ["example_dir", "expected_files"],
-    [
-        pytest.param(
-            [Path("tests/assets/module.py").absolute()],
-            ["test_module.py"],
-            id="One File",
-        ),
-        pytest.param(
-            [Path("tests/assets/module.py").absolute(), Path("tests/assets/othermodule.py").absolute()],
-            ["test_module.py", "test_othermodule.py"],
-            id="Two files",
-        ),
-    ],
-    indirect=["example_dir"],
-)
-def test_pytestersetup(example_dir: CollectedDir, expected_files: list[str]):
-    tmp_path = example_dir.pytester_instance.path
-    files_exist = ((tmp_path / expected_file).exists() for expected_file in expected_files)
-    assert all(files_exist), f"These are not the files you are looking for: {list(tmp_path.iterdir())}"
 
 
 def test_repr():
