@@ -11,8 +11,9 @@ import pytest
 if TYPE_CHECKING:
     from contextlib import suppress
 
-    with suppress(ImportError): # not type-checking on python < 3.11
+    with suppress(ImportError):  # not type-checking on python < 3.11
         from typing import Self
+
 
 class CollectionTree:
     """
@@ -27,9 +28,10 @@ class CollectionTree:
     @classmethod
     def from_items(cls, items: list[pytest.Item]) -> Self:
         """Create a CollectionTree from a list of collection items, as returned by `pytester.genitems()`."""
+
         def _from_item(item: pytest.Item | Self) -> Self:
             return item if isinstance(item, cls) else cls(node=item, children=None)
-        
+
         items = [_from_item(item) for item in items]
 
         def _get_parents_as_CollectionTrees(items: list[Self]) -> list[Self]:  # noqa: N802
@@ -38,12 +40,9 @@ class CollectionTree:
             items_byparent = {
                 parent: [item for item in items if item.node.parent == parent]
                 for parent in parents
-            }
-            return [
-                cls(node = parent, children = list(children))
-                for parent, children in items_byparent.items()
-            ]
-        
+            }  # fmt: skip
+            return [cls(node=parent, children=list(children)) for parent, children in items_byparent.items()]
+
         if all(isinstance(item.node, pytest.Session) for item in items):
             assert len(items) == 1, "There should only ever be one session node."  # noqa: S101
             return next(iter(items))
@@ -93,7 +92,7 @@ class CollectionTree:
                     cls.from_dict({childnode: grandchildren})
                     for childnode, grandchildren in children.items()
                 ],
-            )
+            )  # fmt:skip
 
         return cls(node=node, children=None)
 

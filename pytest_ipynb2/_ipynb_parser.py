@@ -9,7 +9,7 @@ import nbformat
 class Notebook:
     """
     An ipython Notebook.
-     
+
     - constructor from Path
     - methods to get various cell types
     - a `test` cell type identified by the `%%ipytest` cell magic.

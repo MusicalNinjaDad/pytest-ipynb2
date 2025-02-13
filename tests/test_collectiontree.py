@@ -44,7 +44,6 @@ def expected_tree(request: pytest.FixtureRequest, example_dir: CollectedDir) -> 
     return CollectionTree.from_dict(trees[request.param])
 
 
-
 def test_repr():
     tree_dict = {
         ("<Session  exitstatus='<UNSET>' testsfailed=0 testscollected=0>", pytest.Session): {
