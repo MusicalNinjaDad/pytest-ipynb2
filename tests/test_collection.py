@@ -46,8 +46,7 @@ def test_cell_collected(example_dir: CollectedDir):
     indirect=True,
 )
 def test_notebook_collection(example_dir: CollectedDir):
-    pt = example_dir.pytester_instance
-    files = list(pt.getpathnode(pt.path).collect())
+    files = list(example_dir.dir_node.collect())
     assert files
     assert len(files) == 1
     assert files[0].name == "notebook.ipynb"
