@@ -32,8 +32,6 @@ class CollectionTree:
         def _from_item(item: pytest.Item | Self) -> Self:
             return item if isinstance(item, cls) else cls(node=item, children=None)
 
-        items = [_from_item(item) for item in items]
-
         def _get_parents_as_CollectionTrees(items: list[Self]) -> list[Self]:  # noqa: N802
             """Returns a list of CollectionTree items for the parents of those provided."""
             parents = (item.node.parent for item in items)
@@ -42,6 +40,13 @@ class CollectionTree:
                 for parent in parents
             }  # fmt: skip
             return [cls(node=parent, children=list(children)) for parent, children in items_byparent.items()]
+
+        if not items:
+            # If we don't specifically handle this here, then `all([])` returns `True` later and wierd stuff happens
+            msg = "Items list is empty."
+            raise ValueError(msg)
+
+        items = [_from_item(item) for item in items]
 
         if all(isinstance(item.node, pytest.Session) for item in items):
             assert len(items) == 1, "There should only ever be one session node."  # noqa: S101

@@ -120,3 +120,9 @@ def test_from_dict_single_root():
 def test_from_items(example_dir: CollectedDir, expected_tree: CollectionTree):
     tree = CollectionTree.from_items(example_dir.items)
     assert tree == expected_tree
+
+
+def test_no_items():
+    expected_msg = "Items list is empty."
+    with pytest.raises(ValueError, match=expected_msg):
+        CollectionTree.from_items([])
