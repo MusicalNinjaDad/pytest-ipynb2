@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from pathlib import Path
 from textwrap import indent
 from typing import TYPE_CHECKING
 
@@ -11,6 +10,7 @@ import pytest
 
 if TYPE_CHECKING:
     from contextlib import suppress
+    from pathlib import Path
 
     with suppress(ImportError):  # not type-checking on python < 3.11
         from typing import Self

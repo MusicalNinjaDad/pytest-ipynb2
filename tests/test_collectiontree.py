@@ -106,7 +106,7 @@ def test_from_dict_single_root():
     [
         pytest.param(
             ExampleDir(
-                files = [Path("tests/assets/test_module.py").absolute()],
+                files=[Path("tests/assets/test_module.py").absolute()],
             ),
             "test_module",
             id="One module",
