@@ -37,8 +37,8 @@ def test_cell_collected(example_dir: CollectedDir):
     [
         pytest.param(
             ExampleDir(
-                files = [Path("tests/assets/notebook.ipynb").absolute()],
-                conftest = "pytest_plugins = ['pytest_ipynb2.plugin']",
+                files=[Path("tests/assets/notebook.ipynb").absolute()],
+                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
             ),
             id="Simple Notebook",
         ),
