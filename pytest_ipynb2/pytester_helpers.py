@@ -27,6 +27,7 @@ class CollectionTree:
     """
 
     @classmethod
+    #TODO(MusicalNinjaDad): #8 Refactor CollectionTree.from_items to be easier to understand.
     def from_items(cls, items: list[pytest.Item]) -> Self:
         """Create a CollectionTree from a list of collection items, as returned by `pytester.genitems()`."""
 
