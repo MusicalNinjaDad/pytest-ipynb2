@@ -48,6 +48,10 @@ check:
   @- just test
   @- just type-check
 
+# format with ruff
+format:
+  uv run ruff format .
+
 #run coverage analysis on python code
 cov:
   uv run pytest --cov --cov-report html:pycov --cov-report term --cov-context=test

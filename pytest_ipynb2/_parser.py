@@ -6,10 +6,13 @@ from pathlib import Path
 import nbformat
 
 
+class Cell: ...
+
+
 class Notebook:
     """
     An ipython Notebook.
-     
+
     - constructor from Path
     - methods to get various cell types
     - a `test` cell type identified by the `%%ipytest` cell magic.

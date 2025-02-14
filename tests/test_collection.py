@@ -1,58 +1,60 @@
-from __future__ import annotations
-
-import re
-from dataclasses import dataclass
 from pathlib import Path
-from textwrap import dedent
 
 import pytest
+from conftest import CollectedDir
 
-from pytest_ipynb2.pytester_helpers import CollectionTree
-
-
-@dataclass
-class CollectedDir:
-    pytester_instance: pytest.Pytester
-    dir_node: pytest.Dir
-    items: list[pytest.Item]
-
-
-@pytest.fixture
-def example_dir(request: pytest.FixtureRequest, pytester: pytest.Pytester) -> CollectedDir:
-    """Parameterised fixture. Requires a list of `Path`s to copy into a pytester instance."""
-    files = {f"test_{example.stem}": example.read_text() for example in request.param}
-    pytester.makepyfile(**files)
-    dir_node = pytester.getpathnode(pytester.path)
-    return CollectedDir(
-        pytester_instance=pytester,
-        dir_node=dir_node,
-        items=pytester.genitems([dir_node]),
-    )
+import pytest_ipynb2
+import pytest_ipynb2.plugin
+from pytest_ipynb2.pytester_helpers import CollectionTree, ExampleDir
 
 
 @pytest.fixture
 def expected_tree(request: pytest.FixtureRequest, example_dir: CollectedDir) -> CollectionTree:
     trees = {
-        "test_module": {
+        "notebook": {
             ("<Session  exitstatus='<UNSET>' testsfailed=0 testscollected=0>", pytest.Session): {
                 (f"<Dir {example_dir.pytester_instance.path.name}>", pytest.Dir): {
-                    ("<Module test_module.py>", pytest.Module): {
-                        ("<Function test_adder>", pytest.Function): None,
-                        ("<Function test_globals>", pytest.Function): None,
+                    ("<Notebook notebook.ipynb>", pytest_ipynb2.plugin.Notebook): {
+                        ("<Cell 4>", pytest_ipynb2.plugin.Cell): {
+                            ("<Function test_adder>", pytest.Function): None,
+                            ("<Function test_globals>", pytest.Function): None,
+                        },
                     },
                 },
             },
         },
-        "two_modules": {
+        "notebook_2tests": {
             ("<Session  exitstatus='<UNSET>' testsfailed=0 testscollected=0>", pytest.Session): {
                 (f"<Dir {example_dir.pytester_instance.path.name}>", pytest.Dir): {
-                    ("<Module test_module.py>", pytest.Module): {
-                        ("<Function test_adder>", pytest.Function): None,
-                        ("<Function test_globals>", pytest.Function): None,
+                    ("<Notebook notebook_2tests.ipynb>", pytest_ipynb2.plugin.Notebook): {
+                        ("<Cell 4>", pytest_ipynb2.plugin.Cell): {
+                            ("<Function test_adder>", pytest.Function): None,
+                            ("<Function test_globals>", pytest.Function): None,
+                        },
+                        ("<Cell 6>", pytest_ipynb2.plugin.Cell): {
+                            ("<Function test_another_function>", pytest.Function): None,
+                        },
                     },
-                    ("<Module test_othermodule.py>", pytest.Module): {
-                        ("<Function test_adder>", pytest.Function): None,
-                        ("<Function test_globals>", pytest.Function): None,
+                },
+            },
+        },
+        "both notebooks": {
+            ("<Session  exitstatus='<UNSET>' testsfailed=0 testscollected=0>", pytest.Session): {
+                (f"<Dir {example_dir.pytester_instance.path.name}>", pytest.Dir): {
+                    ("<Notebook notebook.ipynb>", pytest_ipynb2.plugin.Notebook): {
+                        ("<Cell 4>", pytest_ipynb2.plugin.Cell): {
+                            ("<Function test_adder>", pytest.Function): None,
+                            ("<Function test_globals>", pytest.Function): None,
+                        },
+                    },
+                    ("<Notebook notebook_2tests.ipynb>", pytest_ipynb2.plugin.Notebook): {
+                        ("<Cell 4>", pytest_ipynb2.plugin.Cell): {
+                            ("<Function test_adder>", pytest.Function): None,
+                            ("<Function test_globals>", pytest.Function): None,
+                        },
+                        ("<Cell 6>", pytest_ipynb2.plugin.Cell): {
+                            ("<Function test_another_function>", pytest.Function): None,
+                        },
                     },
                 },
             },
@@ -62,100 +64,103 @@ def expected_tree(request: pytest.FixtureRequest, example_dir: CollectedDir) -> 
 
 
 @pytest.mark.parametrize(
-    ["example_dir", "expected_files"],
-    [
-        pytest.param(
-            [Path("tests/assets/module.py").absolute()],
-            ["test_module.py"],
-            id="One File",
-        ),
-        pytest.param(
-            [Path("tests/assets/module.py").absolute(), Path("tests/assets/othermodule.py").absolute()],
-            ["test_module.py", "test_othermodule.py"],
-            id="Two files",
-        ),
-    ],
-    indirect=["example_dir"],
-)
-def test_pytestersetup(example_dir: CollectedDir, expected_files: list[str]):
-    tmp_path = example_dir.pytester_instance.path
-    files_exist = ((tmp_path / expected_file).exists() for expected_file in expected_files)
-    assert all(files_exist), f"These are not the files you are looking for: {list(tmp_path.iterdir())}"
-
-
-def test_repr():
-    tree_dict = {
-        ("<Session  exitstatus='<UNSET>' testsfailed=0 testscollected=0>", pytest.Session): {
-            ("<Dir tests>", pytest.Dir): {
-                ("<Module test_module.py>", pytest.Module): {
-                    ("<Function test_adder>", pytest.Function): None,
-                    ("<Function test_globals>", pytest.Function): None,
-                },
-                ("<Module test_othermodule.py>", pytest.Module): {
-                    ("<Function test_adder>", pytest.Function): None,
-                    ("<Function test_globals>", pytest.Function): None,
-                },
-            },
-        },
-    }
-    tree = CollectionTree.from_dict(tree_dict)
-    assert repr(tree) == dedent("""\
-        <Session  exitstatus='<UNSET>' testsfailed=0 testscollected=0> (<class '_pytest.main.Session'>)
-            <Dir tests> (<class '_pytest.main.Dir'>)
-                <Module test_module.py> (<class '_pytest.python.Module'>)
-                    <Function test_adder> (<class '_pytest.python.Function'>)
-                    <Function test_globals> (<class '_pytest.python.Function'>)
-                <Module test_othermodule.py> (<class '_pytest.python.Module'>)
-                    <Function test_adder> (<class '_pytest.python.Function'>)
-                    <Function test_globals> (<class '_pytest.python.Function'>)
-        """)
-
-
-def test_eq():
-    tree_dict = {
-        ("<Session  exitstatus='<UNSET>' testsfailed=0 testscollected=0>", pytest.Session): {
-            ("<Dir tests>", pytest.Dir): {
-                ("<Module test_module.py>", pytest.Module): {
-                    ("<Function test_adder>", pytest.Function): None,
-                    ("<Function test_globals>", pytest.Function): None,
-                },
-            },
-        },
-    }
-    tree1 = CollectionTree.from_dict(tree_dict)
-    tree2 = CollectionTree.from_dict(tree_dict)
-    assert tree1 is not tree2
-    assert tree1 == tree2
-    assert tree1 != tree_dict
-    assert tree_dict != tree1
-
-
-def test_from_dict_single_root():
-    tree_dict = {
-        ("<Function test_adder>", pytest.Function): None,
-        ("<Function test_globals>", pytest.Function): None,
-    }
-    expected_msg = re.escape(f"Please provide a dict with exactly 1 top-level entry (root), not {tree_dict}")
-    with pytest.raises(ValueError, match=expected_msg):
-        CollectionTree.from_dict(tree_dict)
-
-
-@pytest.mark.parametrize(
     ["example_dir", "expected_tree"],
     [
         pytest.param(
-            [Path("tests/assets/module.py").absolute()],
-            "test_module",
-            id="One module",
+            ExampleDir(
+                files=[Path("tests/assets/notebook.ipynb").absolute()],
+                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
+            ),
+            "notebook",
+            id="Simple Notebook",
         ),
         pytest.param(
-            [Path("tests/assets/module.py").absolute(), Path("tests/assets/othermodule.py").absolute()],
-            "two_modules",
-            id="Two modules",
+            ExampleDir(
+                files=[Path("tests/assets/notebook_2tests.ipynb").absolute()],
+                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
+            ),
+            "notebook_2tests",
+            id="Notebook 2 tests",
+        ),
+        pytest.param(
+            ExampleDir(
+                files=[
+                    Path("tests/assets/notebook_2tests.ipynb").absolute(),
+                    Path("tests/assets/notebook.ipynb").absolute(),
+                ],
+                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
+            ),
+            "both notebooks",
+            id="Both notebooks - unsorted",
         ),
     ],
     indirect=True,
 )
-def test_from_items(example_dir: CollectedDir, expected_tree: CollectionTree):
-    tree = CollectionTree.from_items(example_dir.items)
-    assert tree == expected_tree
+def test_cell_collected(example_dir: CollectedDir, expected_tree: CollectionTree):
+    assert CollectionTree.from_items(example_dir.items) == expected_tree
+
+
+@pytest.mark.parametrize(
+    "example_dir",
+    [
+        pytest.param(
+            ExampleDir(
+                files=[Path("tests/assets/notebook.ipynb").absolute()],
+                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
+            ),
+            id="Simple Notebook",
+        ),
+    ],
+    indirect=True,
+)
+def test_notebook_collection(example_dir: CollectedDir):
+    files = list(example_dir.dir_node.collect())
+    assert files
+    assert len(files) == 1
+    assert files[0].name == "notebook.ipynb"
+    assert repr(files[0]) == "<Notebook notebook.ipynb>"
+
+
+@pytest.mark.parametrize(
+    "example_dir",
+    [
+        pytest.param(
+            ExampleDir(
+                files=[Path("tests/assets/notebook.ipynb").absolute()],
+                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
+            ),
+            id="Simple Notebook",
+        ),
+    ],
+    indirect=True,
+)
+def test_cell_collection(example_dir: CollectedDir):
+    files = list(example_dir.dir_node.collect())
+    cells = list(files[0].collect())
+    assert cells
+    assert len(cells) == 1
+    assert cells[0].name == "4"
+    assert repr(cells[0]) == "<Cell 4>"
+
+
+@pytest.mark.parametrize(
+    "example_dir",
+    [
+        pytest.param(
+            ExampleDir(
+                files=[Path("tests/assets/notebook.ipynb").absolute()],
+                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
+            ),
+            id="Simple Notebook",
+        ),
+    ],
+    indirect=True,
+)
+def test_functions(example_dir: CollectedDir):
+    files = list(example_dir.dir_node.collect())
+    cells = list(files[0].collect())
+    functions = list(cells[0].collect())
+    assert functions
+    assert len(functions) == 2
+    assert [f.name for f in functions] == ["test_adder", "test_globals"]
+    assert [repr(f) for f in functions] == ["<Function test_adder>", "<Function test_globals>"]
