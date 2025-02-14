@@ -3,7 +3,7 @@ from textwrap import dedent
 
 import pytest
 
-from pytest_ipynb2 import Notebook
+from pytest_ipynb2._parser import Notebook
 
 
 @pytest.fixture

@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from pathlib import Path
     from types import ModuleType
 
-from ._ipynb_parser import Notebook as ParsedNotebook
+from ._parser import Notebook as ParsedNotebook
 
 ipynb2_notebook = pytest.StashKey[ParsedNotebook]()
 
