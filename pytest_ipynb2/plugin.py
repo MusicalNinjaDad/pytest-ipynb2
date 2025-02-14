@@ -12,17 +12,17 @@ if TYPE_CHECKING:
     from pathlib import Path
     from types import ModuleType
 
-from ._ipynb_parser import Notebook
+from ._ipynb_parser import Notebook as ParsedNotebook
 
-ipynb2_notebook = pytest.StashKey[Notebook]()
+ipynb2_notebook = pytest.StashKey[ParsedNotebook]()
 
 
-class NotebookCollector(pytest.File):
+class Notebook(pytest.File):
     """A pytest `Collector` for jupyter notebooks."""
 
     def collect(self) -> Generator[NotebookCellCollector, None, None]:
         """Yield NotebookCellCollectors for all cells which contain tests."""
-        parsed = Notebook(self.path)
+        parsed = ParsedNotebook(self.path)
         for testcellid in parsed.gettestcells():
             cell = NotebookCellCollector.from_parent(
                 parent=self,
@@ -46,8 +46,8 @@ class NotebookCellCollector(pytest.Module):
         return cell
 
 
-def pytest_collect_file(file_path: Path, parent: pytest.Collector) -> NotebookCollector | None:
+def pytest_collect_file(file_path: Path, parent: pytest.Collector) -> Notebook | None:
     """Hook implementation to collect jupyter notebooks."""
     if file_path.suffix == ".ipynb":
-        return NotebookCollector.from_parent(parent=parent, path=file_path)
+        return Notebook.from_parent(parent=parent, path=file_path)
     return None

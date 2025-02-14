@@ -25,7 +25,7 @@ def test_cell_collected(example_dir: CollectedDir):
     tree_dict = {
         ("<Session  exitstatus='<UNSET>' testsfailed=0 testscollected=0>", pytest.Session): {
             (f"<Dir {example_dir.pytester_instance.path.name}>", pytest.Dir): {
-                ("<NotebookCollector notebook.ipynb>", pytest_ipynb2.plugin.NotebookCollector): {
+                ("<Notebook notebook.ipynb>", pytest_ipynb2.plugin.Notebook): {
                     ("<NotebookCellCollector Cell 4>", pytest_ipynb2.plugin.NotebookCellCollector): {
                         ("<Function test_adder>", pytest.Function): None,
                         ("<Function test_globals>", pytest.Function): None,
@@ -56,7 +56,7 @@ def test_notebook_collection(example_dir: CollectedDir):
     assert files
     assert len(files) == 1
     assert files[0].name == "notebook.ipynb"
-    assert repr(files[0]) == "<NotebookCollector notebook.ipynb>"
+    assert repr(files[0]) == "<Notebook notebook.ipynb>"
 
 
 @pytest.mark.parametrize(
