@@ -23,6 +23,21 @@ def expected_tree(request: pytest.FixtureRequest, example_dir: CollectedDir) -> 
                 },
             },
         },
+        "notebook_2tests": {
+            ("<Session  exitstatus='<UNSET>' testsfailed=0 testscollected=0>", pytest.Session): {
+                (f"<Dir {example_dir.pytester_instance.path.name}>", pytest.Dir): {
+                    ("<Notebook notebook_2tests.ipynb>", pytest_ipynb2.plugin.Notebook): {
+                        ("<Cell 4>", pytest_ipynb2.plugin.Cell): {
+                            ("<Function test_adder>", pytest.Function): None,
+                            ("<Function test_globals>", pytest.Function): None,
+                        },
+                        ("<Cell 6>", pytest_ipynb2.plugin.Cell): {
+                            ("<Function test_another_function>", pytest.Function): None,
+                        },
+                    },
+                },
+            },
+        },
     }
     return CollectionTree.from_dict(trees[request.param])
 
@@ -37,6 +52,14 @@ def expected_tree(request: pytest.FixtureRequest, example_dir: CollectedDir) -> 
             ),
             "notebook",
             id="Simple Notebook",
+        ),
+        pytest.param(
+            ExampleDir(
+                files=[Path("tests/assets/notebook_2tests.ipynb").absolute()],
+                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
+            ),
+            "notebook_2tests",
+            id="Notebook 2 tests",
         ),
     ],
     indirect=True,
