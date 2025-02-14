@@ -1,4 +1,10 @@
-"""Actual plugin code."""
+"""
+Pytest plugin to collect jupyter Notebooks.
+
+- Identifies all cells which use the `%%ipytest` magic
+- adds the notebook, cell and any test functions to the collection tree
+- relies on pytest logic and configuration to identify test functions.
+"""
 
 from __future__ import annotations
 
@@ -12,17 +18,17 @@ if TYPE_CHECKING:
     from pathlib import Path
     from types import ModuleType
 
-from ._parser import Notebook as ParsedNotebook
+from ._parser import Notebook as _ParsedNotebook
 
-ipynb2_notebook = pytest.StashKey[ParsedNotebook]()
+ipynb2_notebook = pytest.StashKey[_ParsedNotebook]()
 
 
 class Notebook(pytest.File):
-    """A pytest `Collector` for jupyter notebooks."""
+    """A collector for jupyter notebooks."""
 
     def collect(self) -> Generator[Cell, None, None]:
-        """Yield NotebookCellCollectors for all cells which contain tests."""
-        parsed = ParsedNotebook(self.path)
+        """Yield `Cell`s for all cells which contain tests."""
+        parsed = _ParsedNotebook(self.path)
         for testcellid in parsed.gettestcells():
             cell = Cell.from_parent(
                 parent=self,
@@ -35,7 +41,12 @@ class Notebook(pytest.File):
 
 
 class Cell(pytest.Module):
-    """A pytest `Collector` for jupyter notebook cells."""
+    """
+    A collector for jupyter notebook cells.
+    
+    `pytest` will recognise these cells as `pytest.Module`s and use standard collection on them as it would any other
+    python module.
+    """
 
     def _getobj(self) -> ModuleType:
         notebook = self.stash[ipynb2_notebook]

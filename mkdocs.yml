@@ -7,8 +7,9 @@ watch:
 
 nav:
   - index.md
-  - python-api.md
+  - plugin.md
   - test_helpers.md
+  - parser.md
 
 theme:
   name: "material"
