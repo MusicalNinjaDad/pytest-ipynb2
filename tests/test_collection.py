@@ -4,10 +4,10 @@ import pytest
 from conftest import CollectedDir
 
 import pytest_ipynb2
+import pytest_ipynb2.plugin
 from pytest_ipynb2.pytester_helpers import CollectionTree, ExampleDir
 
 
-@pytest.mark.xfail
 @pytest.mark.parametrize(
     "example_dir",
     [
@@ -25,8 +25,8 @@ def test_cell_collected(example_dir: CollectedDir):
     tree_dict = {
         ("<Session  exitstatus='<UNSET>' testsfailed=0 testscollected=0>", pytest.Session): {
             (f"<Dir {example_dir.pytester_instance.path.name}>", pytest.Dir): {
-                ("<Notebook notebook.ipynb>", pytest_ipynb2.Notebook): {
-                    ("<Cell 4>", pytest_ipynb2.Cell): {
+                ("<NotebookCollector notebook.ipynb>", pytest_ipynb2.plugin.NotebookCollector): {
+                    ("<NotebookCellCollector Cell 4>", pytest_ipynb2.plugin.NotebookCellCollector): {
                         ("<Function test_adder>", pytest.Function): None,
                         ("<Function test_globals>", pytest.Function): None,
                     },
