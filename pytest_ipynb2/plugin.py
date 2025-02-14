@@ -50,10 +50,11 @@ class Cell(pytest.Module):
 
     def _getobj(self) -> ModuleType:
         notebook = self.stash[ipynb2_notebook]
+        othercells = "\n".join(notebook.getcodecells().values())
         cellsource = notebook.gettestcells()[int(self.nodeid)]
         cellspec = importlib.util.spec_from_loader(f"Cell{self.name}", loader=None)
         cell = importlib.util.module_from_spec(cellspec)
-        exec(cellsource, cell.__dict__)  # noqa: S102
+        exec(f"{othercells}\n{cellsource}", cell.__dict__)  # noqa: S102
         return cell
 
 
