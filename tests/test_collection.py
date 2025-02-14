@@ -80,7 +80,7 @@ def test_cell_collection(example_dir: CollectedDir):
     assert cells[0].name == "Cell 4"
     assert repr(cells[0]) == "<NotebookCellCollector Cell 4>"
 
-@pytest.mark.xfail
+
 @pytest.mark.parametrize(
     "example_dir",
     [
@@ -99,3 +99,6 @@ def test_functions(example_dir: CollectedDir):
     cells = list(files[0].collect())
     functions = list(cells[0].collect())
     assert functions
+    assert len(functions) == 2
+    assert [f.name for f in functions] == ["test_adder", "test_globals"]
+    assert [repr(f) for f in functions] == ["<Function test_adder>", "<Function test_globals>"]
