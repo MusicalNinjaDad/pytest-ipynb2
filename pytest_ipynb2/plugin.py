@@ -20,11 +20,11 @@ ipynb2_notebook = pytest.StashKey[ParsedNotebook]()
 class Notebook(pytest.File):
     """A pytest `Collector` for jupyter notebooks."""
 
-    def collect(self) -> Generator[NotebookCellCollector, None, None]:
+    def collect(self) -> Generator[Cell, None, None]:
         """Yield NotebookCellCollectors for all cells which contain tests."""
         parsed = ParsedNotebook(self.path)
         for testcellid in parsed.gettestcells():
-            cell = NotebookCellCollector.from_parent(
+            cell = Cell.from_parent(
                 parent=self,
                 name=f"Cell {testcellid}",
                 nodeid=str(testcellid),
@@ -34,7 +34,7 @@ class Notebook(pytest.File):
             yield cell
 
 
-class NotebookCellCollector(pytest.Module):
+class Cell(pytest.Module):
     """A pytest `Collector` for jupyter notebook cells."""
 
     def _getobj(self) -> ModuleType:

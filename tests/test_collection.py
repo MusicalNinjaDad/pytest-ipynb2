@@ -26,7 +26,7 @@ def test_cell_collected(example_dir: CollectedDir):
         ("<Session  exitstatus='<UNSET>' testsfailed=0 testscollected=0>", pytest.Session): {
             (f"<Dir {example_dir.pytester_instance.path.name}>", pytest.Dir): {
                 ("<Notebook notebook.ipynb>", pytest_ipynb2.plugin.Notebook): {
-                    ("<NotebookCellCollector Cell 4>", pytest_ipynb2.plugin.NotebookCellCollector): {
+                    ("<Cell Cell 4>", pytest_ipynb2.plugin.Cell): {
                         ("<Function test_adder>", pytest.Function): None,
                         ("<Function test_globals>", pytest.Function): None,
                     },
@@ -78,7 +78,7 @@ def test_cell_collection(example_dir: CollectedDir):
     assert cells
     assert len(cells) == 1
     assert cells[0].name == "Cell 4"
-    assert repr(cells[0]) == "<NotebookCellCollector Cell 4>"
+    assert repr(cells[0]) == "<Cell Cell 4>"
 
 
 @pytest.mark.parametrize(
