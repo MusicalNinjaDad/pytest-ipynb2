@@ -10,21 +10,24 @@ if TYPE_CHECKING:
 
 
 @pytest.mark.parametrize(
-    "example_dir",
+    ["example_dir","outcomes"],
     [
         pytest.param(
             ExampleDir(
                 files=[Path("tests/assets/notebook.ipynb").absolute()],
                 conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
             ),
+            {
+                "passed": 2,
+            },
             id="Simple Notebook",
         ),
     ],
-    indirect=True,
+    indirect=["example_dir"],
 )
-def test_runtests(example_dir: CollectedDir):
+def test_runtests(example_dir: CollectedDir, outcomes: dict):
     results = example_dir.pytester_instance.runpytest()
-    results.assert_outcomes(passed=2)
+    results.assert_outcomes(**outcomes)
 
 
 @pytest.mark.parametrize(
