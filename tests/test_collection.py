@@ -8,33 +8,40 @@ import pytest_ipynb2.plugin
 from pytest_ipynb2.pytester_helpers import CollectionTree, ExampleDir
 
 
+@pytest.fixture
+def expected_tree(request: pytest.FixtureRequest, example_dir: CollectedDir) -> CollectionTree:
+    trees = {
+        "notebook": {
+            ("<Session  exitstatus='<UNSET>' testsfailed=0 testscollected=0>", pytest.Session): {
+                (f"<Dir {example_dir.pytester_instance.path.name}>", pytest.Dir): {
+                    ("<Notebook notebook.ipynb>", pytest_ipynb2.plugin.Notebook): {
+                        ("<Cell 4>", pytest_ipynb2.plugin.Cell): {
+                            ("<Function test_adder>", pytest.Function): None,
+                            ("<Function test_globals>", pytest.Function): None,
+                        },
+                    },
+                },
+            },
+        },
+    }
+    return CollectionTree.from_dict(trees[request.param])
+
+
 @pytest.mark.parametrize(
-    "example_dir",
+    ["example_dir", "expected_tree"],
     [
         pytest.param(
             ExampleDir(
                 files=[Path("tests/assets/notebook.ipynb").absolute()],
                 conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
             ),
+            "notebook",
             id="Simple Notebook",
         ),
     ],
     indirect=True,
 )
-def test_cell_collected(example_dir: CollectedDir):
-    tree_dict = {
-        ("<Session  exitstatus='<UNSET>' testsfailed=0 testscollected=0>", pytest.Session): {
-            (f"<Dir {example_dir.pytester_instance.path.name}>", pytest.Dir): {
-                ("<Notebook notebook.ipynb>", pytest_ipynb2.plugin.Notebook): {
-                    ("<Cell 4>", pytest_ipynb2.plugin.Cell): {
-                        ("<Function test_adder>", pytest.Function): None,
-                        ("<Function test_globals>", pytest.Function): None,
-                    },
-                },
-            },
-        },
-    }
-    expected_tree = CollectionTree.from_dict(tree_dict)
+def test_cell_collected(example_dir: CollectedDir, expected_tree: CollectionTree):
     assert CollectionTree.from_items(example_dir.items) == expected_tree
 
 
