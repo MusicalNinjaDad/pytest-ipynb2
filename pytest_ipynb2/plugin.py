@@ -12,21 +12,26 @@ if TYPE_CHECKING:
 
 from ._ipynb_parser import Notebook
 
+ipynb2_notebook = pytest.StashKey[Notebook]()
+
 
 class NotebookCollector(pytest.File):
     """A pytest `Collector` for jupyter notebooks."""
 
     def collect(self) -> Generator[NotebookCellCollector, None, None]:
-        """Return NotebookCellCollectors for all cells which contain tests."""
+        """Yield NotebookCellCollectors for all cells which contain tests."""
         parsed = Notebook(self.path)
-        for testcell in parsed.gettestcells():
-            yield NotebookCellCollector.from_parent(parent=self, name=f"Cell {testcell}")
+        for testcellid in parsed.gettestcells():
+            cell = NotebookCellCollector.from_parent(parent=self, name=f"Cell {testcellid}", path=self.path)
+            cell.stash[ipynb2_notebook] = parsed
+            yield cell
 
-class NotebookCellCollector(pytest.Class):
+
+class NotebookCellCollector(pytest.Collector):
     """A pytest `Collector` for jupyter notebook cells."""
 
-    def collect(self) -> pytest.Function: ...  # noqa: D102
-
+    def collect(self) -> Generator[pytest.Function, None, None]:
+        """Yield pytest Functions from within the cell."""
 
 
 def pytest_collect_file(file_path: Path, parent: pytest.Collector) -> NotebookCollector | None:
