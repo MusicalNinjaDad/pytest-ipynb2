@@ -26,7 +26,7 @@ class Notebook(pytest.File):
         for testcellid in parsed.gettestcells():
             cell = Cell.from_parent(
                 parent=self,
-                name=f"Cell {testcellid}",
+                name=str(testcellid),
                 nodeid=str(testcellid),
                 path=self.path,
             )
