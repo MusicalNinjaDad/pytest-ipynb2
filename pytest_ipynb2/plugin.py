@@ -43,17 +43,19 @@ class Notebook(pytest.File):
 class Cell(pytest.Module):
     """
     A collector for jupyter notebook cells.
-    
+
     `pytest` will recognise these cells as `pytest.Module`s and use standard collection on them as it would any other
     python module.
     """
 
     def _getobj(self) -> ModuleType:
         notebook = self.stash[ipynb2_notebook]
+        cellsabove = [source for cellid, source in notebook.getcodecells().items() if cellid < int(self.nodeid)]
+        othercells = "\n".join(cellsabove)
         cellsource = notebook.gettestcells()[int(self.nodeid)]
         cellspec = importlib.util.spec_from_loader(f"Cell{self.name}", loader=None)
         cell = importlib.util.module_from_spec(cellspec)
-        exec(cellsource, cell.__dict__)  # noqa: S102
+        exec(f"{othercells}\n{cellsource}", cell.__dict__)  # noqa: S102
         return cell
 
 
