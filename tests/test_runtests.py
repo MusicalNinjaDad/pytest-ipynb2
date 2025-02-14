@@ -26,6 +26,7 @@ def test_runtests(example_dir: CollectedDir):
     results = example_dir.pytester_instance.runpytest()
     results.assert_outcomes(passed=2)
 
+
 @pytest.mark.parametrize(
     "example_dir",
     [
@@ -41,7 +42,6 @@ def test_runtests(example_dir: CollectedDir):
 )
 def test_cellmodule_contents(example_dir: CollectedDir):
     cell: Cell = example_dir.items[0].parent
-    expected_contents = ["x", "y", "adder", "test_adder", "test_globals"]
-    public_items = [attr for attr in cell._obj.__dict__ if not attr.startswith("__")]  # noqa: SLF001
-    missing_items = [attr for attr in expected_contents if attr not in public_items]
-    assert not missing_items
+    expected_attrs = ["x", "y", "adder", "test_adder", "test_globals"]
+    public_attrs = [attr for attr in cell._obj.__dict__ if not attr.startswith("__")]  # noqa: SLF001
+    assert public_attrs == expected_attrs
