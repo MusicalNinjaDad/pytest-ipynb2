@@ -30,9 +30,9 @@ class CollectionTree:
     def from_items(cls, items: list[pytest.Item]) -> Self:
         """
         Create a single CollectionTree from a list of collected `Items`.
-        
+
         It is intended that this function is passed the result of `pytester.genitems()`
-        
+
         Returns: a CollectionTree with the Session as the root.
         """
         if not items:
@@ -46,7 +46,7 @@ class CollectionTree:
     def _walk_up_tree(cls, branches: list[Self]) -> Self:
         """
         Walk up the collection tree from a list of branches/leaves until reaching the `pytest.Session`.
-        
+
         Returns: the Session `CollectionTree`.
         """
         parents = (branch.node.parent for branch in branches)
@@ -57,8 +57,8 @@ class CollectionTree:
         parent_trees = [cls(node=parent, children=list(children)) for parent, children in branches_byparent.items()]
 
         if all(isinstance(parent.node, pytest.Session) for parent in parent_trees):
-                assert len(parent_trees) == 1, "We should only ever have one Session."  # noqa: S101
-                return next(iter(parent_trees))
+            assert len(parent_trees) == 1, "We should only ever have one Session."  # noqa: S101
+            return next(iter(parent_trees))
 
         return cls._walk_up_tree(parent_trees)
 
