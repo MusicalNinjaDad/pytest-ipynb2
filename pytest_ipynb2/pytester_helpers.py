@@ -30,31 +30,32 @@ class CollectionTree:
     # TODO(MusicalNinjaDad): #8 Refactor CollectionTree.from_items to be easier to understand.
     def from_items(cls, items: list[pytest.Item]) -> Self:
         """Create a CollectionTree from a list of collection items, as returned by `pytester.genitems()`."""
-
-        def _from_item(item: pytest.Item | Self) -> Self:
-            return item if isinstance(item, cls) else cls(node=item, children=None)
-
-        def _get_parents_as_CollectionTrees(items: list[Self]) -> list[Self]:  # noqa: N802
-            """Returns a list of CollectionTree items for the parents of those provided."""
-            parents = (item.node.parent for item in items)
-            items_byparent = {
-                parent: [item for item in items if item.node.parent == parent]
-                for parent in parents
-            }  # fmt: skip
-            return [cls(node=parent, children=list(children)) for parent, children in items_byparent.items()]
-
         if not items:
-            # If we don't specifically handle this here, then `all([])` returns `True` later and wierd stuff happens
+            # If we don't specifically handle this here, then `all([])` returns `True` in _walk_up_tree
             msg = "Items list is empty."
             raise ValueError(msg)
 
-        items = [_from_item(item) for item in items]
+        return cls._walk_up_tree([cls(node=item, children=None) for item in items])
 
-        if all(isinstance(item.node, pytest.Session) for item in items):
-            assert len(items) == 1, "There should only ever be one session node."  # noqa: S101
-            return next(iter(items))
+    @classmethod
+    def _walk_up_tree(cls, branches: list[Self]) -> Self:
+        """
+        Walk up the collection tree from a list of branches/leaves until reaching the `pytest.Session`.
+        
+        Returns the Session `CollectionTree`.
+        """
+        parents = (branch.node.parent for branch in branches)
+        branches_byparent = {
+            parent: [branch for branch in branches if branch.node.parent == parent]
+            for parent in parents
+        }  # fmt: skip
+        parent_trees = [cls(node=parent, children=list(children)) for parent, children in branches_byparent.items()]
 
-        return cls.from_items(_get_parents_as_CollectionTrees(items))
+        if all(isinstance(parent.node, pytest.Session) for parent in parent_trees):
+                assert len(parent_trees) == 1, "We should only ever have one Session."  # noqa: S101
+                return next(iter(parent_trees))
+
+        return cls._walk_up_tree(parent_trees)
 
     @classmethod
     def from_dict(cls, tree: dict[tuple[str, type], dict | None]) -> Self:
