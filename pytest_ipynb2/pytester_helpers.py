@@ -27,9 +27,14 @@ class CollectionTree:
     """
 
     @classmethod
-    # TODO(MusicalNinjaDad): #8 Refactor CollectionTree.from_items to be easier to understand.
     def from_items(cls, items: list[pytest.Item]) -> Self:
-        """Create a CollectionTree from a list of collection items, as returned by `pytester.genitems()`."""
+        """
+        Create a single CollectionTree from a list of collected `Items`.
+        
+        It is intended that this function is passed the result of `pytester.genitems()`
+        
+        Returns: a CollectionTree with the Session as the root.
+        """
         if not items:
             # If we don't specifically handle this here, then `all([])` returns `True` in _walk_up_tree
             msg = "Items list is empty."
@@ -42,7 +47,7 @@ class CollectionTree:
         """
         Walk up the collection tree from a list of branches/leaves until reaching the `pytest.Session`.
         
-        Returns the Session `CollectionTree`.
+        Returns: the Session `CollectionTree`.
         """
         parents = (branch.node.parent for branch in branches)
         branches_byparent = {
