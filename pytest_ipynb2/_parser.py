@@ -16,14 +16,14 @@ class SourceList(list):
     A list with non-continuous indices for storing the contents of cells.
 
     - use slicing: sourcelist[:], not list(sourcelist) to get contents.
-    - supports .keys() analog to a mapping, yielding only cell-ids with source.
-    - use .values() analog to a mapping, rather than enumerate().
+    - supports .ids() analog to a mapping.keys(), yielding only cell-ids with source.
+    - use .items() analog to a mapping, rather than enumerate().
     """
 
     def __len__(self) -> int:
         return len([source for source in self if source is not None])
 
-    def keys(self) -> Generator[int, None, None]:
+    def ids(self) -> Generator[int, None, None]:
         for key, source in enumerate(self):
             if source is not None:
                 yield key
@@ -43,12 +43,11 @@ class SourceList(list):
             msg = f"Cell {index} is not present in this SourceList."
             raise IndexError(msg)
         return source
-    
+
     def items(self) -> Generator[tuple[int, str], None, None]:
         for index, source in enumerate(self):
             if source is not None:
                 yield index, source
-        
 
 
 class Notebook:

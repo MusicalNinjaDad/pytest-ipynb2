@@ -32,7 +32,7 @@ def test_codecells_number(testnotebook: Notebook):
 
 
 def test_codecells_indexes(testnotebook: Notebook):
-    assert list(testnotebook.codecells.keys()) == [1, 3, 5]
+    assert list(testnotebook.codecells.ids()) == [1, 3, 5]
 
 
 def test_testcells_number(testnotebook: Notebook):
@@ -40,7 +40,7 @@ def test_testcells_number(testnotebook: Notebook):
 
 
 def test_testcells_indexes(testnotebook: Notebook):
-    assert list(testnotebook.testcells.keys()) == [4]
+    assert list(testnotebook.testcells.ids()) == [4]
 
 
 def test_testcell_contents(testnotebook: Notebook):
@@ -106,6 +106,7 @@ def test_codecells_partial_slice(testnotebook: Notebook):
                 return a + b"""),
     ]
     assert testnotebook.codecells[:4] == expected
+
 
 def test_testcells_items(testnotebook: Notebook):
     expected_source = dedent("""\
