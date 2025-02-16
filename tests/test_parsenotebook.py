@@ -80,6 +80,7 @@ def test_testcell_fullslice(testnotebook: Notebook):
             assert x == 1""")
     assert testnotebook.testcells[:] == [expected]
 
+
 def test_codecells_partial_slice(testnotebook: Notebook):
     expected = [
         dedent("""\
