@@ -79,3 +79,21 @@ def test_testcell_fullslice(testnotebook: Notebook):
         def test_globals():
             assert x == 1""")
     assert testnotebook.testcells[:] == [expected]
+
+def test_codecells_partial_slice(testnotebook: Notebook):
+    expected = [
+        dedent("""\
+            # This cell sets some global variables
+
+            x = 1
+            y = 2
+
+            x + y"""),
+        dedent("""\
+            # Define a function
+
+
+            def adder(a, b):
+                return a + b"""),
+    ]
+    assert testnotebook.codecells[:4] == expected
