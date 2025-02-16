@@ -29,7 +29,7 @@ class Notebook(pytest.File):
     def collect(self) -> Generator[Cell, None, None]:
         """Yield `Cell`s for all cells which contain tests."""
         parsed = _ParsedNotebook(self.path)
-        for testcellid in parsed.gettestcells():
+        for testcellid in parsed.testcells.keys():  # noqa: SIM118
             cell = Cell.from_parent(
                 parent=self,
                 name=str(testcellid),
