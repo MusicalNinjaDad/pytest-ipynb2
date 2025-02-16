@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, SupportsIndex, overload
 import nbformat
 
 if TYPE_CHECKING:
+    from collections.abc import Generator
     from pathlib import Path
 
 
@@ -15,6 +16,7 @@ class SourceList(list):
     A list with non-continuous indices for storing the source of cells.
 
     - use slicing: sourcelist[:], not list(sourcelist) to get contents of only those cells which contain source.
+    - use .values() as you would for a mapping, rather than enumerate().
     """
 
     def __len__(self) -> int:
@@ -35,6 +37,12 @@ class SourceList(list):
             msg = f"Cell {index} is not present in this SourceList."
             raise IndexError(msg)
         return source
+    
+    def items(self) -> Generator[tuple[int, str], None, None]:
+        for index, source in enumerate(self):
+            if source is not None:
+                yield index, source
+        
 
 
 class Notebook:
