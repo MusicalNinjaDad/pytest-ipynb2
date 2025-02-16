@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Changed
 
-- `_parser.Notebook` API changed: added `.codecells`and `.testcells`, removed `get_codecells()`, `get_testcells()`, `.contents`
+- `_parser.Notebook` API changed: added `.codecells` and `.testcells`, removed `get_codecells()`, `get_testcells()`, `.contents`
 
 ## [0.1.0] - 2025-02-14
 
