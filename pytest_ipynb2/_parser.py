@@ -77,19 +77,3 @@ class Notebook:
         )
 
         self.contents: nbformat.NotebookNode = contents
-
-    def getcodecells(self) -> dict[int, str]:
-        """Return parsed code cells from a notebook."""
-        return {
-            cellnr: "\n".join(cell.source)
-            for cellnr, cell in enumerate(self.contents.cells)
-            if cell.cell_type == "code" and not cell.source[0].startswith(r"%%ipytest")
-        }
-
-    def gettestcells(self) -> dict[int, str]:
-        """Return parsed test cells from a notebook. Identified by cell magic `%%ipytest`."""
-        return {
-            cellnr: "\n".join(cell["source"][1:]).strip()
-            for cellnr, cell in enumerate(self.contents["cells"])
-            if cell["cell_type"] == "code" and cell["source"][0].startswith(r"%%ipytest")
-        }
