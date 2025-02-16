@@ -58,6 +58,7 @@ def test_cellsourcelists(testnotebook: Notebook):
     codesources = [cellsource for cellsource in testnotebook.codecells if cellsource is not None]
     assert codesources == list(testnotebook.getcodecells().values())
 
+
 def test_sources_testcells(testnotebook: Notebook):
     expected = [
         None,
