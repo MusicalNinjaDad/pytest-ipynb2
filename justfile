@@ -29,6 +29,7 @@ reset: clean install
 install:
     # upgrade until we have confirmation that dependabot will recognise and process the generated requirements.txt
     uv sync --upgrade
+    uv export --no-header --no-default-groups --no-emit-project -o requirements.txt
 
 # lint python with ruff
 lint:
