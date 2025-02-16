@@ -12,11 +12,6 @@ def testnotebook():
     return Notebook(notebook)
 
 
-# TODO(sourcery): #2 Handling of empty notebook
-# TODO(sourcery): #3 Test multiple %%ipytest cells in one notebook
-# TODO(sourcery): #4 Add tests for cells with only comments, empty cells, and cells with mixed code and markdown.
-
-
 def test_codecells_number(testnotebook: Notebook):
     assert len(testnotebook.codecells) == 3
 
