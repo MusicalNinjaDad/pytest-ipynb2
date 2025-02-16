@@ -52,3 +52,25 @@ def test_testcell_contents(testnotebook_testcells: dict):
         def test_globals():
             assert x == 1""")
     assert testnotebook_testcells[4] == expected
+
+
+def test_cellsourcelists(testnotebook: Notebook):
+    codesources = [cellsource for cellsource in testnotebook.codecells if cellsource is not None]
+    assert codesources == list(testnotebook.getcodecells().values())
+
+def test_sources_testcells(testnotebook: Notebook):
+    expected = [
+        None,
+        None,
+        None,
+        None,
+        dedent("""\
+            def test_adder():
+                assert adder(1, 2) == 3
+
+
+            def test_globals():
+                assert x == 1"""),
+        None,
+    ]
+    assert testnotebook.testcells == expected

@@ -18,18 +18,29 @@ class Notebook:
     """
 
     def __init__(self, filepath: Path) -> None:
-        contents = nbformat.read(fp=str(filepath),as_version=4)
+        contents = nbformat.read(fp=str(filepath), as_version=4)
         nbformat.validate(contents)
-        for cell in contents.cells:
+        cells = contents.cells
+        for cell in cells:
             cell.source = cell.source.splitlines()
-        self.contents = contents
+        self.codecells = [
+            "\n".join(cell.source) if cell.cell_type == "code" and not cell.source[0].startswith(r"%%ipytest") else None
+            for cell in cells
+        ]
+        self.testcells = [
+            "\n".join(cell["source"][1:]).strip()
+            if cell.cell_type == "code" and cell.source[0].startswith(r"%%ipytest")
+            else None
+            for cell in cells
+        ]
+        self.contents: nbformat.NotebookNode = contents
 
     def getcodecells(self) -> dict[int, str]:
         """Return parsed code cells from a notebook."""
         return {
-            cellnr: "\n".join(cell["source"])
-            for cellnr, cell in enumerate(self.contents["cells"])
-            if cell["cell_type"] == "code" and not cell["source"][0].startswith(r"%%ipytest")
+            cellnr: "\n".join(cell.source)
+            for cellnr, cell in enumerate(self.contents.cells)
+            if cell.cell_type == "code" and not cell.source[0].startswith(r"%%ipytest")
         }
 
     def gettestcells(self) -> dict[int, str]:
