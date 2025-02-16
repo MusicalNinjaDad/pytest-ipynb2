@@ -83,14 +83,3 @@ def test_codecells_partial_slice(testnotebook: Notebook):
                 return a + b"""),
     ]
     assert testnotebook.codecells[:4] == expected
-
-
-def test_testcells_items(testnotebook: Notebook):
-    expected_source = dedent("""\
-        def test_adder():
-            assert adder(1, 2) == 3
-
-
-        def test_globals():
-            assert x == 1""")
-    assert list(testnotebook.testcells.items()) == [(4, expected_source)]

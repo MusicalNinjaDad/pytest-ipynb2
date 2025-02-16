@@ -41,11 +41,6 @@ class SourceList(list):
             raise IndexError(msg)
         return source
 
-    def items(self) -> Generator[tuple[int, str], None, None]:
-        for index, source in enumerate(self):
-            if source is not None:
-                yield index, source
-
 
 class Notebook:
     """
