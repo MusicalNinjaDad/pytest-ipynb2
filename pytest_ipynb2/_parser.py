@@ -67,5 +67,3 @@ class Notebook:
             else None
             for cell in cells
         )
-
-        self.contents: nbformat.NotebookNode = contents
