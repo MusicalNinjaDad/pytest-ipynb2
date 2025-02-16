@@ -29,7 +29,7 @@ class Notebook(pytest.File):
     def collect(self) -> Generator[Cell, None, None]:
         """Yield `Cell`s for all cells which contain tests."""
         parsed = _ParsedNotebook(self.path)
-        for testcellid in parsed.gettestcells():
+        for testcellid in parsed.testcells.ids():
             cell = Cell.from_parent(
                 parent=self,
                 name=str(testcellid),
@@ -50,13 +50,13 @@ class Cell(pytest.Module):
 
     def _getobj(self) -> ModuleType:
         notebook = self.stash[ipynb2_notebook]
-        cellsabove = [source for cellid, source in notebook.getcodecells().items() if cellid < int(self.nodeid)]
-        othercells = "\n".join(cellsabove)
-        cellsource = notebook.gettestcells()[int(self.nodeid)]
-        cellspec = importlib.util.spec_from_loader(f"Cell{self.name}", loader=None)
-        cell = importlib.util.module_from_spec(cellspec)
-        exec(f"{othercells}\n{cellsource}", cell.__dict__)  # noqa: S102
-        return cell
+        cellid = int(self.nodeid)
+        cellsabove = "\n".join(notebook.codecells[:cellid])
+        testcell = notebook.testcells[cellid]
+        dummy_spec = importlib.util.spec_from_loader(f"Cell{self.name}", loader=None)
+        dummy_module = importlib.util.module_from_spec(dummy_spec)
+        exec(f"{cellsabove}\n{testcell}", dummy_module.__dict__)  # noqa: S102
+        return dummy_module
 
 
 def pytest_collect_file(file_path: Path, parent: pytest.Collector) -> Notebook | None:

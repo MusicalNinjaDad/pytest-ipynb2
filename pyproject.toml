@@ -94,6 +94,7 @@ exclude_also = [
     "def __repr__",
     "if TYPE_CHECKING:",
     "except ImportError:",
+    "@overload",
     ]
 
 [tool.coverage.html]
