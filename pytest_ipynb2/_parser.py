@@ -1,6 +1,5 @@
 """Parse notebooks."""
 
-import json
 from pathlib import Path
 
 import nbformat
@@ -19,15 +18,16 @@ class Notebook:
     """
 
     def __init__(self, filepath: Path) -> None:
-        rawcontents = filepath.read_text()
-        contents = json.loads(rawcontents)
+        contents = nbformat.read(fp=str(filepath),as_version=4)
         nbformat.validate(contents)
+        for cell in contents.cells:
+            cell.source = cell.source.splitlines()
         self.contents = contents
 
     def getcodecells(self) -> dict[int, str]:
         """Return parsed code cells from a notebook."""
         return {
-            cellnr: "".join(cell["source"])
+            cellnr: "\n".join(cell["source"])
             for cellnr, cell in enumerate(self.contents["cells"])
             if cell["cell_type"] == "code" and not cell["source"][0].startswith(r"%%ipytest")
         }
@@ -35,7 +35,7 @@ class Notebook:
     def gettestcells(self) -> dict[int, str]:
         """Return parsed test cells from a notebook. Identified by cell magic `%%ipytest`."""
         return {
-            cellnr: "".join(cell["source"][1:]).strip()
+            cellnr: "\n".join(cell["source"][1:]).strip()
             for cellnr, cell in enumerate(self.contents["cells"])
             if cell["cell_type"] == "code" and cell["source"][0].startswith(r"%%ipytest")
         }
