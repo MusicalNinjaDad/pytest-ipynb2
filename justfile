@@ -49,6 +49,11 @@ check:
   @- just test
   @- just type-check
 
+# format and fix linting errors with ruff
+fix:
+  uv run ruff check . --fix
+  uv run ruff format .
+
 # format with ruff
 format:
   uv run ruff format .
