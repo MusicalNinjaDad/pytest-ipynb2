@@ -51,7 +51,7 @@ class Cell(pytest.Module):
     def _getobj(self) -> ModuleType:
         notebook = self.stash[ipynb2_notebook]
         cellid = int(self.nodeid)
-        cellsabove = [source for source in notebook.codecells[:cellid] if source is not None]
+        cellsabove = notebook.codecells[:cellid]
         othercells = "\n".join(cellsabove)
         cellsource = notebook.testcells[cellid]
         cellspec = importlib.util.spec_from_loader(f"Cell{self.name}", loader=None)

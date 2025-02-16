@@ -13,12 +13,12 @@ def testnotebook():
 
 
 @pytest.fixture
-def testnotebook_codecells(testnotebook) -> dict:
+def testnotebook_codecells(testnotebook: Notebook) -> dict:
     return testnotebook.getcodecells()
 
 
 @pytest.fixture
-def testnotebook_testcells(testnotebook) -> dict:
+def testnotebook_testcells(testnotebook: Notebook) -> dict:
     return testnotebook.gettestcells()
 
 
@@ -27,23 +27,23 @@ def testnotebook_testcells(testnotebook) -> dict:
 # TODO(sourcery): #4 Add tests for cells with only comments, empty cells, and cells with mixed code and markdown.
 
 
-def test_codecells_number(testnotebook_codecells: dict):
-    assert len(testnotebook_codecells) == 3
+def test_codecells_number(testnotebook: Notebook):
+    assert len(testnotebook.codecells) == 3
 
 
-def test_codecells_indexes(testnotebook_codecells: dict):
-    assert list(testnotebook_codecells.keys()) == [1, 3, 5]
+def test_codecells_indexes(testnotebook: Notebook):
+    assert list(testnotebook.codecells.keys()) == [1, 3, 5]
 
 
-def test_testcells_number(testnotebook_testcells: dict):
-    assert len(testnotebook_testcells) == 1
+def test_testcells_number(testnotebook: Notebook):
+    assert len(testnotebook.testcells) == 1
 
 
-def test_testcells_indexes(testnotebook_testcells: dict):
-    assert list(testnotebook_testcells.keys()) == [4]
+def test_testcells_indexes(testnotebook: Notebook):
+    assert list(testnotebook.testcells.keys()) == [4]
 
 
-def test_testcell_contents(testnotebook_testcells: dict):
+def test_testcell_contents(testnotebook: Notebook):
     expected = dedent("""\
         def test_adder():
             assert adder(1, 2) == 3
@@ -51,12 +51,13 @@ def test_testcell_contents(testnotebook_testcells: dict):
 
         def test_globals():
             assert x == 1""")
-    assert testnotebook_testcells[4] == expected
+    assert testnotebook.testcells[4] == expected
 
 
-def test_cellsourcelists(testnotebook: Notebook):
-    codesources = [cellsource for cellsource in testnotebook.codecells if cellsource is not None]
-    assert codesources == list(testnotebook.getcodecells().values())
+def test_codecells_index_a_testcell(testnotebook: Notebook):
+    msg = "Cell 4 is not present in this SourceList."
+    with pytest.raises(IndexError, match=msg):
+        testnotebook.codecells[4]
 
 
 def test_sources_testcells(testnotebook: Notebook):
@@ -75,3 +76,14 @@ def test_sources_testcells(testnotebook: Notebook):
         None,
     ]
     assert testnotebook.testcells == expected
+
+
+def test_testcell_fullslice(testnotebook: Notebook):
+    expected = dedent("""\
+        def test_adder():
+            assert adder(1, 2) == 3
+
+
+        def test_globals():
+            assert x == 1""")
+    assert testnotebook.testcells[:] == [expected]
