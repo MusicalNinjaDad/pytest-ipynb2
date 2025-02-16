@@ -7,25 +7,18 @@ from typing import TYPE_CHECKING, SupportsIndex, overload
 import nbformat
 
 if TYPE_CHECKING:
-    from collections.abc import Generator
     from pathlib import Path
 
 
 class SourceList(list):
     """
-    A list with non-continuous indices for storing the contents of cells.
+    A list with non-continuous indices for storing the source of cells.
 
-    - supports .keys() analog to a dict, yielding only cell-ids with source.
-    - use slicing: sourcelist[:], not list(sourcelist) to get contents.
+    - use slicing: sourcelist[:], not list(sourcelist) to get contents of only those cells which contain source.
     """
 
     def __len__(self) -> int:
         return len([source for source in self if source is not None])
-
-    def keys(self) -> Generator[int, None, None]:
-        for key, source in enumerate(self):
-            if source is not None:
-                yield key
 
     @overload
     def __getitem__(self, index: SupportsIndex) -> str: ...

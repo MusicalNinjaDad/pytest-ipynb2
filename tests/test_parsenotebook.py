@@ -31,16 +31,8 @@ def test_codecells_number(testnotebook: Notebook):
     assert len(testnotebook.codecells) == 3
 
 
-def test_codecells_indexes(testnotebook: Notebook):
-    assert list(testnotebook.codecells.keys()) == [1, 3, 5]
-
-
 def test_testcells_number(testnotebook: Notebook):
     assert len(testnotebook.testcells) == 1
-
-
-def test_testcells_indexes(testnotebook: Notebook):
-    assert list(testnotebook.testcells.keys()) == [4]
 
 
 def test_testcell_contents(testnotebook: Notebook):
