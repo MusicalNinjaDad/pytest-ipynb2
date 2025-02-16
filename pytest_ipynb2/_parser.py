@@ -13,14 +13,20 @@ if TYPE_CHECKING:
 
 class SourceList(list):
     """
-    A list with non-continuous indices for storing the source of cells.
+    A list with non-continuous indices for storing the contents of cells.
 
-    - use slicing: sourcelist[:], not list(sourcelist) to get contents of only those cells which contain source.
-    - use .values() as you would for a mapping, rather than enumerate().
+    - use slicing: sourcelist[:], not list(sourcelist) to get contents.
+    - supports .keys() analog to a mapping, yielding only cell-ids with source.
+    - use .values() analog to a mapping, rather than enumerate().
     """
 
     def __len__(self) -> int:
         return len([source for source in self if source is not None])
+
+    def keys(self) -> Generator[int, None, None]:
+        for key, source in enumerate(self):
+            if source is not None:
+                yield key
 
     @overload
     def __getitem__(self, index: SupportsIndex) -> str: ...
