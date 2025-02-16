@@ -51,13 +51,12 @@ class Cell(pytest.Module):
     def _getobj(self) -> ModuleType:
         notebook = self.stash[ipynb2_notebook]
         cellid = int(self.nodeid)
-        cellsabove = notebook.codecells[:cellid]
-        othercells = "\n".join(cellsabove)
-        cellsource = notebook.testcells[cellid]
-        cellspec = importlib.util.spec_from_loader(f"Cell{self.name}", loader=None)
-        cell = importlib.util.module_from_spec(cellspec)
-        exec(f"{othercells}\n{cellsource}", cell.__dict__)  # noqa: S102
-        return cell
+        cellsabove = "\n".join(notebook.codecells[:cellid])
+        testcell = notebook.testcells[cellid]
+        dummy_spec = importlib.util.spec_from_loader(f"Cell{self.name}", loader=None)
+        dummy_module = importlib.util.module_from_spec(dummy_spec)
+        exec(f"{cellsabove}\n{testcell}", dummy_module.__dict__)  # noqa: S102
+        return dummy_module
 
 
 def pytest_collect_file(file_path: Path, parent: pytest.Collector) -> Notebook | None:
