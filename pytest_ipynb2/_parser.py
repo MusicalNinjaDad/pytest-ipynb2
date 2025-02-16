@@ -20,9 +20,6 @@ class SourceList(list):
     - use .items() analog to a mapping, rather than enumerate().
     """
 
-    def __len__(self) -> int:
-        return len([source for source in self if source is not None])
-
     def ids(self) -> Generator[int, None, None]:
         for key, source in enumerate(self):
             if source is not None:
