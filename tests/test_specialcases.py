@@ -92,6 +92,18 @@ parametrized = pytest.mark.parametrize(
             ),
             id="No ipytest cells",
         ),
+        pytest.param(
+            ExampleDir(
+                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
+                notebooks={
+                    "nocells": [],
+                },
+            ),
+            ExpectedResults(
+                outcomes={},
+            ),
+            id="Empty notebook",
+        ),
     ],
     indirect=["example_dir"],
 )
