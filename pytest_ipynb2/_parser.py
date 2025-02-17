@@ -56,7 +56,9 @@ class Notebook:
         nbformat.validate(contents)
         cells = contents.cells
         for cell in cells:
-            cell.source = cell.source.splitlines()
+            cell.source = [
+                sourceline for sourceline in cell.source.splitlines() if not sourceline.startswith("ipytest")
+            ]
         self.codecells = SourceList(
             "\n".join(cell.source) if cell.cell_type == "code" and not cell.source[0].startswith(r"%%ipytest") else None
             for cell in cells

@@ -65,6 +65,21 @@ parametrized = pytest.mark.parametrize(
             ),
             id="Test with parameters and marks",
         ),
+        pytest.param(
+            ExampleDir(
+                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
+                notebooks={
+                    "autoconfig": [
+                        Path("tests/assets/import_ipytest.py").read_text(),
+                        Path("tests/assets/passing_test.py").read_text(),
+                    ],
+                },
+            ),
+            ExpectedResults(
+                outcomes={"passed": 1},
+            ),
+            id="Notebook calls autoconfig",
+        ),
     ],
     indirect=["example_dir"],
 )
@@ -73,7 +88,10 @@ parametrized = pytest.mark.parametrize(
 @parametrized
 def test_results(example_dir: CollectedDir, expected_results: ExpectedResults):
     results = example_dir.pytester_instance.runpytest()
-    results.assert_outcomes(**expected_results.outcomes)
+    try:
+        results.assert_outcomes(**expected_results.outcomes)
+    except AssertionError:
+        pytest.fail(f"{results.stdout}")
 
 
 @parametrized
