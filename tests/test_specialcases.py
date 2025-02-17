@@ -2,7 +2,6 @@
 Errors which only occur in these tests are likely due to the handling of the specific case, not basic functionality.
 
 TODO:
-- tests using fixtures
 - parametrized tests
 """  # noqa: D405
 
@@ -25,6 +24,16 @@ failing_test = [
     "    assert x == 2",
 ]
 
+fixture_test = [
+    r"%%ipytest",
+    "import pytest",
+    "@pytest.fixture",
+    "def fixt():",
+    "    return 1",
+    "def test_fixture(fixt):",
+    "    assert fixt == 1",
+]
+
 
 @dataclass
 class ExpectedResults:
@@ -34,7 +43,7 @@ class ExpectedResults:
     """Consecutive lines expected in stdout"""
 
 
-test_cases = pytest.mark.parametrize(
+parametrized = pytest.mark.parametrize(
     ["example_dir", "expected_results"],
     [
         pytest.param(
@@ -63,18 +72,28 @@ test_cases = pytest.mark.parametrize(
             ),
             id="Failing Test",
         ),
+        pytest.param(
+            ExampleDir(
+                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
+                notebooks={"fixture": fixture_test},
+            ),
+            ExpectedResults(
+                outcomes={"passed": 1},
+            ),
+            id="Test with fixture",
+        ),
     ],
     indirect=["example_dir"],
 )
 
 
-@test_cases
+@parametrized
 def test_results(example_dir: CollectedDir, expected_results: ExpectedResults):
     results = example_dir.pytester_instance.runpytest()
     results.assert_outcomes(**expected_results.outcomes)
 
 
-@test_cases
+@parametrized
 def test_output(example_dir: CollectedDir, expected_results: ExpectedResults):
     results = example_dir.pytester_instance.runpytest()
     if expected_results.stdout:

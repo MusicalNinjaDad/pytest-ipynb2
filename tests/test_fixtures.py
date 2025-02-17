@@ -6,7 +6,7 @@ import pytest
 
 from pytest_ipynb2.pytester_helpers import CollectedDir, ExampleDir
 
-test_cases = [
+tests = [
     pytest.param(
         ExampleDir(
             [Path("tests/assets/test_module.py").absolute()],
@@ -54,7 +54,7 @@ test_cases = [
 
 @pytest.mark.parametrize(
     ["example_dir", "expected_files"],
-    test_cases,
+    tests,
     indirect=["example_dir"],
 )
 def test_filesexist(example_dir: CollectedDir, expected_files: list[str]):
@@ -65,7 +65,7 @@ def test_filesexist(example_dir: CollectedDir, expected_files: list[str]):
 
 @pytest.mark.parametrize(
     ["example_dir", "expected_files"],
-    test_cases,
+    tests,
     indirect=["example_dir"],
 )
 def test_filecontents(example_dir: CollectedDir, expected_files: dict[str, list[str]]):
