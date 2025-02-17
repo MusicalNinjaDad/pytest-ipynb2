@@ -80,6 +80,18 @@ parametrized = pytest.mark.parametrize(
             ),
             id="Notebook calls autoconfig",
         ),
+        pytest.param(
+            ExampleDir(
+                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
+                notebooks={
+                    "notests": [Path("tests/assets/test_module.py").read_text()],
+                },
+            ),
+            ExpectedResults(
+                outcomes={},
+            ),
+            id="No ipytest cells",
+        ),
     ],
     indirect=["example_dir"],
 )
