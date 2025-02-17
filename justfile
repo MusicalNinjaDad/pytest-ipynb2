@@ -51,8 +51,8 @@ check:
 
 # format and fix linting errors with ruff
 fix:
-  uv run ruff check . --fix
-  uv run ruff format .
+  - uv run ruff check . --fix
+  - uv run ruff format .
 
 # format with ruff
 format:
