@@ -104,6 +104,21 @@ parametrized = pytest.mark.parametrize(
             ),
             id="Empty notebook",
         ),
+        pytest.param(
+            ExampleDir(
+                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
+                notebooks={
+                    "comments": [
+                        f"# A test cell\n{Path('tests/assets/passing_test.py').read_text()}",
+                        Path("tests/assets/failing_test.py").read_text(),
+                    ],
+                },
+            ),
+            ExpectedResults(
+                outcomes={"passed": 1, "failed": 1},
+            ),
+            id="ipytest not first line",
+        ),
     ],
     indirect=["example_dir"],
 )
