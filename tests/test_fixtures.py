@@ -11,21 +11,24 @@ test_cases = [
         ExampleDir(
             [Path("tests/assets/test_module.py").absolute()],
         ),
-        ["test_module.py"],
+        {"test_module.py": None},
         id="One File",
     ),
     pytest.param(
         ExampleDir(
             [Path("tests/assets/test_module.py").absolute(), Path("tests/assets/test_othermodule.py").absolute()],
         ),
-        ["test_module.py", "test_othermodule.py"],
+        {
+            "test_module.py": None,
+            "test_othermodule.py": None,
+        },
         id="Two files",
     ),
     pytest.param(
         ExampleDir(
             [Path("tests/assets/notebook.ipynb").absolute()],
         ),
-        ["notebook.ipynb"],
+        {"notebook.ipynb": None},
         id="Simple Notebook",
     ),
     pytest.param(
@@ -68,5 +71,6 @@ def test_filesexist(example_dir: CollectedDir, expected_files: list[str]):
 def test_filecontents(example_dir: CollectedDir, expected_files: dict[str, list[str]]):
     tmp_path = example_dir.pytester_instance.path
     for filename, expected_contents in expected_files.items():
-        nb = nbformat.read(fp=tmp_path / filename, as_version=nbformat.NO_CONVERT)
-        assert [cell.source for cell in nb.cells] == expected_contents
+        if expected_contents is not None:
+            nb = nbformat.read(fp=tmp_path / filename, as_version=nbformat.NO_CONVERT)
+            assert [cell.source for cell in nb.cells] == expected_contents
