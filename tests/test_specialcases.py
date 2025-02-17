@@ -17,6 +17,12 @@ passing_test = [
     "   assert True",
 ]
 
+failing_test = [
+    r"%%ipytest",
+    "def test_fails():",
+    "   assert False",
+]
+
 test_cases = [
     pytest.param(
         ExampleDir(
@@ -25,6 +31,14 @@ test_cases = [
         ),
         {"passed": 1},
         id="Single Cell",
+    ),
+    pytest.param(
+        ExampleDir(
+            conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
+            notebooks={"failing": failing_test},
+        ),
+        {"failed": 1},
+        id="Failing Test",
     ),
 ]
 
