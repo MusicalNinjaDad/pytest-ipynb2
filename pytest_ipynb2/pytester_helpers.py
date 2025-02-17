@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from textwrap import indent
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Protocol
 
+import nbformat
 import pytest
 
 if TYPE_CHECKING:
@@ -188,5 +189,37 @@ class CollectedDir:
 class ExampleDir:
     """The various elements to set up a pytester instance."""
 
-    files: list[Path]
+    files: list[Path] = field(default_factory=list)
     conftest: str = ""
+    notebooks: dict[str, list[str]] = field(default_factory=dict)
+
+
+class ExampleDirRequest(Protocol):
+    """Typehint to param passed to example_dir."""
+
+    param: ExampleDir
+
+
+@pytest.fixture
+def example_dir(request: ExampleDirRequest, pytester: pytest.Pytester) -> CollectedDir:
+    """Parameterised fixture. Requires a list of `Path`s to copy into a pytester instance."""
+    example = request.param
+    if example.conftest:
+        pytester.makeconftest(request.param.conftest)
+
+    for filetocopy in example.files:
+        pytester.copy_example(str(filetocopy))
+
+    for notebook, contents in example.notebooks.items():
+        nbnode = nbformat.v4.new_notebook()
+        cellnode = nbformat.v4.new_code_cell(source="\n".join(contents))
+        nbnode.cells.append(cellnode)
+        nbformat.write(nb=nbnode, fp=pytester.path / f"{notebook}.ipynb")
+
+    dir_node = pytester.getpathnode(pytester.path)
+
+    return CollectedDir(
+        pytester_instance=pytester,
+        dir_node=dir_node,
+        items=pytester.genitems([dir_node]),
+    )

@@ -4,6 +4,10 @@ Pytest plugin to collect jupyter Notebooks.
 - Identifies all cells which use the `%%ipytest` magic
 - adds the notebook, cell and any test functions to the collection tree
 - relies on pytest logic and configuration to identify test functions.
+
+Known Issues:
+
+- Pytest output to stdout does not properly list the tests or apply Assertion rewriting.
 """
 
 from __future__ import annotations
