@@ -1,9 +1,4 @@
-"""
-Errors which only occur in these tests are likely due to the handling of the specific case, not basic functionality.
-
-TODO:
-- parametrized tests
-"""  # noqa: D405
+"""Tests failures are likely due to the handling of the specific case, not basic functionality."""
 
 from dataclasses import dataclass, field
 
@@ -32,6 +27,22 @@ fixture_test = [
     "    return 1",
     "def test_fixture(fixt):",
     "    assert fixt == 1",
+]
+
+param_test = [
+    r"%%ipytest",
+    "",
+    "import pytest",
+    "",
+    "@pytest.mark.parametrize(",
+    "   'val',",
+    "   [",
+    "       pytest.param(True, id='pass'),",
+    "       pytest.param(False, marks=pytest.mark.xfail, id='fail'),",
+    "   ],",
+    ")",
+    "def test_params(val):",
+    "   assert val",
 ]
 
 
@@ -81,6 +92,16 @@ parametrized = pytest.mark.parametrize(
                 outcomes={"passed": 1},
             ),
             id="Test with fixture",
+        ),
+        pytest.param(
+            ExampleDir(
+                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
+                notebooks={"marks": param_test},
+            ),
+            ExpectedResults(
+                outcomes={"passed": 1, "xfailed": 1},
+            ),
+            id="Test with parameters and marks",
         ),
     ],
     indirect=["example_dir"],
