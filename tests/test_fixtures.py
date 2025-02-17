@@ -1,5 +1,4 @@
 from pathlib import Path
-from textwrap import dedent
 
 import nbformat
 import pytest
@@ -33,18 +32,18 @@ tests = [
     ),
     pytest.param(
         ExampleDir(
-            notebooks={
-                "generated": [
-                    "def test_pass():",
-                    "    assert True",
-                ],
-            },
+            notebooks={"generated": Path("tests/assets/passing_test.py").read_text()},
         ),
         {
             "generated.ipynb": [
-                dedent("""\
-                    def test_pass():
-                        assert True"""),
+                "\n".join(  # noqa: FLY002
+                    [
+                        r"%%ipytest",
+                        "",
+                        "def test_pass():",
+                        "    assert True",
+                    ],
+                ),
             ],
         },
         id="Generated Notebook",

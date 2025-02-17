@@ -1,49 +1,11 @@
 """Tests failures are likely due to the handling of the specific case, not basic functionality."""
 
 from dataclasses import dataclass, field
+from pathlib import Path
 
 import pytest
 
 from pytest_ipynb2.pytester_helpers import CollectedDir, ExampleDir
-
-passing_test = [
-    r"%%ipytest",
-    "def test_passes():",
-    "   assert True",
-]
-
-failing_test = [
-    r"%%ipytest",
-    "def test_fails():",
-    "    x = 1",
-    "    assert x == 2",
-]
-
-fixture_test = [
-    r"%%ipytest",
-    "import pytest",
-    "@pytest.fixture",
-    "def fixt():",
-    "    return 1",
-    "def test_fixture(fixt):",
-    "    assert fixt == 1",
-]
-
-param_test = [
-    r"%%ipytest",
-    "",
-    "import pytest",
-    "",
-    "@pytest.mark.parametrize(",
-    "   'val',",
-    "   [",
-    "       pytest.param(True, id='pass'),",
-    "       pytest.param(False, marks=pytest.mark.xfail, id='fail'),",
-    "   ],",
-    ")",
-    "def test_params(val):",
-    "   assert val",
-]
 
 
 @dataclass
@@ -60,7 +22,7 @@ parametrized = pytest.mark.parametrize(
         pytest.param(
             ExampleDir(
                 conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
-                notebooks={"passing": passing_test},
+                notebooks={"passing": Path("tests/assets/passing_test.py").read_text()},
             ),
             ExpectedResults(
                 outcomes={"passed": 1},
@@ -70,7 +32,7 @@ parametrized = pytest.mark.parametrize(
         pytest.param(
             ExampleDir(
                 conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
-                notebooks={"failing": failing_test},
+                notebooks={"failing": Path("tests/assets/failing_test.py").read_text()},
             ),
             ExpectedResults(
                 outcomes={"failed": 1},
@@ -86,7 +48,7 @@ parametrized = pytest.mark.parametrize(
         pytest.param(
             ExampleDir(
                 conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
-                notebooks={"fixture": fixture_test},
+                notebooks={"fixture": Path("tests/assets/fixture_test.py").read_text()},
             ),
             ExpectedResults(
                 outcomes={"passed": 1},
@@ -96,7 +58,7 @@ parametrized = pytest.mark.parametrize(
         pytest.param(
             ExampleDir(
                 conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
-                notebooks={"marks": param_test},
+                notebooks={"marks": Path("tests/assets/param_test.py").read_text()},
             ),
             ExpectedResults(
                 outcomes={"passed": 1, "xfailed": 1},
