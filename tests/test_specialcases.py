@@ -22,7 +22,7 @@ parametrized = pytest.mark.parametrize(
         pytest.param(
             ExampleDir(
                 conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
-                notebooks={"passing": Path("tests/assets/passing_test.py").read_text()},
+                notebooks={"passing": [Path("tests/assets/passing_test.py").read_text()]},
             ),
             ExpectedResults(
                 outcomes={"passed": 1},
@@ -32,7 +32,7 @@ parametrized = pytest.mark.parametrize(
         pytest.param(
             ExampleDir(
                 conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
-                notebooks={"failing": Path("tests/assets/failing_test.py").read_text()},
+                notebooks={"failing": [Path("tests/assets/failing_test.py").read_text()]},
             ),
             ExpectedResults(
                 outcomes={"failed": 1},
@@ -48,7 +48,7 @@ parametrized = pytest.mark.parametrize(
         pytest.param(
             ExampleDir(
                 conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
-                notebooks={"fixture": Path("tests/assets/fixture_test.py").read_text()},
+                notebooks={"fixture": [Path("tests/assets/fixture_test.py").read_text()]},
             ),
             ExpectedResults(
                 outcomes={"passed": 1},
@@ -58,7 +58,7 @@ parametrized = pytest.mark.parametrize(
         pytest.param(
             ExampleDir(
                 conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
-                notebooks={"marks": Path("tests/assets/param_test.py").read_text()},
+                notebooks={"marks": [Path("tests/assets/param_test.py").read_text()]},
             ),
             ExpectedResults(
                 outcomes={"passed": 1, "xfailed": 1},
