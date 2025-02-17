@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from textwrap import indent
 from typing import TYPE_CHECKING, Protocol
 
+import nbformat
 import pytest
 
 if TYPE_CHECKING:
@@ -188,8 +189,9 @@ class CollectedDir:
 class ExampleDir:
     """The various elements to set up a pytester instance."""
 
-    files: list[Path]
+    files: list[Path] = field(default_factory=list)
     conftest: str = ""
+    notebooks: dict[str, list[str]] = field(default_factory=dict)
 
 
 class ExampleDirRequest(Protocol):
@@ -201,11 +203,17 @@ class ExampleDirRequest(Protocol):
 @pytest.fixture
 def example_dir(request: ExampleDirRequest, pytester: pytest.Pytester) -> CollectedDir:
     """Parameterised fixture. Requires a list of `Path`s to copy into a pytester instance."""
-    if request.param.conftest:
+    example = request.param
+    if example.conftest:
         pytester.makeconftest(request.param.conftest)
 
-    for filetocopy in request.param.files:
+    for filetocopy in example.files:
         pytester.copy_example(str(filetocopy))
+
+    for notebook in example.notebooks:
+        notebook_path = pytester.path / f"{notebook}.ipynb"
+        nbnode = nbformat.v4.new_notebook()
+        nbformat.write(nb=nbnode, fp=notebook_path)
 
     dir_node = pytester.getpathnode(pytester.path)
 
