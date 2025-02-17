@@ -119,6 +119,19 @@ parametrized = pytest.mark.parametrize(
             ),
             id="ipytest not first line",
         ),
+        pytest.param(
+            ExampleDir(
+                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
+                files=[
+                    Path("tests/assets/test_module.py"),
+                    Path("tests/assets/notebook.ipynb"),
+                ],
+            ),
+            ExpectedResults(
+                outcomes={"passed": 4},
+            ),
+            id="mixed file types",
+        ),
     ],
     indirect=["example_dir"],
 )
