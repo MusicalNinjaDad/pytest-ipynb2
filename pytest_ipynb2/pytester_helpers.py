@@ -210,9 +210,11 @@ def example_dir(request: ExampleDirRequest, pytester: pytest.Pytester) -> Collec
     for filetocopy in example.files:
         pytester.copy_example(str(filetocopy))
 
-    for notebook in example.notebooks:
+    for notebook, contents in example.notebooks.items():
         notebook_path = pytester.path / f"{notebook}.ipynb"
         nbnode = nbformat.v4.new_notebook()
+        cellnode = nbformat.v4.new_code_cell(source="\n".join(contents))
+        nbnode.cells.append(cellnode)
         nbformat.write(nb=nbnode, fp=notebook_path)
 
     dir_node = pytester.getpathnode(pytester.path)
