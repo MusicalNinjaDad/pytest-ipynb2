@@ -132,6 +132,24 @@ parametrized = pytest.mark.parametrize(
             ),
             id="mixed file types",
         ),
+        pytest.param(
+            ExampleDir(
+                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
+                notebooks={
+                    "globals": [
+                        "x = 2",
+                        "x = 1",
+                        Path("tests/assets/globals_test.py").read_text(),
+                        "x = 2",
+                        Path("tests/assets/globals_test.py").read_text(),
+                    ],
+                },
+            ),
+            ExpectedResults(
+                outcomes={"passed": 1, "failed": 1},
+            ),
+            id="cell execution order",
+        ),
     ],
     indirect=["example_dir"],
 )
