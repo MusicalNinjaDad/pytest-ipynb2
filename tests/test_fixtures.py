@@ -1,5 +1,4 @@
 from pathlib import Path
-from textwrap import dedent
 
 import nbformat
 import pytest
@@ -29,25 +28,55 @@ tests = [
             [Path("tests/assets/notebook.ipynb").absolute()],
         ),
         {"notebook.ipynb": None},
-        id="Simple Notebook",
+        id="Copied Notebook",
+    ),
+    pytest.param(
+        ExampleDir(
+            notebooks={"generated": [Path("tests/assets/passing_test.py").read_text()]},
+        ),
+        {
+            "generated.ipynb": [
+                "\n".join(  # noqa: FLY002
+                    [
+                        r"%%ipytest",
+                        "",
+                        "def test_pass():",
+                        "    assert True",
+                    ],
+                ),
+            ],
+        },
+        id="Generated Notebook",
     ),
     pytest.param(
         ExampleDir(
             notebooks={
                 "generated": [
-                    "def test_pass():",
-                    "    assert True",
+                    Path("tests/assets/import_ipytest.py").read_text(),
+                    Path("tests/assets/passing_test.py").read_text(),
                 ],
             },
         ),
         {
             "generated.ipynb": [
-                dedent("""\
-                    def test_pass():
-                        assert True"""),
+                "\n".join(  # noqa: FLY002
+                    [
+                        "import ipytest",
+                        "ipytest.autoconfig()",
+                        "",
+                    ],
+                ),
+                "\n".join(  # noqa: FLY002
+                    [
+                        r"%%ipytest",
+                        "",
+                        "def test_pass():",
+                        "    assert True",
+                    ],
+                ),
             ],
         },
-        id="Generated Notebook",
+        id="Generated Notebook 2 cells",
     ),
 ]
 

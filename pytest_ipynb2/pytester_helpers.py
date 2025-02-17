@@ -212,8 +212,9 @@ def example_dir(request: ExampleDirRequest, pytester: pytest.Pytester) -> Collec
 
     for notebook, contents in example.notebooks.items():
         nbnode = nbformat.v4.new_notebook()
-        cellnode = nbformat.v4.new_code_cell(source="\n".join(contents))
-        nbnode.cells.append(cellnode)
+        for cellsource in contents:
+            cellnode = nbformat.v4.new_code_cell(cellsource)
+            nbnode.cells.append(cellnode)
         nbformat.write(nb=nbnode, fp=pytester.path / f"{notebook}.ipynb")
 
     dir_node = pytester.getpathnode(pytester.path)

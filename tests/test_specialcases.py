@@ -1,49 +1,11 @@
 """Tests failures are likely due to the handling of the specific case, not basic functionality."""
 
 from dataclasses import dataclass, field
+from pathlib import Path
 
 import pytest
 
 from pytest_ipynb2.pytester_helpers import CollectedDir, ExampleDir
-
-passing_test = [
-    r"%%ipytest",
-    "def test_passes():",
-    "   assert True",
-]
-
-failing_test = [
-    r"%%ipytest",
-    "def test_fails():",
-    "    x = 1",
-    "    assert x == 2",
-]
-
-fixture_test = [
-    r"%%ipytest",
-    "import pytest",
-    "@pytest.fixture",
-    "def fixt():",
-    "    return 1",
-    "def test_fixture(fixt):",
-    "    assert fixt == 1",
-]
-
-param_test = [
-    r"%%ipytest",
-    "",
-    "import pytest",
-    "",
-    "@pytest.mark.parametrize(",
-    "   'val',",
-    "   [",
-    "       pytest.param(True, id='pass'),",
-    "       pytest.param(False, marks=pytest.mark.xfail, id='fail'),",
-    "   ],",
-    ")",
-    "def test_params(val):",
-    "   assert val",
-]
 
 
 @dataclass
@@ -60,7 +22,7 @@ parametrized = pytest.mark.parametrize(
         pytest.param(
             ExampleDir(
                 conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
-                notebooks={"passing": passing_test},
+                notebooks={"passing": [Path("tests/assets/passing_test.py").read_text()]},
             ),
             ExpectedResults(
                 outcomes={"passed": 1},
@@ -70,7 +32,7 @@ parametrized = pytest.mark.parametrize(
         pytest.param(
             ExampleDir(
                 conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
-                notebooks={"failing": failing_test},
+                notebooks={"failing": [Path("tests/assets/failing_test.py").read_text()]},
             ),
             ExpectedResults(
                 outcomes={"failed": 1},
@@ -86,7 +48,7 @@ parametrized = pytest.mark.parametrize(
         pytest.param(
             ExampleDir(
                 conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
-                notebooks={"fixture": fixture_test},
+                notebooks={"fixture": [Path("tests/assets/fixture_test.py").read_text()]},
             ),
             ExpectedResults(
                 outcomes={"passed": 1},
@@ -96,12 +58,97 @@ parametrized = pytest.mark.parametrize(
         pytest.param(
             ExampleDir(
                 conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
-                notebooks={"marks": param_test},
+                notebooks={"marks": [Path("tests/assets/param_test.py").read_text()]},
             ),
             ExpectedResults(
                 outcomes={"passed": 1, "xfailed": 1},
             ),
             id="Test with parameters and marks",
+        ),
+        pytest.param(
+            ExampleDir(
+                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
+                notebooks={
+                    "autoconfig": [
+                        Path("tests/assets/import_ipytest.py").read_text(),
+                        Path("tests/assets/passing_test.py").read_text(),
+                    ],
+                },
+            ),
+            ExpectedResults(
+                outcomes={"passed": 1},
+            ),
+            id="Notebook calls autoconfig",
+        ),
+        pytest.param(
+            ExampleDir(
+                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
+                notebooks={
+                    "notests": [Path("tests/assets/test_module.py").read_text()],
+                },
+            ),
+            ExpectedResults(
+                outcomes={},
+            ),
+            id="No ipytest cells",
+        ),
+        pytest.param(
+            ExampleDir(
+                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
+                notebooks={
+                    "nocells": [],
+                },
+            ),
+            ExpectedResults(
+                outcomes={},
+            ),
+            id="Empty notebook",
+        ),
+        pytest.param(
+            ExampleDir(
+                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
+                notebooks={
+                    "comments": [
+                        f"# A test cell\n{Path('tests/assets/passing_test.py').read_text()}",
+                        Path("tests/assets/failing_test.py").read_text(),
+                    ],
+                },
+            ),
+            ExpectedResults(
+                outcomes={"passed": 1, "failed": 1},
+            ),
+            id="ipytest not first line",
+        ),
+        pytest.param(
+            ExampleDir(
+                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
+                files=[
+                    Path("tests/assets/test_module.py"),
+                    Path("tests/assets/notebook.ipynb"),
+                ],
+            ),
+            ExpectedResults(
+                outcomes={"passed": 4},
+            ),
+            id="mixed file types",
+        ),
+        pytest.param(
+            ExampleDir(
+                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
+                notebooks={
+                    "globals": [
+                        "x = 2",
+                        "x = 1",
+                        Path("tests/assets/globals_test.py").read_text(),
+                        "x = 2",
+                        Path("tests/assets/globals_test.py").read_text(),
+                    ],
+                },
+            ),
+            ExpectedResults(
+                outcomes={"passed": 1, "failed": 1},
+            ),
+            id="cell execution order",
         ),
     ],
     indirect=["example_dir"],
@@ -111,7 +158,10 @@ parametrized = pytest.mark.parametrize(
 @parametrized
 def test_results(example_dir: CollectedDir, expected_results: ExpectedResults):
     results = example_dir.pytester_instance.runpytest()
-    results.assert_outcomes(**expected_results.outcomes)
+    try:
+        results.assert_outcomes(**expected_results.outcomes)
+    except AssertionError:
+        pytest.fail(f"{results.stdout}")
 
 
 @parametrized

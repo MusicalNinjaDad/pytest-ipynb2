@@ -1,0 +1,2 @@
+import ipytest
+ipytest.autoconfig()
