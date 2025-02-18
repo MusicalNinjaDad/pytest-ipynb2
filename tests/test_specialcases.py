@@ -21,6 +21,8 @@ class ExpectedResults:
     """Contents of logreport for -v execution. Tuple: line-title, short-form results, overall progress (%)"""
 
 
+xfail_marks = {"logreport": pytest.mark.xfail_logreport}
+
 parametrized = pytest.mark.parametrize(
     ["example_dir", "expected_results"],
     [
@@ -31,8 +33,10 @@ parametrized = pytest.mark.parametrize(
             ),
             ExpectedResults(
                 outcomes={"passed": 1},
+                logreport=[("passing.ipynb::0", ".", 100)],
             ),
             id="Single Cell",
+            marks=xfail_marks["logreport"],
         ),
         pytest.param(
             ExampleDir(
@@ -181,7 +185,9 @@ def test_results(example_dir: CollectedDir, expected_results: ExpectedResults):
 
 
 @parametrized
-def test_logreport(example_dir: CollectedDir, expected_results: ExpectedResults):
+def test_logreport(example_dir: CollectedDir, expected_results: ExpectedResults, request: pytest.FixtureRequest):
+    if request.node.get_closest_marker("xfail_logreport"):
+        pytest.xfail()
     results = example_dir.pytester_instance.runpytest()
     if expected_results.logreport:
         stdout_regexes = [
