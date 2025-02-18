@@ -1,5 +1,6 @@
 """Tests failures are likely due to the handling of the specific case, not basic functionality."""
 
+import re
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -7,13 +8,17 @@ import pytest
 
 from pytest_ipynb2.pytester_helpers import CollectedDir, ExampleDir
 
+LINESTART = "^"
+LINEEND = "$"
+WHITESPACE = r"\s*"
+
 
 @dataclass
 class ExpectedResults:
     outcomes: dict[str, int]
     """Dict of outcomes for https://docs.pytest.org/en/stable/reference/reference.html#pytest.RunResult.assert_outcomes"""
-    stdout: list[str] = field(default_factory=list)
-    """Consecutive lines expected in stdout"""
+    logreport: list[tuple[str, str, int]] = field(default_factory=list)
+    """Contents of logreport for -v execution. Tuple: line-title, short-form results, overall progress (%)"""
 
 
 parametrized = pytest.mark.parametrize(
@@ -157,7 +162,7 @@ parametrized = pytest.mark.parametrize(
             ),
             ExpectedResults(
                 outcomes={"passed": 2},
-                stdout=[r"^test_module\.py\s*\.{2}\s*\[100%\]\s*$"],
+                logreport=[("test_module.py", "..", 100)],
             ),
             id="output python module",
         ),
@@ -175,8 +180,17 @@ def test_results(example_dir: CollectedDir, expected_results: ExpectedResults):
         pytest.fail(f"{results.stdout}")
 
 
+# r"^test_module\.py\s*\.{2}\s*\[100%\]\s*$"
+
+
 @parametrized
-def test_output(example_dir: CollectedDir, expected_results: ExpectedResults):
+def test_logreport(example_dir: CollectedDir, expected_results: ExpectedResults):
     results = example_dir.pytester_instance.runpytest()
-    if expected_results.stdout:
-        results.stdout.re_match_lines(expected_results.stdout)
+    if expected_results.logreport:
+        stdout_regexes = [
+            f"{LINESTART}{re.escape(filename)}{WHITESPACE}"
+            f"{re.escape(outcomes)}{WHITESPACE}"
+            f"{re.escape('[')}{progress}%{re.escape(']')}{WHITESPACE}{LINEEND}"
+            for filename, outcomes, progress in expected_results.logreport
+        ]
+        results.stdout.re_match_lines(stdout_regexes)
