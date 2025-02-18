@@ -9,9 +9,7 @@ def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Func
         test_name = item.originalname.removeprefix("test_")
         xfail_marker_name = f"xfail_{test_name}"
 
-        marker_present = item.get_closest_marker(xfail_marker_name)
-
-        if marker_present:
+        if marker_present := item.get_closest_marker(xfail_marker_name):
             reason = marker_present.kwargs.get("reason", f"Test {item.name} is expected to fail.")
             strict = marker_present.kwargs.get("strict", True)
             item.add_marker(pytest.mark.xfail(reason=reason, strict=strict))
