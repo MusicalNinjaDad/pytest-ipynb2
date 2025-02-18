@@ -22,6 +22,10 @@ class ExpectedResults:
 
 
 xfail_marks = {"logreport": pytest.mark.xfail_logreport}
+def xfail_if_marked(request: pytest.FixtureRequest, xfail_mark: str) -> None:
+    markname = xfail_marks[xfail_mark].mark.name
+    if request.node.get_closest_marker(markname):
+        pytest.xfail()
 
 parametrized = pytest.mark.parametrize(
     ["example_dir", "expected_results"],
@@ -186,8 +190,7 @@ def test_results(example_dir: CollectedDir, expected_results: ExpectedResults):
 
 @parametrized
 def test_logreport(example_dir: CollectedDir, expected_results: ExpectedResults, request: pytest.FixtureRequest):
-    if request.node.get_closest_marker("xfail_logreport"):
-        pytest.xfail()
+    xfail_if_marked(request,"logreport")
     results = example_dir.pytester_instance.runpytest()
     if expected_results.logreport:
         stdout_regexes = [
