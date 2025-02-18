@@ -79,5 +79,3 @@ def pytest_collect_file(file_path: Path, parent: pytest.Collector) -> Notebook |
     if file_path.suffix == ".ipynb":
         return Notebook.from_parent(parent=parent, path=file_path)
     return None
-
-
