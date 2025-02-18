@@ -115,7 +115,9 @@ class CollectionTree:
         """
         A dummy node for a `CollectionTree`, used by `CollectionTree.from_dict()`.
 
-        Compares equal to a genuine `pytest.Node` of the correct type AND where `repr(Node)` == `DummyNode.name`.
+        Compares equal to a genuine `pytest.Node` if:
+            - `type(Node)` == `_DummyNode.nodetype` (strict, subclasses will not match)
+            - `repr(Node)` == `_DummyNode.name`.
         """
 
         name: str
@@ -191,6 +193,7 @@ class ExampleDir:
 
     files: list[Path] = field(default_factory=list)
     conftest: str = ""
+    ini: str = ""
     notebooks: dict[str, list[str]] = field(default_factory=dict)
 
 
@@ -206,6 +209,9 @@ def example_dir(request: ExampleDirRequest, pytester: pytest.Pytester) -> Collec
     example = request.param
     if example.conftest:
         pytester.makeconftest(request.param.conftest)
+
+    if example.ini:
+        pytester.makeini(f"[pytest]\n{example.ini}")
 
     for filetocopy in example.files:
         pytester.copy_example(str(filetocopy))

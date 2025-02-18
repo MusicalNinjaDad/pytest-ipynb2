@@ -1,5 +1,6 @@
 """Tests failures are likely due to the handling of the specific case, not basic functionality."""
 
+import re
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -7,13 +8,17 @@ import pytest
 
 from pytest_ipynb2.pytester_helpers import CollectedDir, ExampleDir
 
+LINESTART = "^"
+LINEEND = "$"
+WHITESPACE = r"\s*"
+
 
 @dataclass
 class ExpectedResults:
     outcomes: dict[str, int]
     """Dict of outcomes for https://docs.pytest.org/en/stable/reference/reference.html#pytest.RunResult.assert_outcomes"""
-    stdout: list[str] = field(default_factory=list)
-    """Consecutive lines expected in stdout"""
+    logreport: list[tuple[str, str, int]] = field(default_factory=list)
+    """Contents of logreport for -v execution. Tuple: line-title, short-form results, overall progress (%)"""
 
 
 parametrized = pytest.mark.parametrize(
@@ -26,6 +31,7 @@ parametrized = pytest.mark.parametrize(
             ),
             ExpectedResults(
                 outcomes={"passed": 1},
+                logreport=[("passing.ipynb", ".", 100)],
             ),
             id="Single Cell",
         ),
@@ -36,12 +42,13 @@ parametrized = pytest.mark.parametrize(
             ),
             ExpectedResults(
                 outcomes={"failed": 1},
-                stdout=[
-                    "    def test_fails():",
-                    "        x = 1",
-                    ">       assert x == 2",
-                    "E       assert 1 == 2",
-                ],
+                logreport=[("failing.ipynb", "F", 100)],
+                # stdout=[
+                #     "    def test_fails():",
+                #     "        x = 1",
+                #     ">       assert x == 2",
+                #     "E       assert 1 == 2",
+                # ],
             ),
             id="Failing Test",
         ),
@@ -62,6 +69,7 @@ parametrized = pytest.mark.parametrize(
             ),
             ExpectedResults(
                 outcomes={"passed": 1, "xfailed": 1},
+                logreport=[("marks.ipynb", ".x", 100)],
             ),
             id="Test with parameters and marks",
         ),
@@ -77,6 +85,7 @@ parametrized = pytest.mark.parametrize(
             ),
             ExpectedResults(
                 outcomes={"passed": 1},
+                logreport=[("autoconfig.ipynb", ".", 100)],
             ),
             id="Notebook calls autoconfig",
         ),
@@ -129,6 +138,7 @@ parametrized = pytest.mark.parametrize(
             ),
             ExpectedResults(
                 outcomes={"passed": 4},
+                logreport=[("notebook.ipynb", "..", 50), ("test_module.py", "..", 100)],
             ),
             id="mixed file types",
         ),
@@ -147,8 +157,46 @@ parametrized = pytest.mark.parametrize(
             ),
             ExpectedResults(
                 outcomes={"passed": 1, "failed": 1},
+                logreport=[("globals.ipynb", ".F", 100)],
             ),
             id="cell execution order",
+        ),
+        pytest.param(
+            ExampleDir(
+                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
+                files=[Path("tests/assets/test_module.py")],
+            ),
+            ExpectedResults(
+                outcomes={"passed": 2},
+                logreport=[("test_module.py", "..", 100)],
+            ),
+            id="output python module",
+        ),
+        pytest.param(
+            ExampleDir(
+                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
+                ini="addopts = -vv",
+                notebooks={
+                    "two_cells": [
+                        "\n".join(
+                            [
+                                Path("tests/assets/passing_test.py").read_text(),
+                                Path("tests/assets/failing_test.py").read_text(),
+                            ],
+                        ),
+                        Path("tests/assets/passing_test.py").read_text(),
+                    ],
+                },
+            ),
+            ExpectedResults(
+                outcomes={"passed": 2, "failed": 1},
+                logreport=[
+                    ("two_cells.ipynb::0::test_pass", "PASSED", 33),
+                    ("two_cells.ipynb::0::test_fails", "FAILED", 66),
+                    ("two_cells.ipynb::1::test_pass", "PASSED", 100),
+                ],
+            ),
+            id="Verbose two notebooks",
         ),
     ],
     indirect=["example_dir"],
@@ -165,8 +213,15 @@ def test_results(example_dir: CollectedDir, expected_results: ExpectedResults):
 
 
 @parametrized
-def test_output(example_dir: CollectedDir, expected_results: ExpectedResults):
+def test_logreport(example_dir: CollectedDir, expected_results: ExpectedResults):
+    if not expected_results.logreport:
+        pytest.skip(reason="No expected result")
+
     results = example_dir.pytester_instance.runpytest()
-    if expected_results.stdout:
-        pytest.xfail(reason="meaningful stdout NotImplemented")
-        assert results.stdout.fnmatch_lines(expected_results.stdout, consecutive=True)
+    stdout_regexes = [
+        f"{LINESTART}{re.escape(filename)}{WHITESPACE}"
+        f"{re.escape(outcomes)}{WHITESPACE}"
+        f"{re.escape('[')}{progress:3d}%{re.escape(']')}{WHITESPACE}{LINEEND}"
+        for filename, outcomes, progress in expected_results.logreport
+    ]
+    results.stdout.re_match_lines(stdout_regexes)

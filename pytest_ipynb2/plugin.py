@@ -12,7 +12,7 @@ Known Issues:
 
 from __future__ import annotations
 
-import importlib
+import importlib.util
 from typing import TYPE_CHECKING
 
 import pytest
@@ -37,7 +37,7 @@ class Notebook(pytest.File):
             cell = Cell.from_parent(
                 parent=self,
                 name=str(testcellid),
-                nodeid=str(testcellid),
+                nodeid=f"{self.path.name}::{testcellid}",
                 path=self.path,
             )
             cell.stash[ipynb2_notebook] = parsed
@@ -54,13 +54,24 @@ class Cell(pytest.Module):
 
     def _getobj(self) -> ModuleType:
         notebook = self.stash[ipynb2_notebook]
-        cellid = int(self.nodeid)
+        cellid = int(self.name)
         cellsabove = "\n".join(notebook.codecells[:cellid])
         testcell = notebook.testcells[cellid]
         dummy_spec = importlib.util.spec_from_loader(f"Cell{self.name}", loader=None)
         dummy_module = importlib.util.module_from_spec(dummy_spec)
         exec(f"{cellsabove}\n{testcell}", dummy_module.__dict__)  # noqa: S102
         return dummy_module
+
+    def _reportinfo(self: pytest.Item) -> tuple[str, int, str | None]:
+        """Pytest checks whether `.obj.__code__.co_filename` matches `.path`."""
+        return self.path, 0, self.getmodpath()
+
+    def collect(self) -> Generator[pytest.Function | pytest.Class, None, None]:
+        """Hacky hack overriding of reportinfo."""
+        for item in super().collect():
+            if hasattr(item, "reportinfo"):
+                item.reportinfo = self._reportinfo
+            yield item
 
 
 def pytest_collect_file(file_path: Path, parent: pytest.Collector) -> Notebook | None:
