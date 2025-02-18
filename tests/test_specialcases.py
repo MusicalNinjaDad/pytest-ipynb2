@@ -42,6 +42,7 @@ parametrized = pytest.mark.parametrize(
             ),
             ExpectedResults(
                 outcomes={"failed": 1},
+                logreport=[("failing.ipynb:0","F",100)],
                 # stdout=[
                 #     "    def test_fails():",
                 #     "        x = 1",
