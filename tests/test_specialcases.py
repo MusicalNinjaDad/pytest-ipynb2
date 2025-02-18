@@ -36,12 +36,12 @@ parametrized = pytest.mark.parametrize(
             ),
             ExpectedResults(
                 outcomes={"failed": 1},
-                stdout=[
-                    "    def test_fails():",
-                    "        x = 1",
-                    ">       assert x == 2",
-                    "E       assert 1 == 2",
-                ],
+                # stdout=[
+                #     "    def test_fails():",
+                #     "        x = 1",
+                #     ">       assert x == 2",
+                #     "E       assert 1 == 2",
+                # ],
             ),
             id="Failing Test",
         ),
@@ -150,6 +150,17 @@ parametrized = pytest.mark.parametrize(
             ),
             id="cell execution order",
         ),
+        pytest.param(
+            ExampleDir(
+                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
+                files=[Path("tests/assets/test_module.py")],
+            ),
+            ExpectedResults(
+                outcomes={"passed": 2},
+                stdout=[r"^test_module\.py\s*\.{2}\s*\[100%\]\s*$"],
+            ),
+            id="output python module",
+        ),
     ],
     indirect=["example_dir"],
 )
@@ -168,5 +179,4 @@ def test_results(example_dir: CollectedDir, expected_results: ExpectedResults):
 def test_output(example_dir: CollectedDir, expected_results: ExpectedResults):
     results = example_dir.pytester_instance.runpytest()
     if expected_results.stdout:
-        pytest.xfail(reason="meaningful stdout NotImplemented")
-        assert results.stdout.fnmatch_lines(expected_results.stdout, consecutive=True)
+        results.stdout.re_match_lines(expected_results.stdout)
