@@ -15,8 +15,8 @@ def expected_tree(request: pytest.FixtureRequest, example_dir: CollectedDir) -> 
                 (f"<Dir {example_dir.pytester_instance.path.name}>", pytest.Dir): {
                     ("<Notebook notebook.ipynb>", pytest_ipynb2.plugin.Notebook): {
                         ("<Cell 4>", pytest_ipynb2.plugin.Cell): {
-                            ("<Function test_adder>", pytest_ipynb2.plugin.Function): None,
-                            ("<Function test_globals>", pytest_ipynb2.plugin.Function): None,
+                            ("<Function test_adder>", pytest.Function): None,
+                            ("<Function test_globals>", pytest.Function): None,
                         },
                     },
                 },
@@ -27,11 +27,11 @@ def expected_tree(request: pytest.FixtureRequest, example_dir: CollectedDir) -> 
                 (f"<Dir {example_dir.pytester_instance.path.name}>", pytest.Dir): {
                     ("<Notebook notebook_2tests.ipynb>", pytest_ipynb2.plugin.Notebook): {
                         ("<Cell 4>", pytest_ipynb2.plugin.Cell): {
-                            ("<Function test_adder>", pytest_ipynb2.plugin.Function): None,
-                            ("<Function test_globals>", pytest_ipynb2.plugin.Function): None,
+                            ("<Function test_adder>", pytest.Function): None,
+                            ("<Function test_globals>", pytest.Function): None,
                         },
                         ("<Cell 6>", pytest_ipynb2.plugin.Cell): {
-                            ("<Function test_another_function>", pytest_ipynb2.plugin.Function): None,
+                            ("<Function test_another_function>", pytest.Function): None,
                         },
                     },
                 },
@@ -42,17 +42,17 @@ def expected_tree(request: pytest.FixtureRequest, example_dir: CollectedDir) -> 
                 (f"<Dir {example_dir.pytester_instance.path.name}>", pytest.Dir): {
                     ("<Notebook notebook.ipynb>", pytest_ipynb2.plugin.Notebook): {
                         ("<Cell 4>", pytest_ipynb2.plugin.Cell): {
-                            ("<Function test_adder>", pytest_ipynb2.plugin.Function): None,
-                            ("<Function test_globals>", pytest_ipynb2.plugin.Function): None,
+                            ("<Function test_adder>", pytest.Function): None,
+                            ("<Function test_globals>", pytest.Function): None,
                         },
                     },
                     ("<Notebook notebook_2tests.ipynb>", pytest_ipynb2.plugin.Notebook): {
                         ("<Cell 4>", pytest_ipynb2.plugin.Cell): {
-                            ("<Function test_adder>", pytest_ipynb2.plugin.Function): None,
-                            ("<Function test_globals>", pytest_ipynb2.plugin.Function): None,
+                            ("<Function test_adder>", pytest.Function): None,
+                            ("<Function test_globals>", pytest.Function): None,
                         },
                         ("<Cell 6>", pytest_ipynb2.plugin.Cell): {
-                            ("<Function test_another_function>", pytest_ipynb2.plugin.Function): None,
+                            ("<Function test_another_function>", pytest.Function): None,
                         },
                     },
                 },
