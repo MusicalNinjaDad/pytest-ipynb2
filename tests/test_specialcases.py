@@ -172,6 +172,33 @@ parametrized = pytest.mark.parametrize(
             ),
             id="output python module",
         ),
+        pytest.param(
+            ExampleDir(
+                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
+                ini="addopts = -vv",
+                notebooks={
+                    "two_cells": [
+                        "\n".join(
+                            [
+                                Path("tests/assets/passing_test.py").read_text(),
+                                Path("tests/assets/failing_test.py").read_text(),
+                            ],
+                        ),
+                        Path("tests/assets/passing_test.py").read_text(),
+                    ],
+                },
+            ),
+            ExpectedResults(
+                outcomes={"passed": 2, "failed": 1},
+                logreport=[
+                    ("two_cells.ipynb:0::test_pass", "PASSED", 33),
+                    ("two_cells.ipynb:0::test_fails", "FAILED", 67),
+                    ("two_cells.ipynb:1::test_pass", "PASSED", 100),
+                ],
+            ),
+            id="Verbose two notebooks",
+            marks=pytest.mark.xfail_logreport(reason="' <- <string>' added after test name"),
+        ),
     ],
     indirect=["example_dir"],
 )

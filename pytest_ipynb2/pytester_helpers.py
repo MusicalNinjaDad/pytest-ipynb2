@@ -191,6 +191,7 @@ class ExampleDir:
 
     files: list[Path] = field(default_factory=list)
     conftest: str = ""
+    ini: str = ""
     notebooks: dict[str, list[str]] = field(default_factory=dict)
 
 
@@ -206,6 +207,9 @@ def example_dir(request: ExampleDirRequest, pytester: pytest.Pytester) -> Collec
     example = request.param
     if example.conftest:
         pytester.makeconftest(request.param.conftest)
+
+    if example.ini:
+        pytester.makeini(f"[pytest]\n{example.ini}")
 
     for filetocopy in example.files:
         pytester.copy_example(str(filetocopy))
