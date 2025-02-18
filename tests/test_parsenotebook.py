@@ -5,7 +5,8 @@ import pytest
 
 from pytest_ipynb2._parser import Notebook
 
-#TODO: Add tests for multiple lines with `%%ipytest` and calls to ipytest functions
+# TODO: Add tests for multiple lines with `%%ipytest` and calls to ipytest functions
+
 
 @pytest.fixture
 def testnotebook():

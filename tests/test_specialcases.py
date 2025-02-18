@@ -191,13 +191,13 @@ parametrized = pytest.mark.parametrize(
             ExpectedResults(
                 outcomes={"passed": 2, "failed": 1},
                 logreport=[
-                    ("two_cells.ipynb:0::test_pass", "PASSED", 33),
-                    ("two_cells.ipynb:0::test_fails", "FAILED", 67),
-                    ("two_cells.ipynb:1::test_pass", "PASSED", 100),
+                    ("two_cells.ipynb::0::test_pass", "PASSED", 33),
+                    ("two_cells.ipynb::0::test_fails", "FAILED", 66),
+                    ("two_cells.ipynb::1::test_pass", "PASSED", 100),
                 ],
             ),
             id="Verbose two notebooks",
-            marks=pytest.mark.xfail_logreport(reason="' <- <string>' added after test name"),
+            # marks=pytest.mark.xfail_logreport(reason="' <- <string>' added after test name"),
         ),
     ],
     indirect=["example_dir"],

@@ -115,7 +115,9 @@ class CollectionTree:
         """
         A dummy node for a `CollectionTree`, used by `CollectionTree.from_dict()`.
 
-        Compares equal to a genuine `pytest.Node` of the correct type AND where `repr(Node)` == `DummyNode.name`.
+        Compares equal to a genuine `pytest.Node` if:
+            - `type(Node)` == `_DummyNode.nodetype` (strict, subclasses will not match)
+            - `repr(Node)` == `_DummyNode.name`.
         """
 
         name: str

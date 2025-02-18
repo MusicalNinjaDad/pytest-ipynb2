@@ -62,9 +62,26 @@ class Cell(pytest.Module):
         exec(f"{cellsabove}\n{testcell}", dummy_module.__dict__)  # noqa: S102
         return dummy_module
 
+    def collect(self) -> Generator[Function, None, None]:
+        """Hacky hack overriding of reportinfo."""
+        for item in super().collect():
+            if not isinstance(item, pytest.Function):
+                msg = f"Can't handle {type(item)} yet."
+                raise NotImplementedError(msg)
+            item.__class__ = Function
+            yield item
+
 
 def pytest_collect_file(file_path: Path, parent: pytest.Collector) -> Notebook | None:
     """Hook implementation to collect jupyter notebooks."""
     if file_path.suffix == ".ipynb":
         return Notebook.from_parent(parent=parent, path=file_path)
     return None
+
+
+class Function(pytest.Function):
+    """Hacky hack overriding of reportinfo."""
+
+    def reportinfo(self) -> tuple[str, int, str | None]:
+        """Pytest checks whether `.obj.__code__.co_filename` matches `.path`."""
+        return self.path, 0, self.getmodpath()
