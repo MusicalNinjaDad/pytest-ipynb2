@@ -66,13 +66,11 @@ class Cell(pytest.Module):
         """Pytest checks whether `.obj.__code__.co_filename` matches `.path`."""
         return self.path, 0, self.getmodpath()
 
-    def collect(self) -> Generator[pytest.Function, None, None]:
+    def collect(self) -> Generator[pytest.Function | pytest.Class, None, None]:
         """Hacky hack overriding of reportinfo."""
         for item in super().collect():
-            if not isinstance(item, pytest.Function):
-                msg = f"Can't handle {type(item)} yet."
-                raise NotImplementedError(msg)
-            item.reportinfo = self._reportinfo
+            if hasattr(item, "reportinfo"):
+                item.reportinfo = self._reportinfo
             yield item
 
 
