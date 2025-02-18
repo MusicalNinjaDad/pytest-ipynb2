@@ -197,7 +197,6 @@ parametrized = pytest.mark.parametrize(
                 ],
             ),
             id="Verbose two notebooks",
-            # marks=pytest.mark.xfail_logreport(reason="' <- <string>' added after test name"),
         ),
     ],
     indirect=["example_dir"],
