@@ -34,7 +34,6 @@ parametrized = pytest.mark.parametrize(
                 logreport=[("passing.ipynb:0", ".", 100)],
             ),
             id="Single Cell",
-            # marks=pytest.mark.xfail_logreport,
         ),
         pytest.param(
             ExampleDir(
