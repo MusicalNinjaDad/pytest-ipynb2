@@ -42,7 +42,7 @@ parametrized = pytest.mark.parametrize(
             ),
             ExpectedResults(
                 outcomes={"failed": 1},
-                logreport=[("failing.ipynb:0","F",100)],
+                logreport=[("failing.ipynb:0", "F", 100)],
                 # stdout=[
                 #     "    def test_fails():",
                 #     "        x = 1",
@@ -184,12 +184,14 @@ def test_results(example_dir: CollectedDir, expected_results: ExpectedResults):
 
 @parametrized
 def test_logreport(example_dir: CollectedDir, expected_results: ExpectedResults):
+    if not expected_results.logreport:
+        pytest.skip(reason="No expected result")
+
     results = example_dir.pytester_instance.runpytest()
-    if expected_results.logreport:
-        stdout_regexes = [
-            f"{LINESTART}{re.escape(filename)}{WHITESPACE}"
-            f"{re.escape(outcomes)}{WHITESPACE}"
-            f"{re.escape('[')}{progress}%{re.escape(']')}{WHITESPACE}{LINEEND}"
-            for filename, outcomes, progress in expected_results.logreport
-        ]
-        results.stdout.re_match_lines(stdout_regexes)
+    stdout_regexes = [
+        f"{LINESTART}{re.escape(filename)}{WHITESPACE}"
+        f"{re.escape(outcomes)}{WHITESPACE}"
+        f"{re.escape('[')}{progress}%{re.escape(']')}{WHITESPACE}{LINEEND}"
+        for filename, outcomes, progress in expected_results.logreport
+    ]
+    results.stdout.re_match_lines(stdout_regexes)
