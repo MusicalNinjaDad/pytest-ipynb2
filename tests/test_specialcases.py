@@ -69,6 +69,7 @@ parametrized = pytest.mark.parametrize(
             ),
             ExpectedResults(
                 outcomes={"passed": 1, "xfailed": 1},
+                logreport=[("marks.ipynb:0", ".x", 100)],
             ),
             id="Test with parameters and marks",
         ),
@@ -84,6 +85,7 @@ parametrized = pytest.mark.parametrize(
             ),
             ExpectedResults(
                 outcomes={"passed": 1},
+                logreport=[("autoconfig.ipynb:1", ".", 100)],
             ),
             id="Notebook calls autoconfig",
         ),
@@ -136,6 +138,7 @@ parametrized = pytest.mark.parametrize(
             ),
             ExpectedResults(
                 outcomes={"passed": 4},
+                logreport=[("notebook.ipynb:4", "..", 50), ("test_module.py", "..", 100)],
             ),
             id="mixed file types",
         ),
@@ -154,6 +157,7 @@ parametrized = pytest.mark.parametrize(
             ),
             ExpectedResults(
                 outcomes={"passed": 1, "failed": 1},
+                logreport=[("globals.ipynb:2", ".", 50), ("globals.ipynb:4", "F", 100)],
             ),
             id="cell execution order",
         ),
@@ -191,7 +195,7 @@ def test_logreport(example_dir: CollectedDir, expected_results: ExpectedResults)
     stdout_regexes = [
         f"{LINESTART}{re.escape(filename)}{WHITESPACE}"
         f"{re.escape(outcomes)}{WHITESPACE}"
-        f"{re.escape('[')}{progress}%{re.escape(']')}{WHITESPACE}{LINEEND}"
+        f"{re.escape('[')}{progress:3d}%{re.escape(']')}{WHITESPACE}{LINEEND}"
         for filename, outcomes, progress in expected_results.logreport
     ]
     results.stdout.re_match_lines(stdout_regexes)
