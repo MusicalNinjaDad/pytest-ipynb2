@@ -37,7 +37,7 @@ class Notebook(pytest.File):
             cell = Cell.from_parent(
                 parent=self,
                 name=str(testcellid),
-                nodeid=f"{self.path.name}:{testcellid}",
+                nodeid=f"{self.path.name}::{testcellid}",
                 path=self.path,
             )
             cell.stash[ipynb2_notebook] = parsed

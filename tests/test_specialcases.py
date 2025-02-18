@@ -31,7 +31,7 @@ parametrized = pytest.mark.parametrize(
             ),
             ExpectedResults(
                 outcomes={"passed": 1},
-                logreport=[("passing.ipynb:0", ".", 100)],
+                logreport=[("passing.ipynb", ".", 100)],
             ),
             id="Single Cell",
         ),
@@ -42,7 +42,7 @@ parametrized = pytest.mark.parametrize(
             ),
             ExpectedResults(
                 outcomes={"failed": 1},
-                logreport=[("failing.ipynb:0", "F", 100)],
+                logreport=[("failing.ipynb", "F", 100)],
                 # stdout=[
                 #     "    def test_fails():",
                 #     "        x = 1",
@@ -69,7 +69,7 @@ parametrized = pytest.mark.parametrize(
             ),
             ExpectedResults(
                 outcomes={"passed": 1, "xfailed": 1},
-                logreport=[("marks.ipynb:0", ".x", 100)],
+                logreport=[("marks.ipynb", ".x", 100)],
             ),
             id="Test with parameters and marks",
         ),
@@ -85,7 +85,7 @@ parametrized = pytest.mark.parametrize(
             ),
             ExpectedResults(
                 outcomes={"passed": 1},
-                logreport=[("autoconfig.ipynb:1", ".", 100)],
+                logreport=[("autoconfig.ipynb", ".", 100)],
             ),
             id="Notebook calls autoconfig",
         ),
@@ -138,7 +138,7 @@ parametrized = pytest.mark.parametrize(
             ),
             ExpectedResults(
                 outcomes={"passed": 4},
-                logreport=[("notebook.ipynb:4", "..", 50), ("test_module.py", "..", 100)],
+                logreport=[("notebook.ipynb", "..", 50), ("test_module.py", "..", 100)],
             ),
             id="mixed file types",
         ),
@@ -157,7 +157,7 @@ parametrized = pytest.mark.parametrize(
             ),
             ExpectedResults(
                 outcomes={"passed": 1, "failed": 1},
-                logreport=[("globals.ipynb:2", ".", 50), ("globals.ipynb:4", "F", 100)],
+                logreport=[("globals.ipynb", ".F", 100)],
             ),
             id="cell execution order",
         ),
