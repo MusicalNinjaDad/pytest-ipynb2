@@ -180,9 +180,6 @@ def test_results(example_dir: CollectedDir, expected_results: ExpectedResults):
         pytest.fail(f"{results.stdout}")
 
 
-# r"^test_module\.py\s*\.{2}\s*\[100%\]\s*$"
-
-
 @parametrized
 def test_logreport(example_dir: CollectedDir, expected_results: ExpectedResults):
     results = example_dir.pytester_instance.runpytest()
