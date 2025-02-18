@@ -37,7 +37,7 @@ class Notebook(pytest.File):
             cell = Cell.from_parent(
                 parent=self,
                 name=str(testcellid),
-                nodeid=str(testcellid),
+                nodeid=f"{self.path.name}:{testcellid}",
                 path=self.path,
             )
             cell.stash[ipynb2_notebook] = parsed
@@ -54,7 +54,7 @@ class Cell(pytest.Module):
 
     def _getobj(self) -> ModuleType:
         notebook = self.stash[ipynb2_notebook]
-        cellid = int(self.nodeid)
+        cellid = int(self.name)
         cellsabove = "\n".join(notebook.codecells[:cellid])
         testcell = notebook.testcells[cellid]
         dummy_spec = importlib.util.spec_from_loader(f"Cell{self.name}", loader=None)
