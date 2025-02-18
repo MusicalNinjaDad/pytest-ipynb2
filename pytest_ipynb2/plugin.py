@@ -12,7 +12,7 @@ Known Issues:
 
 from __future__ import annotations
 
-import importlib
+import importlib.util
 from typing import TYPE_CHECKING
 
 import pytest
