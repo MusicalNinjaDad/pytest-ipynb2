@@ -71,7 +71,7 @@ class Cell(pytest.Module):
     def collect(self) -> Generator[pytest.Function | pytest.Class, None, None]:
         """Hacky hack overriding of reportinfo."""
         for item in super().collect():
-            if hasattr(item, "reportinfo"):
+            if hasattr(item, "reportinfo"):  # pragma: no branch # TODO(MusicalNinjaDad): #22 Tests grouped in Class
                 item.reportinfo = self._reportinfo
             yield item
 
