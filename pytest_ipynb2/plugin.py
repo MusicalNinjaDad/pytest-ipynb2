@@ -25,6 +25,7 @@ if TYPE_CHECKING:
 from ._parser import Notebook as _ParsedNotebook
 
 ipynb2_notebook = pytest.StashKey[_ParsedNotebook]()
+ipynb2_cellid = pytest.StashKey[int]()
 
 CELL_PREFIX = "Cell"
 
@@ -36,13 +37,15 @@ class Notebook(pytest.File):
         """Yield `Cell`s for all cells which contain tests."""
         parsed = _ParsedNotebook(self.path)
         for testcellid in parsed.testcells.ids():
+            name = f"{CELL_PREFIX}{testcellid}"
             cell = Cell.from_parent(
                 parent=self,
-                name=str(testcellid),
-                nodeid=f"{self.nodeid}::{CELL_PREFIX}{testcellid}",
+                name=name,
+                nodeid=f"{self.nodeid}::{name}",
                 path=self.path,
             )
             cell.stash[ipynb2_notebook] = parsed
+            cell.stash[ipynb2_cellid] = testcellid
             yield cell
 
 
@@ -54,12 +57,18 @@ class Cell(pytest.Module):
     python module.
     """
 
+    def __repr__(self) -> str:
+        """Don't duplicate the word "Cell" in the repr."""
+        return f"<{type(self).__name__} {self.stash[ipynb2_cellid]}>"
+
     def _getobj(self) -> ModuleType:
         notebook = self.stash[ipynb2_notebook]
-        cellid = int(self.name)
+        cellid = self.stash[ipynb2_cellid]
+
         cellsabove = "\n".join(notebook.codecells[:cellid])
         testcell = notebook.testcells[cellid]
-        dummy_spec = importlib.util.spec_from_loader(f"Cell{self.name}", loader=None)
+
+        dummy_spec = importlib.util.spec_from_loader(f"{self.name}", loader=None)
         dummy_module = importlib.util.module_from_spec(dummy_spec)
         exec(f"{cellsabove}\n{testcell}", dummy_module.__dict__)  # noqa: S102
         return dummy_module

@@ -138,7 +138,7 @@ def test_cell_collection(example_dir: CollectedDir):
     cells = list(files[0].collect())
     assert cells
     assert len(cells) == 1
-    assert cells[0].name == "4"
+    assert cells[0].name == "Cell4"
     assert repr(cells[0]) == "<Cell 4>"
 
 
