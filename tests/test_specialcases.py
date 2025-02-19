@@ -21,12 +21,12 @@ class ExpectedResults:
     """Dict of outcomes for https://docs.pytest.org/en/stable/reference/reference.html#pytest.RunResult.assert_outcomes"""
     logreport: list[tuple[str, str, int]] = field(default_factory=list)
     """Contents of logreport for -v execution. Tuple: line-title, short-form results, overall progress (%)"""
-    summary: list[tuple[str, str, type[Exception], str]] | None = field(default_factory=list)
+    summary: list[tuple[str, str, type[Exception] | None, str | None]] | None = field(default_factory=list)
     """
     FULL Contents of test summary info.
     
     - Tuple per line: Result, location, Exception raised, Exception message
-    - Explicity pass `None` to express "No test summary"
+    - Explicity pass `None` to express "No test summary" or "Element not included"
     """
 
 
@@ -254,7 +254,7 @@ def test_summary(example_dir: CollectedDir, expected_results: ExpectedResults):
             f"{WHITESPACE}{re.escape(location)}"
             f"{WHITESPACE}{re.escape('-')}{WHITESPACE}"
             f"{'' if exceptiontype is None else re.escape(exceptiontype.__name__)}"
-            f"{"" if message is None else re.escape(message)}"
+            f"{'' if message is None else re.escape(message)}"
             f"{WHITESPACE}{LINEEND}"
             for result, location, exceptiontype, message in expected_results.summary
         ]  # message is currently not provided until we fix Assertion re-writing
