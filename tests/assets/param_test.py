@@ -6,7 +6,7 @@ import pytest
    'val',
    [
        pytest.param(True, id='pass'),
-       pytest.param(False, marks=pytest.mark.xfail, id='fail'),
+       pytest.param(False, marks=pytest.mark.xfail(reason="xfailed"), id='fail'),
    ],
 )
 def test_params(val):

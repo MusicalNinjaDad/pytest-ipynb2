@@ -1,5 +1,7 @@
 """Tests failures are likely due to the handling of the specific case, not basic functionality."""
 
+from __future__ import annotations
+
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -19,8 +21,13 @@ class ExpectedResults:
     """Dict of outcomes for https://docs.pytest.org/en/stable/reference/reference.html#pytest.RunResult.assert_outcomes"""
     logreport: list[tuple[str, str, int]] = field(default_factory=list)
     """Contents of logreport for -v execution. Tuple: line-title, short-form results, overall progress (%)"""
-    summary: list[tuple[str, str, type[Exception], str]] = field(default_factory=list)
-    """FULL Contents of test summary info. Tuple per line: Result, location, Exception raised, Exception message"""
+    summary: list[tuple[str, str, type[Exception], str]] | None = field(default_factory=list)
+    """
+    FULL Contents of test summary info.
+    
+    - Tuple per line: Result, location, Exception raised, Exception message
+    - Explicity pass `None` to express "No test summary"
+    """
 
 
 parametrized = pytest.mark.parametrize(
@@ -34,6 +41,7 @@ parametrized = pytest.mark.parametrize(
             ExpectedResults(
                 outcomes={"passed": 1},
                 logreport=[("passing.ipynb", ".", 100)],
+                summary=None,
             ),
             id="Single Cell",
         ),
@@ -73,6 +81,7 @@ parametrized = pytest.mark.parametrize(
             ExpectedResults(
                 outcomes={"passed": 1, "xfailed": 1},
                 logreport=[("marks.ipynb", ".x", 100)],
+                summary=None,  # xfail does not trigger summary
             ),
             id="Test with parameters and marks",
         ),
@@ -198,6 +207,7 @@ parametrized = pytest.mark.parametrize(
                     ("two_cells.ipynb::Cell0::test_fails", "FAILED", 66),
                     ("two_cells.ipynb::Cell1::test_pass", "PASSED", 100),
                 ],
+                summary=[("FAILED", "two_cells.ipynb::Cell0::test_fails", AssertionError, "assert x == 2")],
             ),
             id="Verbose two notebooks",
         ),
@@ -227,21 +237,26 @@ def test_logreport(example_dir: CollectedDir, expected_results: ExpectedResults)
         f"{re.escape('[')}{progress:3d}%{re.escape(']')}{WHITESPACE}{LINEEND}"
         for filename, outcomes, progress in expected_results.logreport
     ]
-    results.stdout.re_match_lines(stdout_regexes)
+    results.stdout.re_match_lines(stdout_regexes, consecutive=True)
 
 
 @parametrized
 def test_summary(example_dir: CollectedDir, expected_results: ExpectedResults):
-    if not expected_results.summary:
+    if expected_results.summary is not None and not expected_results.summary:
         pytest.skip(reason="No expected result")
 
     results = example_dir.pytester_instance.runpytest()
     summary_regexes = ["[=]* short test summary info [=]*"]
-    summary_regexes += [
-        f"{re.escape(result)}"
-        f"{WHITESPACE}{re.escape(location)}"
-        f"{WHITESPACE}{re.escape('-')}{WHITESPACE}{re.escape(exceptiontype.__name__)}{WHITESPACE}{LINEEND}"
-        for result, location, exceptiontype, _message in expected_results.summary
-    ]  # message is currently not provided until we fix Assertion re-writing
-    summary_regexes += ["[=]*"]
-    results.stdout.re_match_lines(summary_regexes)
+    if expected_results.summary is not None:
+        summary_regexes += [
+            f"{re.escape(result)}"
+            f"{WHITESPACE}{re.escape(location)}"
+            f"{WHITESPACE}{re.escape('-')}"
+            f"{WHITESPACE}{'' if exceptiontype is None else re.escape(exceptiontype.__name__)}"
+            f"{WHITESPACE}{LINEEND}"
+            for result, location, exceptiontype, _message in expected_results.summary
+        ]  # message is currently not provided until we fix Assertion re-writing
+        summary_regexes += ["[=]*"]
+        results.stdout.re_match_lines(summary_regexes, consecutive=True)
+
+    assert not re.match(summary_regexes[0], str(results.stdout))
