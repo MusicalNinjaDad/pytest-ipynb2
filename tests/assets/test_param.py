@@ -1,5 +1,3 @@
-%%ipytest
-
 import pytest
 
 @pytest.mark.parametrize(
