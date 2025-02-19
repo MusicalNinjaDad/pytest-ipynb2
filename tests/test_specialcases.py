@@ -258,5 +258,5 @@ def test_summary(example_dir: CollectedDir, expected_results: ExpectedResults):
         ]  # message is currently not provided until we fix Assertion re-writing
         summary_regexes += ["[=]*"]
         results.stdout.re_match_lines(summary_regexes, consecutive=True)
-
-    assert not re.match(summary_regexes[0], str(results.stdout))
+    else:
+        assert re.search(f"{LINESTART}{summary_regexes[0]}{LINEEND}", str(results.stdout), flags=re.MULTILINE) is None
