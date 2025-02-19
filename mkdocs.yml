@@ -52,6 +52,7 @@ plugins:
           signature_crossrefs: true
           separate_signature: true
           show_signature_annotations: true
+          show_source: false
           docstring_section_style: spacy
           docstring_options:
             ignore_init_summary: true
