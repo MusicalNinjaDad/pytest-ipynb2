@@ -74,11 +74,11 @@ class Cell(pytest.Module):
         return dummy_module
 
     def _reportinfo(self: pytest.Item) -> tuple[str, int, str | None]:
-        """Pytest checks whether `.obj.__code__.co_filename` matches `.path`."""
+        """Override pytest which checks `.obj.__code__.co_filename` == `.path`."""
         return self.path, 0, self.getmodpath()
 
-    def collect(self) -> Generator[pytest.Function | pytest.Class, None, None]:
-        """Hacky hack overriding of reportinfo."""
+    def collect(self) -> Generator[pytest.Function, None, None]:
+        """Replace the reportinfo method on the children, if present."""
         for item in super().collect():
             if hasattr(item, "reportinfo"):  # pragma: no branch # TODO(MusicalNinjaDad): #22 Tests grouped in Class
                 item.reportinfo = self._reportinfo
