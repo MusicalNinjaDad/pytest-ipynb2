@@ -7,7 +7,7 @@ Pytest plugin to collect jupyter Notebooks.
 
 Known Issues:
 
-- Pytest output to stdout does not properly list the tests or apply Assertion rewriting.
+- No Assertion rewriting.
 """
 
 from __future__ import annotations
