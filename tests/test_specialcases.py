@@ -19,6 +19,8 @@ class ExpectedResults:
     """Dict of outcomes for https://docs.pytest.org/en/stable/reference/reference.html#pytest.RunResult.assert_outcomes"""
     logreport: list[tuple[str, str, int]] = field(default_factory=list)
     """Contents of logreport for -v execution. Tuple: line-title, short-form results, overall progress (%)"""
+    summary: list[tuple[str, str, type[Exception], str]] = field(default_factory=list)
+    """FULL Contents of test summary info. Tuple per line: Result, location, Exception raised, Exception message"""
 
 
 parametrized = pytest.mark.parametrize(
@@ -49,6 +51,7 @@ parametrized = pytest.mark.parametrize(
                 #     ">       assert x == 2",
                 #     "E       assert 1 == 2",
                 # ],
+                summary=[("FAILED", "failing.ipynb::Cell0::test_fails", AssertionError, "assert x == 2")],
             ),
             id="Failing Test",
         ),
@@ -225,3 +228,20 @@ def test_logreport(example_dir: CollectedDir, expected_results: ExpectedResults)
         for filename, outcomes, progress in expected_results.logreport
     ]
     results.stdout.re_match_lines(stdout_regexes)
+
+
+@parametrized
+def test_summary(example_dir: CollectedDir, expected_results: ExpectedResults):
+    if not expected_results.summary:
+        pytest.skip(reason="No expected result")
+
+    results = example_dir.pytester_instance.runpytest()
+    summary_regexes = ["[=]* short test summary info [=]*"]
+    summary_regexes += [
+        f"{re.escape(result)}"
+        f"{WHITESPACE}{re.escape(location)}"
+        f"{WHITESPACE}{re.escape('-')}{WHITESPACE}{re.escape(exceptiontype.__name__)}{WHITESPACE}{LINEEND}"
+        for result, location, exceptiontype, _message in expected_results.summary
+    ]  # message is currently not provided until we fix Assertion re-writing
+    summary_regexes += ["[=]*"]
+    results.stdout.re_match_lines(summary_regexes)
