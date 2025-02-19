@@ -53,6 +53,7 @@ check:
 fix:
   - uv run ruff check . --fix
   - uv run ruff format .
+  - uv run ruff check . --fix # run again to fix any trailing commas
 
 # format with ruff
 format:
