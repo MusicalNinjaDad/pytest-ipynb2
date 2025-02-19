@@ -28,6 +28,7 @@ ipynb2_notebook = pytest.StashKey[_ParsedNotebook]()
 
 CELL_PREFIX = "Cell"
 
+
 class Notebook(pytest.File):
     """A collector for jupyter notebooks."""
 
