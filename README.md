@@ -20,7 +20,7 @@ Usage is very simple:
     pip install pytest-ipynb2
     ```
 
-1. Enable by adding to the default options in `pyproject.toml` ``:
+1. Enable by adding to the default options in `pyproject.toml`:
 
     ```toml
     [tool.pytest.ini_options]
