@@ -138,7 +138,7 @@ def test_cell_collection(example_dir: CollectedDir):
     cells = list(files[0].collect())
     assert cells
     assert len(cells) == 1
-    assert cells[0].name == "4"
+    assert cells[0].name == "Cell4"
     assert repr(cells[0]) == "<Cell 4>"
 
 
@@ -163,3 +163,4 @@ def test_functions(example_dir: CollectedDir):
     assert len(functions) == 2
     assert [f.name for f in functions] == ["test_adder", "test_globals"]
     assert [repr(f) for f in functions] == ["<Function test_adder>", "<Function test_globals>"]
+    assert [f.nodeid for f in functions] == ["notebook.ipynb::Cell4::test_adder", "notebook.ipynb::Cell4::test_globals"]
