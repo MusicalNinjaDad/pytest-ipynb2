@@ -3,7 +3,7 @@ from pathlib import Path
 import nbformat
 import pytest
 
-from pytest_ipynb2.pytester_helpers import CollectedDir, ExampleDir
+from pytest_ipynb2._pytester_helpers import CollectedDir, ExampleDir, add_ipytest_magic
 
 tests = [
     pytest.param(
@@ -32,17 +32,17 @@ tests = [
     ),
     pytest.param(
         ExampleDir(
-            notebooks={"generated": [Path("tests/assets/passing_test.py").read_text()]},
+            notebooks={"generated": [add_ipytest_magic(Path("tests/assets/test_passing.py").read_text())]},
         ),
         {
             "generated.ipynb": [
-                "\n".join(  # noqa: FLY002
-                    [
-                        r"%%ipytest",
-                        "",
-                        "def test_pass():",
-                        "    assert True",
-                    ],
+                add_ipytest_magic(
+                    "\n".join(  # noqa: FLY002
+                        [
+                            "def test_pass():",
+                            "    assert True",
+                        ],
+                    ),
                 ),
             ],
         },
@@ -53,7 +53,7 @@ tests = [
             notebooks={
                 "generated": [
                     Path("tests/assets/import_ipytest.py").read_text(),
-                    Path("tests/assets/passing_test.py").read_text(),
+                    add_ipytest_magic(Path("tests/assets/test_passing.py").read_text()),
                 ],
             },
         ),
@@ -66,13 +66,13 @@ tests = [
                         "",
                     ],
                 ),
-                "\n".join(  # noqa: FLY002
-                    [
-                        r"%%ipytest",
-                        "",
-                        "def test_pass():",
-                        "    assert True",
-                    ],
+                add_ipytest_magic(
+                    "\n".join(  # noqa: FLY002
+                        [
+                            "def test_pass():",
+                            "    assert True",
+                        ],
+                    ),
                 ),
             ],
         },

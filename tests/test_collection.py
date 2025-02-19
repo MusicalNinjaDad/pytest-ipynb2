@@ -4,7 +4,7 @@ import pytest
 
 import pytest_ipynb2
 import pytest_ipynb2.plugin
-from pytest_ipynb2.pytester_helpers import CollectedDir, CollectionTree, ExampleDir
+from pytest_ipynb2._pytester_helpers import CollectedDir, CollectionTree, ExampleDir
 
 
 @pytest.fixture

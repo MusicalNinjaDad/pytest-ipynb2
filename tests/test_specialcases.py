@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-from pytest_ipynb2.pytester_helpers import CollectedDir, ExampleDir
+from pytest_ipynb2._pytester_helpers import CollectedDir, ExampleDir, add_ipytest_magic
 
 LINESTART = "^"
 LINEEND = "$"
@@ -36,7 +36,7 @@ parametrized = pytest.mark.parametrize(
         pytest.param(
             ExampleDir(
                 conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
-                notebooks={"passing": [Path("tests/assets/passing_test.py").read_text()]},
+                notebooks={"passing": [add_ipytest_magic(Path("tests/assets/test_passing.py").read_text())]},
             ),
             ExpectedResults(
                 outcomes={"passed": 1},
@@ -48,17 +48,11 @@ parametrized = pytest.mark.parametrize(
         pytest.param(
             ExampleDir(
                 conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
-                notebooks={"failing": [Path("tests/assets/failing_test.py").read_text()]},
+                notebooks={"failing": [add_ipytest_magic(Path("tests/assets/test_failing.py").read_text())]},
             ),
             ExpectedResults(
                 outcomes={"failed": 1},
                 logreport=[("failing.ipynb", "F", 100)],
-                # stdout=[
-                #     "    def test_fails():",
-                #     "        x = 1",
-                #     ">       assert x == 2",
-                #     "E       assert 1 == 2",
-                # ],
                 summary=[("FAILED", "failing.ipynb::Cell0::test_fails", AssertionError, None)],
             ),
             id="Failing Test",
@@ -66,7 +60,7 @@ parametrized = pytest.mark.parametrize(
         pytest.param(
             ExampleDir(
                 conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
-                notebooks={"fixture": [Path("tests/assets/fixture_test.py").read_text()]},
+                notebooks={"fixture": [add_ipytest_magic(Path("tests/assets/test_fixture.py").read_text())]},
             ),
             ExpectedResults(
                 outcomes={"passed": 1},
@@ -76,7 +70,7 @@ parametrized = pytest.mark.parametrize(
         pytest.param(
             ExampleDir(
                 conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
-                notebooks={"marks": [Path("tests/assets/param_test.py").read_text()]},
+                notebooks={"marks": [add_ipytest_magic(Path("tests/assets/test_param.py").read_text())]},
                 ini="addopts = -rx",
             ),
             ExpectedResults(
@@ -91,8 +85,8 @@ parametrized = pytest.mark.parametrize(
                 conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
                 notebooks={
                     "autoconfig": [
-                        Path("tests/assets/import_ipytest.py").read_text(),
-                        Path("tests/assets/passing_test.py").read_text(),
+                        add_ipytest_magic(Path("tests/assets/import_ipytest.py").read_text()),
+                        add_ipytest_magic(Path("tests/assets/test_passing.py").read_text()),
                     ],
                 },
             ),
@@ -131,8 +125,8 @@ parametrized = pytest.mark.parametrize(
                 conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
                 notebooks={
                     "comments": [
-                        f"# A test cell\n{Path('tests/assets/passing_test.py').read_text()}",
-                        Path("tests/assets/failing_test.py").read_text(),
+                        f"# A test cell\n{add_ipytest_magic(Path('tests/assets/test_passing.py').read_text())}",
+                        add_ipytest_magic(Path("tests/assets/test_failing.py").read_text()),
                     ],
                 },
             ),
@@ -162,9 +156,9 @@ parametrized = pytest.mark.parametrize(
                     "globals": [
                         "x = 2",
                         "x = 1",
-                        Path("tests/assets/globals_test.py").read_text(),
+                        add_ipytest_magic(Path("tests/assets/test_globals.py").read_text()),
                         "x = 2",
-                        Path("tests/assets/globals_test.py").read_text(),
+                        add_ipytest_magic(Path("tests/assets/test_globals.py").read_text()),
                     ],
                 },
             ),
@@ -191,13 +185,15 @@ parametrized = pytest.mark.parametrize(
                 ini="addopts = -vv",
                 notebooks={
                     "two_cells": [
-                        "\n".join(
-                            [
-                                Path("tests/assets/passing_test.py").read_text(),
-                                Path("tests/assets/failing_test.py").read_text(),
-                            ],
+                        add_ipytest_magic(
+                            "\n".join(
+                                [
+                                    Path("tests/assets/test_passing.py").read_text(),
+                                    Path("tests/assets/test_failing.py").read_text(),
+                                ],
+                            ),
                         ),
-                        Path("tests/assets/passing_test.py").read_text(),
+                        add_ipytest_magic(Path("tests/assets/test_passing.py").read_text()),
                     ],
                 },
             ),

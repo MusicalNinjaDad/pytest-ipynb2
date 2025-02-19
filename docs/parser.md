@@ -1,5 +1,5 @@
-# Parser (internal)
+# _parser
 
-The parser will likely be deprecated and merged into the plug-in classes in the future
+> **Warning**: The parser is currently an internal concern and changes will not necessarily be reflected in semver.
 
 ::: pytest_ipynb2._parser

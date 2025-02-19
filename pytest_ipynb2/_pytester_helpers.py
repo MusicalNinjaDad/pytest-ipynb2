@@ -230,3 +230,8 @@ def example_dir(request: ExampleDirRequest, pytester: pytest.Pytester) -> Collec
         dir_node=dir_node,
         items=pytester.genitems([dir_node]),
     )
+
+
+def add_ipytest_magic(source: str) -> str:
+    """Add %%ipytest magic to the source code."""
+    return f"%%ipytest\n\n{source}"

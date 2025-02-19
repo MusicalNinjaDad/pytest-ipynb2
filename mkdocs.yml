@@ -42,7 +42,6 @@ plugins:
     handlers:
       python:
         options:
-          members: true
           show_bases: false
           show_root_heading: true
           heading_level: 2
@@ -52,6 +51,7 @@ plugins:
           signature_crossrefs: true
           separate_signature: true
           show_signature_annotations: true
+          show_source: false
           docstring_section_style: spacy
           docstring_options:
             ignore_init_summary: true
