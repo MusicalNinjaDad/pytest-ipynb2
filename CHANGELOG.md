@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## Added
+
+- Test execution reporting in session log and short summary report
+
 ## Changed
 
 - `_parser.Notebook` API changed: added `.codecells` and `.testcells`, removed `get_codecells()`, `get_testcells()`, `.contents`
