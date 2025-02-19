@@ -59,7 +59,7 @@ parametrized = pytest.mark.parametrize(
                 #     ">       assert x == 2",
                 #     "E       assert 1 == 2",
                 # ],
-                summary=[("FAILED", "failing.ipynb::Cell0::test_fails", AssertionError, "assert x == 2")],
+                summary=[("FAILED", "failing.ipynb::Cell0::test_fails", AssertionError, None)],
             ),
             id="Failing Test",
         ),
@@ -77,11 +77,12 @@ parametrized = pytest.mark.parametrize(
             ExampleDir(
                 conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
                 notebooks={"marks": [Path("tests/assets/param_test.py").read_text()]},
+                ini="addopts = -rx",
             ),
             ExpectedResults(
                 outcomes={"passed": 1, "xfailed": 1},
                 logreport=[("marks.ipynb", ".x", 100)],
-                summary=None,  # xfail does not trigger summary
+                summary=[("XFAIL", "marks.ipynb::Cell0::test_params[fail]", None, "xfailed")],
             ),
             id="Test with parameters and marks",
         ),
@@ -207,7 +208,7 @@ parametrized = pytest.mark.parametrize(
                     ("two_cells.ipynb::Cell0::test_fails", "FAILED", 66),
                     ("two_cells.ipynb::Cell1::test_pass", "PASSED", 100),
                 ],
-                summary=[("FAILED", "two_cells.ipynb::Cell0::test_fails", AssertionError, "assert x == 2")],
+                summary=[("FAILED", "two_cells.ipynb::Cell0::test_fails", AssertionError, None)],
             ),
             id="Verbose two notebooks",
         ),
@@ -251,10 +252,11 @@ def test_summary(example_dir: CollectedDir, expected_results: ExpectedResults):
         summary_regexes += [
             f"{re.escape(result)}"
             f"{WHITESPACE}{re.escape(location)}"
-            f"{WHITESPACE}{re.escape('-')}"
-            f"{WHITESPACE}{'' if exceptiontype is None else re.escape(exceptiontype.__name__)}"
+            f"{WHITESPACE}{re.escape('-')}{WHITESPACE}"
+            f"{'' if exceptiontype is None else re.escape(exceptiontype.__name__)}"
+            f"{"" if message is None else re.escape(message)}"
             f"{WHITESPACE}{LINEEND}"
-            for result, location, exceptiontype, _message in expected_results.summary
+            for result, location, exceptiontype, message in expected_results.summary
         ]  # message is currently not provided until we fix Assertion re-writing
         summary_regexes += ["[=]*"]
         results.stdout.re_match_lines(summary_regexes, consecutive=True)
