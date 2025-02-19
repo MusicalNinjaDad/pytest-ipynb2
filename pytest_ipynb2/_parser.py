@@ -61,6 +61,11 @@ class Notebook:
     """
 
     def __init__(self, filepath: Path) -> None:
+        self.codecells: SourceList
+        """The code cells *excluding* any identified as test cells"""
+        self.testcells: SourceList
+        """The code cells which are identified as containing tests, based upon the presence of the `%%ipytest`magic."""
+
         contents = nbformat.read(fp=str(filepath), as_version=4)
         nbformat.validate(contents)
         cells = contents.cells
@@ -75,11 +80,9 @@ class Notebook:
             else None
             for cell in cells
         )
-        """The code cells *excluding* any identified as test cells"""
         self.testcells = SourceList(
             "\n".join(line for line in cell.source if not line.startswith(r"%%ipytest")).strip()
             if cell.cell_type == "code" and any(line.startswith(r"%%ipytest") for line in cell.source)
             else None
             for cell in cells
         )
-        """The code cells which are identified as containing tests, based upon the presence of the `%%ipytest`magic."""
