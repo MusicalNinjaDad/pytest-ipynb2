@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-from pytest_ipynb2.pytester_helpers import CollectedDir, ExampleDir
+from pytest_ipynb2._pytester_helpers import CollectedDir, ExampleDir
 
 LINESTART = "^"
 LINEEND = "$"

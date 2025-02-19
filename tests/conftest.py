@@ -1,6 +1,6 @@
 import pytest
 
-pytest_plugins = ["pytester", "pytest_ipynb2.pytester_helpers"]
+pytest_plugins = ["pytester", "pytest_ipynb2._pytester_helpers"]
 
 
 def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Function]) -> None:  # noqa: ARG001

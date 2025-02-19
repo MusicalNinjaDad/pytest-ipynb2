@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from pytest_ipynb2.pytester_helpers import CollectedDir, ExampleDir
+from pytest_ipynb2._pytester_helpers import CollectedDir, ExampleDir
 
 if TYPE_CHECKING:
     from pytest_ipynb2.plugin import Cell

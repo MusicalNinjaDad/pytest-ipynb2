@@ -7,10 +7,10 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from pytest_ipynb2.pytester_helpers import CollectionTree, ExampleDir
+from pytest_ipynb2._pytester_helpers import CollectionTree, ExampleDir
 
 if TYPE_CHECKING:
-    from pytest_ipynb2.pytester_helpers import CollectedDir
+    from pytest_ipynb2._pytester_helpers import CollectedDir
 
 
 @pytest.fixture

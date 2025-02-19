@@ -3,7 +3,7 @@ from pathlib import Path
 import nbformat
 import pytest
 
-from pytest_ipynb2.pytester_helpers import CollectedDir, ExampleDir
+from pytest_ipynb2._pytester_helpers import CollectedDir, ExampleDir
 
 tests = [
     pytest.param(
