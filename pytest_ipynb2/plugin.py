@@ -26,6 +26,7 @@ from ._parser import Notebook as _ParsedNotebook
 
 ipynb2_notebook = pytest.StashKey[_ParsedNotebook]()
 
+CELL_PREFIX = "Cell"
 
 class Notebook(pytest.File):
     """A collector for jupyter notebooks."""
@@ -37,7 +38,7 @@ class Notebook(pytest.File):
             cell = Cell.from_parent(
                 parent=self,
                 name=str(testcellid),
-                nodeid=f"{self.path.name}::{testcellid}",
+                nodeid=f"{self.nodeid}::{CELL_PREFIX}{testcellid}",
                 path=self.path,
             )
             cell.stash[ipynb2_notebook] = parsed
@@ -77,5 +78,5 @@ class Cell(pytest.Module):
 def pytest_collect_file(file_path: Path, parent: pytest.Collector) -> Notebook | None:
     """Hook implementation to collect jupyter notebooks."""
     if file_path.suffix == ".ipynb":
-        return Notebook.from_parent(parent=parent, path=file_path)
+        return Notebook.from_parent(parent=parent, path=file_path, nodeid=file_path.name)
     return None
