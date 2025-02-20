@@ -12,13 +12,14 @@ LINESTART = "^"
 LINEEND = "$"
 WHITESPACE = r"\s*"
 
+
 @dataclass
 class FailureDetails:
-    filename: str
     testcase: str
+    filename: str
+    details: list[str]
     location: str
     exceptiontype: type[Exception]
-    details: list[str]
 
 
 # TODO(MusicalNinjaDad): #30 Cache runpytest() results or set scopes to speed up tests
@@ -111,7 +112,22 @@ parametrized = pytest.mark.parametrize(
                 outcomes={"failed": 1},
                 logreport=[("failing.ipynb", "F", 100)],
                 summary=[("FAILED", "failing.ipynb::Cell0::test_fails", AssertionError, None)],
+                failures=[
+                    FailureDetails(
+                        testcase="test_fails",
+                        details=[
+                            "    def test_fails():",
+                            "        x = 1",
+                            ">       assert x == 2",
+                            "E       assert 1 == 2",
+                        ],
+                        filename="failing.ipynb",
+                        exceptiontype=AssertionError,
+                        location="Cell0:5",
+                    ),
+                ],
             ),
+            marks=pytest.mark.xfail_failures,
             id="Failing Test",
         ),
         pytest.param(
@@ -310,14 +326,23 @@ def test_summary(pytester_results: pytest.RunResult, expected_results: ExpectedR
             is None
         )
 
+
 @parametrized
 def test_failures(example_dir: CollectedDir, expected_results: ExpectedResults):
     if expected_results.failures is not None and not expected_results.failures:
         pytest.skip(reason="No expected result")
-    
+
     results = example_dir.pytester_instance.runpytest()
     regexes = ["[=]* FAILURES [=]*"]
     if expected_results.failures is not None:
-        pass
+        for failure in expected_results.failures:
+            regexes += [
+                f"[_]* {failure.testcase} [_*]",
+                "",
+                *failure.details,
+                "",
+                f"{failure.filename}:{failure.location}: {failure.exceptiontype.__name__}",
+            ]
+        results.stdout.re_match_lines(regexes, consecutive=True)
     else:
         assert re.search(f"{LINESTART}{regexes[0]}{LINEEND}", str(results.stdout), flags=re.MULTILINE) is None
