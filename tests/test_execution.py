@@ -12,6 +12,14 @@ LINESTART = "^"
 LINEEND = "$"
 WHITESPACE = r"\s*"
 
+@dataclass
+class FailureDetails:
+    filename: str
+    testcase: str
+    location: str
+    exceptiontype: type[Exception]
+    details: list[str]
+
 
 # TODO(MusicalNinjaDad): #30 Cache runpytest() results or set scopes to speed up tests
 @pytest.fixture
@@ -41,6 +49,8 @@ class ExpectedResults:
     - Tuple per line: Result, location, Exception raised, Exception message
     - Explicity pass `None` to express "No test summary" or "Element not included"
     """
+    failures: list[FailureDetails] | None = field(default_factory=list)
+    """Details of any test failures. Explicity pass `None` to assert no failures."""
 
 
 parametrized = pytest.mark.parametrize(
@@ -88,6 +98,7 @@ parametrized = pytest.mark.parametrize(
                 outcomes={"passed": 1},
                 logreport=[("passing.ipynb", ".", 100)],
                 summary=None,
+                failures=None,
             ),
             id="Single Cell",
         ),
@@ -298,3 +309,15 @@ def test_summary(pytester_results: pytest.RunResult, expected_results: ExpectedR
             re.search(f"{LINESTART}{summary_regexes[0]}{LINEEND}", str(pytester_results.stdout), flags=re.MULTILINE)
             is None
         )
+
+@parametrized
+def test_failures(example_dir: CollectedDir, expected_results: ExpectedResults):
+    if expected_results.failures is not None and not expected_results.failures:
+        pytest.skip(reason="No expected result")
+    
+    results = example_dir.pytester_instance.runpytest()
+    regexes = ["[=]* FAILURES [=]*"]
+    if expected_results.failures is not None:
+        pass
+    else:
+        assert re.search(f"{LINESTART}{regexes[0]}{LINEEND}", str(results.stdout), flags=re.MULTILINE) is None
