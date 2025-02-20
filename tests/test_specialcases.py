@@ -81,7 +81,7 @@ parametrized = pytest.mark.parametrize(
                     ),
                 ],
             ),
-            marks=pytest.mark.xfail_failures,
+            marks=pytest.mark.xfail_for(tests=["failures"], reasons=["Assertion Rewriting not yet implemented"]),
             id="Failing Test",
         ),
         pytest.param(
