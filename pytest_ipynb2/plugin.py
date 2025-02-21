@@ -76,8 +76,9 @@ class Cell(pytest.Module):
             mod=testcell_ast,
             source=bytes(testcell_source, encoding="utf-8"),
             module_path=str(self.path),
-            config=self.config)
-        
+            config=self.config,
+        )
+
         testcell = compile(testcell_ast, filename=self.path, mode="exec")
 
         dummy_spec = importlib.util.spec_from_loader(f"{self.name}", loader=None)
@@ -90,7 +91,7 @@ class Cell(pytest.Module):
     def _reportinfo(self: pytest.Item) -> tuple[str, int, str | None]:
         """Override pytest which checks `.obj.__code__.co_filename` == `.path`."""
         return self.path, 0, self.getmodpath()
-    
+
     def repr_failure(self, excinfo: pytest.ExceptionInfo) -> str:
         """Override - see Node._repr_failure_py for ideas."""
         _rf = super().repr_failure(excinfo)
@@ -113,15 +114,18 @@ def pytest_collect_file(file_path: Path, parent: pytest.Collector) -> Notebook |
         return Notebook.from_parent(parent=parent, path=file_path, nodeid=file_path.name)
     return None
 
+
 def pytest_runtest_makereport(item: pytest.Item, call: pytest.CallInfo) -> None:  # noqa: ARG001
     """For debugging purposes."""
     if item.nodeid.split("::")[0].endswith(".ipynb"):
         pass
 
+
 def pytest_runtest_logreport(report: pytest.TestReport) -> None:
     """For debugging purposes."""
     if report.nodeid.split("::")[0].endswith(".ipynb"):
         pass
+
 
 def pytest_exception_interact(call: pytest.CallInfo, report: pytest.TestReport) -> None:  # noqa: ARG001
     """For debugging purposes."""

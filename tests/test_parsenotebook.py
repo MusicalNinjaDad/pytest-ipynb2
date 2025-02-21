@@ -24,6 +24,9 @@ def test_testcells_indexes(testnotebook: Notebook):
 
 def test_testcell_contents(testnotebook: Notebook):
     expected = [
+        r"# %%ipytest",
+        "",
+        "",
         "def test_adder():",
         "    assert adder(1, 2) == 3",
         "",
@@ -46,14 +49,19 @@ def test_sources_testcells(testnotebook: Notebook):
         None,
         None,
         None,
-        "\n".join([  # noqa: FLY002
+        "\n".join(  # noqa: FLY002
+            [
+                r"# %%ipytest",
+                "",
+                "",
                 "def test_adder():",
                 "    assert adder(1, 2) == 3",
                 "",
                 "",
                 "def test_globals():",
                 "    assert x == 1",
-        ]),
+            ],
+        ),
         None,
     ]
     assert testnotebook.testcells == expected
@@ -61,6 +69,9 @@ def test_sources_testcells(testnotebook: Notebook):
 
 def test_testcell_fullslice(testnotebook: Notebook):
     expected = [
+        r"# %%ipytest",
+        "",
+        "",
         "def test_adder():",
         "    assert adder(1, 2) == 3",
         "",

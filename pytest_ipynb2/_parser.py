@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, SupportsIndex, overload
+from typing import TYPE_CHECKING, Self, SupportsIndex, overload
 
 import nbformat
 
@@ -49,6 +49,20 @@ class SourceList(list):
             raise IndexError(msg)
         return source
 
+    def muggle(self) -> Self:
+        """Comment out any ipython magics."""
+
+        def _muggleentry(source: str) -> str:
+            if source is None:
+                return None
+            muggled = [
+                f"# {line}" if (line.strip().startswith("%") or line.strip().startswith("ipytest")) else line
+                for line in source.splitlines()
+            ]
+            return "\n".join(muggled)
+
+        return type(self)([_muggleentry(source) for source in list(self)])
+
 
 class Notebook:
     """
@@ -71,20 +85,17 @@ class Notebook:
         cells = contents.cells
 
         for cell in cells:
-            cell.source = [
-                sourceline for sourceline in cell.source.splitlines() if not sourceline.startswith("ipytest")
-            ]
+            cell.source = cell.source.splitlines()
+
+        def _istestcell(source: list[str]) -> bool:
+            return any(line.strip().startswith(r"%%ipytest") for line in source)
+
         self.codecells = SourceList(
-            "\n".join(cell.source)
-            if cell.cell_type == "code" and not any(line.startswith(r"%%ipytest") for line in cell.source)
-            else None
+            "\n".join(cell.source) if cell.cell_type == "code" and not _istestcell(cell.source) else None
             for cell in cells
         )
         """The code cells *excluding* any identified as test cells"""
         self.testcells = SourceList(
-            "\n".join(line for line in cell.source if not line.startswith(r"%%ipytest")).strip()
-            if cell.cell_type == "code" and any(line.startswith(r"%%ipytest") for line in cell.source)
-            else None
-            for cell in cells
-        )
+            "\n".join(cell.source) if cell.cell_type == "code" and _istestcell(cell.source) else None for cell in cells
+        ).muggle()
         """The code cells which are identified as containing tests, based upon the presence of the `%%ipytest`magic."""
