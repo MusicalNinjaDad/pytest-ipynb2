@@ -15,6 +15,21 @@ LINEEND = "$"
 WHITESPACE = r"\s*"
 
 
+# TODO: Cache results or set scopes such that this is called as little as possible
+@pytest.fixture
+def pytester_results(example_dir: CollectedDir) -> pytest.RunResult:
+    return example_dir.pytester_instance.runpytest()
+
+
+@dataclass
+class FailureDetails:
+    testcase: str
+    filename: str
+    details: list[str]
+    location: str
+    exceptiontype: type[Exception]
+
+
 @dataclass
 class ExpectedResults:
     outcomes: dict[str, int]
@@ -214,35 +229,32 @@ parametrized = pytest.mark.parametrize(
 
 
 @parametrized
-def test_results(example_dir: CollectedDir, expected_results: ExpectedResults):
-    results = example_dir.pytester_instance.runpytest()
+def test_results(pytester_results: pytest.RunResult, expected_results: ExpectedResults):
     try:
-        results.assert_outcomes(**expected_results.outcomes)
+        pytester_results.assert_outcomes(**expected_results.outcomes)
     except AssertionError:
-        pytest.fail(f"{results.stdout}")
+        pytest.fail(f"{pytester_results.stdout}")
 
 
 @parametrized
-def test_logreport(example_dir: CollectedDir, expected_results: ExpectedResults):
+def test_logreport(pytester_results: pytest.RunResult, expected_results: ExpectedResults):
     if not expected_results.logreport:
         pytest.skip(reason="No expected result")
 
-    results = example_dir.pytester_instance.runpytest()
     stdout_regexes = [
         f"{LINESTART}{re.escape(filename)}{WHITESPACE}"
         f"{re.escape(outcomes)}{WHITESPACE}"
         f"{re.escape('[')}{progress:3d}%{re.escape(']')}{WHITESPACE}{LINEEND}"
         for filename, outcomes, progress in expected_results.logreport
     ]
-    results.stdout.re_match_lines(stdout_regexes, consecutive=True)
+    pytester_results.stdout.re_match_lines(stdout_regexes, consecutive=True)
 
 
 @parametrized
-def test_summary(example_dir: CollectedDir, expected_results: ExpectedResults):
+def test_summary(pytester_results: pytest.RunResult, expected_results: ExpectedResults):
     if expected_results.summary is not None and not expected_results.summary:
         pytest.skip(reason="No expected result")
 
-    results = example_dir.pytester_instance.runpytest()
     summary_regexes = ["[=]* short test summary info [=]*"]
     if expected_results.summary is not None:
         summary_regexes += [
@@ -255,6 +267,10 @@ def test_summary(example_dir: CollectedDir, expected_results: ExpectedResults):
             for result, location, exceptiontype, message in expected_results.summary
         ]  # message is currently not provided until we fix Assertion re-writing
         summary_regexes += ["[=]*"]
-        results.stdout.re_match_lines(summary_regexes, consecutive=True)
+        pytester_results.stdout.re_match_lines(summary_regexes, consecutive=True)
     else:
-        assert re.search(f"{LINESTART}{summary_regexes[0]}{LINEEND}", str(results.stdout), flags=re.MULTILINE) is None
+        assert (
+            re.search(f"{LINESTART}{summary_regexes[0]}{LINEEND}", str(pytester_results.stdout), flags=re.MULTILINE)
+            is None
+        )
+
