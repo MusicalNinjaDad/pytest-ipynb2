@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Self, SupportsIndex, overload
+from typing import TYPE_CHECKING, Protocol, Self, SupportsIndex, overload
 
 import nbformat
 
@@ -82,7 +82,7 @@ class Notebook:
 
         contents = nbformat.read(fp=str(filepath), as_version=4)
         nbformat.validate(contents)
-        cells = contents.cells
+        cells: list[Cell] = contents.cells
 
         for cell in cells:
             cell.source = cell.source.splitlines()
@@ -99,3 +99,7 @@ class Notebook:
             "\n".join(cell.source) if cell.cell_type == "code" and _istestcell(cell.source) else None for cell in cells
         ).muggle()
         """The code cells which are identified as containing tests, based upon the presence of the `%%ipytest`magic."""
+
+class Cell(Protocol):
+    source: str
+    cell_type: str
