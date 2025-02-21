@@ -85,21 +85,20 @@ class Notebook:
         cells: list[Cell] = contents.cells
 
         for cell in cells:
-            cell.source = cell.source.splitlines()
+            cell.source = cell.source.splitlines()  # type: ignore[attr-defined]  # fulfils protocol after splitlines
 
-        def _istestcell(source: list[str]) -> bool:
-            return any(line.strip().startswith(r"%%ipytest") for line in source)
+        def _istestcell(cell: Cell) -> bool:
+            return cell.cell_type == "code" and any(line.strip().startswith(r"%%ipytest") for line in cell.source)
+
+        def _iscodecell(cell: Cell) -> bool:
+            return cell.cell_type == "code"
 
         self.codecells = SourceList(
-            "\n".join(cell.source) if cell.cell_type == "code" and not _istestcell(cell.source) else None
-            for cell in cells
-        )
-        """The code cells *excluding* any identified as test cells"""
-        self.testcells = SourceList(
-            "\n".join(cell.source) if cell.cell_type == "code" and _istestcell(cell.source) else None for cell in cells
+            "\n".join(cell.source) if _iscodecell(cell) and not _istestcell(cell) else None for cell in cells
         ).muggle()
-        """The code cells which are identified as containing tests, based upon the presence of the `%%ipytest`magic."""
+        self.testcells = SourceList("\n".join(cell.source) if _istestcell(cell) else None for cell in cells).muggle()
+
 
 class Cell(Protocol):
-    source: str
+    source: list[str]
     cell_type: str
