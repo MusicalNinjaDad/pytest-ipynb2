@@ -17,8 +17,17 @@ WHITESPACE = r"\s*"
 
 # TODO: Cache results or set scopes such that this is called as little as possible
 @pytest.fixture
-def pytester_results(example_dir: CollectedDir) -> pytest.RunResult:
-    return example_dir.pytester_instance.runpytest()
+def pytester_results(
+    example_dir: CollectedDir,
+    expected_results: ExpectedResults,
+    request: pytest.FixtureRequest,
+) -> pytest.RunResult:
+    """Skip if no expected result, otherwise runpytest in the example_dir and return the result."""
+    testname = request.function.__name__.removeprefix("test_")
+    expected = getattr(expected_results, testname)
+    if expected or expected is None:
+        return example_dir.pytester_instance.runpytest()
+    pytest.skip(reason="No expected result")
 
 
 @dataclass
@@ -251,7 +260,7 @@ parametrized = pytest.mark.parametrize(
 
 
 @parametrized
-def test_results(pytester_results: pytest.RunResult, expected_results: ExpectedResults):
+def test_outcomes(pytester_results: pytest.RunResult, expected_results: ExpectedResults):
     try:
         pytester_results.assert_outcomes(**expected_results.outcomes)
     except AssertionError:
@@ -260,9 +269,6 @@ def test_results(pytester_results: pytest.RunResult, expected_results: ExpectedR
 
 @parametrized
 def test_logreport(pytester_results: pytest.RunResult, expected_results: ExpectedResults):
-    if not expected_results.logreport:
-        pytest.skip(reason="No expected result")
-
     stdout_regexes = [
         f"{LINESTART}{re.escape(filename)}{WHITESPACE}"
         f"{re.escape(outcomes)}{WHITESPACE}"
@@ -274,9 +280,6 @@ def test_logreport(pytester_results: pytest.RunResult, expected_results: Expecte
 
 @parametrized
 def test_summary(pytester_results: pytest.RunResult, expected_results: ExpectedResults):
-    if expected_results.summary is not None and not expected_results.summary:
-        pytest.skip(reason="No expected result")
-
     summary_regexes = ["[=]* short test summary info [=]*"]
     if expected_results.summary is not None:
         summary_regexes += [
@@ -299,9 +302,6 @@ def test_summary(pytester_results: pytest.RunResult, expected_results: ExpectedR
 
 @parametrized
 def test_failures(pytester_results: pytest.RunResult, expected_results: ExpectedResults):
-    if expected_results.failures is not None and not expected_results.failures:
-        pytest.skip(reason="No expected result")
-
     regexes = ["[=]* FAILURES [=]*"]
     if expected_results.failures is not None:
         for failure in expected_results.failures:
