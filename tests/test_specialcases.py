@@ -20,6 +20,7 @@ WHITESPACE = r"\s*"
 def pytester_results(example_dir: CollectedDir) -> pytest.RunResult:
     return example_dir.pytester_instance.runpytest()
 
+
 @dataclass
 class FailureDetails:
     testcase: str
@@ -290,7 +291,10 @@ def test_summary(pytester_results: pytest.RunResult, expected_results: ExpectedR
         summary_regexes += ["[=]*"]
         pytester_results.stdout.re_match_lines(summary_regexes, consecutive=True)
     else:
-        assert re.search(f"{LINESTART}{summary_regexes[0]}{LINEEND}", str(pytester_results.stdout), flags=re.MULTILINE) is None
+        assert (
+            re.search(f"{LINESTART}{summary_regexes[0]}{LINEEND}", str(pytester_results.stdout), flags=re.MULTILINE)
+            is None
+        )
 
 
 @parametrized
