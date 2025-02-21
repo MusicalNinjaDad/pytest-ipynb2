@@ -23,14 +23,15 @@ def test_testcells_indexes(testnotebook: Notebook):
 
 
 def test_testcell_contents(testnotebook: Notebook):
-    expected = dedent("""\
-        def test_adder():
-            assert adder(1, 2) == 3
-
-
-        def test_globals():
-            assert x == 1""")
-    assert testnotebook.testcells[4] == expected
+    expected = [
+        "def test_adder():",
+        "    assert adder(1, 2) == 3",
+        "",
+        "",
+        "def test_globals():",
+        "    assert x == 1",
+    ]
+    assert testnotebook.testcells[4] == "\n".join(expected)
 
 
 def test_codecells_index_a_testcell(testnotebook: Notebook):
@@ -45,27 +46,29 @@ def test_sources_testcells(testnotebook: Notebook):
         None,
         None,
         None,
-        dedent("""\
-            def test_adder():
-                assert adder(1, 2) == 3
-
-
-            def test_globals():
-                assert x == 1"""),
+        "\n".join([  # noqa: FLY002
+                "def test_adder():",
+                "    assert adder(1, 2) == 3",
+                "",
+                "",
+                "def test_globals():",
+                "    assert x == 1",
+        ]),
         None,
     ]
     assert testnotebook.testcells == expected
 
 
 def test_testcell_fullslice(testnotebook: Notebook):
-    expected = dedent("""\
-        def test_adder():
-            assert adder(1, 2) == 3
-
-
-        def test_globals():
-            assert x == 1""")
-    assert testnotebook.testcells[:] == [expected]
+    expected = [
+        "def test_adder():",
+        "    assert adder(1, 2) == 3",
+        "",
+        "",
+        "def test_globals():",
+        "    assert x == 1",
+    ]
+    assert testnotebook.testcells[:] == ["\n".join(expected)]
 
 
 def test_codecells_partial_slice(testnotebook: Notebook):
