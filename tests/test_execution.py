@@ -1,5 +1,3 @@
-"""Tests failures are likely due to the handling of the specific case, not basic functionality."""
-
 from __future__ import annotations
 
 import re
@@ -13,6 +11,21 @@ from pytest_ipynb2._pytester_helpers import CollectedDir, ExampleDir, add_ipytes
 LINESTART = "^"
 LINEEND = "$"
 WHITESPACE = r"\s*"
+
+
+# TODO(MusicalNinjaDad): #30 Cache runpytest() results or set scopes to speed up tests
+@pytest.fixture
+def pytester_results(
+    example_dir: CollectedDir,
+    expected_results: ExpectedResults,
+    request: pytest.FixtureRequest,
+) -> pytest.RunResult:
+    """Skip if no expected result, otherwise runpytest in the example_dir and return the result."""
+    testname = request.function.__name__.removeprefix("test_")
+    expected = getattr(expected_results, testname)
+    if expected or expected is None:
+        return example_dir.pytester_instance.runpytest()
+    pytest.skip(reason="No expected result")
 
 
 @dataclass
@@ -33,6 +46,39 @@ class ExpectedResults:
 parametrized = pytest.mark.parametrize(
     ["example_dir", "expected_results"],
     [
+        pytest.param(
+            ExampleDir(
+                files=[Path("tests/assets/notebook.ipynb").absolute()],
+                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
+            ),
+            ExpectedResults(
+                outcomes={"passed": 2},
+            ),
+            id="Copied notebook",
+        ),
+        pytest.param(
+            ExampleDir(
+                files=[Path("tests/assets/notebook_2tests.ipynb").absolute()],
+                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
+            ),
+            ExpectedResults(
+                outcomes={"passed": 3},
+            ),
+            id="Copied notebook with 2 test cells",
+        ),
+        pytest.param(
+            ExampleDir(
+                files=[
+                    Path("tests/assets/notebook_2tests.ipynb").absolute(),
+                    Path("tests/assets/notebook.ipynb").absolute(),
+                ],
+                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
+            ),
+            ExpectedResults(
+                outcomes={"passed": 5},
+            ),
+            id="Two copied notebooks - unsorted",
+        ),
         pytest.param(
             ExampleDir(
                 conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
@@ -214,35 +260,26 @@ parametrized = pytest.mark.parametrize(
 
 
 @parametrized
-def test_results(example_dir: CollectedDir, expected_results: ExpectedResults):
-    results = example_dir.pytester_instance.runpytest()
+def test_outcomes(pytester_results: pytest.RunResult, expected_results: ExpectedResults):
     try:
-        results.assert_outcomes(**expected_results.outcomes)
+        pytester_results.assert_outcomes(**expected_results.outcomes)
     except AssertionError:
-        pytest.fail(f"{results.stdout}")
+        pytest.fail(f"{pytester_results.stdout}")
 
 
 @parametrized
-def test_logreport(example_dir: CollectedDir, expected_results: ExpectedResults):
-    if not expected_results.logreport:
-        pytest.skip(reason="No expected result")
-
-    results = example_dir.pytester_instance.runpytest()
+def test_logreport(pytester_results: pytest.RunResult, expected_results: ExpectedResults):
     stdout_regexes = [
         f"{LINESTART}{re.escape(filename)}{WHITESPACE}"
         f"{re.escape(outcomes)}{WHITESPACE}"
         f"{re.escape('[')}{progress:3d}%{re.escape(']')}{WHITESPACE}{LINEEND}"
         for filename, outcomes, progress in expected_results.logreport
     ]
-    results.stdout.re_match_lines(stdout_regexes, consecutive=True)
+    pytester_results.stdout.re_match_lines(stdout_regexes, consecutive=True)
 
 
 @parametrized
-def test_summary(example_dir: CollectedDir, expected_results: ExpectedResults):
-    if expected_results.summary is not None and not expected_results.summary:
-        pytest.skip(reason="No expected result")
-
-    results = example_dir.pytester_instance.runpytest()
+def test_summary(pytester_results: pytest.RunResult, expected_results: ExpectedResults):
     summary_regexes = ["[=]* short test summary info [=]*"]
     if expected_results.summary is not None:
         summary_regexes += [
@@ -255,6 +292,9 @@ def test_summary(example_dir: CollectedDir, expected_results: ExpectedResults):
             for result, location, exceptiontype, message in expected_results.summary
         ]  # message is currently not provided until we fix Assertion re-writing
         summary_regexes += ["[=]*"]
-        results.stdout.re_match_lines(summary_regexes, consecutive=True)
+        pytester_results.stdout.re_match_lines(summary_regexes, consecutive=True)
     else:
-        assert re.search(f"{LINESTART}{summary_regexes[0]}{LINEEND}", str(results.stdout), flags=re.MULTILINE) is None
+        assert (
+            re.search(f"{LINESTART}{summary_regexes[0]}{LINEEND}", str(pytester_results.stdout), flags=re.MULTILINE)
+            is None
+        )

@@ -1,10 +1,14 @@
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 
 import pytest_ipynb2
 import pytest_ipynb2.plugin
 from pytest_ipynb2._pytester_helpers import CollectedDir, CollectionTree, ExampleDir
+
+if TYPE_CHECKING:
+    from pytest_ipynb2.plugin import Cell
 
 
 @pytest.fixture
@@ -164,3 +168,23 @@ def test_functions(example_dir: CollectedDir):
     assert [f.name for f in functions] == ["test_adder", "test_globals"]
     assert [repr(f) for f in functions] == ["<Function test_adder>", "<Function test_globals>"]
     assert [f.nodeid for f in functions] == ["notebook.ipynb::Cell4::test_adder", "notebook.ipynb::Cell4::test_globals"]
+
+
+@pytest.mark.parametrize(
+    "example_dir",
+    [
+        pytest.param(
+            ExampleDir(
+                files=[Path("tests/assets/notebook.ipynb").absolute()],
+                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
+            ),
+            id="Simple Notebook",
+        ),
+    ],
+    indirect=True,
+)
+def test_cellmodule_contents(example_dir: CollectedDir):
+    cell: Cell = example_dir.items[0].parent
+    expected_attrs = ["x", "y", "adder", "test_adder", "test_globals"]
+    public_attrs = [attr for attr in cell._obj.__dict__ if not attr.startswith("__")]  # noqa: SLF001
+    assert public_attrs == expected_attrs

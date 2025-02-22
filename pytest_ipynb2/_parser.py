@@ -2,13 +2,18 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, SupportsIndex, overload
+from typing import TYPE_CHECKING, Protocol, overload
 
 import nbformat
 
 if TYPE_CHECKING:
     from collections.abc import Generator
+    from contextlib import suppress
     from pathlib import Path
+    from typing import SupportsIndex
+
+    with suppress(ImportError):  # not type-checking on python < 3.11
+        from typing import Self
 
 
 class SourceList(list):
@@ -49,6 +54,20 @@ class SourceList(list):
             raise IndexError(msg)
         return source
 
+    def muggle(self) -> Self:
+        """Comment out any ipython magics."""
+
+        def _muggleentry(source: str) -> str:
+            if source is None:
+                return None
+            muggled = [
+                f"# {line}" if (line.strip().startswith("%") or line.strip().startswith("ipytest")) else line
+                for line in source.splitlines()
+            ]
+            return "\n".join(muggled)
+
+        return type(self)([_muggleentry(source) for source in list(self)])
+
 
 class Notebook:
     """
@@ -68,23 +87,23 @@ class Notebook:
 
         contents = nbformat.read(fp=str(filepath), as_version=4)
         nbformat.validate(contents)
-        cells = contents.cells
+        cells: list[Cell] = contents.cells
 
         for cell in cells:
-            cell.source = [
-                sourceline for sourceline in cell.source.splitlines() if not sourceline.startswith("ipytest")
-            ]
+            cell.source = cell.source.splitlines()  # type: ignore[attr-defined]  # fulfils protocol after splitlines
+
+        def _istestcell(cell: Cell) -> bool:
+            return cell.cell_type == "code" and any(line.strip().startswith(r"%%ipytest") for line in cell.source)
+
+        def _iscodecell(cell: Cell) -> bool:
+            return cell.cell_type == "code"
+
         self.codecells = SourceList(
-            "\n".join(cell.source)
-            if cell.cell_type == "code" and not any(line.startswith(r"%%ipytest") for line in cell.source)
-            else None
-            for cell in cells
-        )
-        """The code cells *excluding* any identified as test cells"""
-        self.testcells = SourceList(
-            "\n".join(line for line in cell.source if not line.startswith(r"%%ipytest")).strip()
-            if cell.cell_type == "code" and any(line.startswith(r"%%ipytest") for line in cell.source)
-            else None
-            for cell in cells
-        )
-        """The code cells which are identified as containing tests, based upon the presence of the `%%ipytest`magic."""
+            "\n".join(cell.source) if _iscodecell(cell) and not _istestcell(cell) else None for cell in cells
+        ).muggle()
+        self.testcells = SourceList("\n".join(cell.source) if _istestcell(cell) else None for cell in cells).muggle()
+
+
+class Cell(Protocol):
+    source: list[str]
+    cell_type: str
