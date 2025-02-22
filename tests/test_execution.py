@@ -13,7 +13,7 @@ LINEEND = "$"
 WHITESPACE = r"\s*"
 
 
-# TODO: Cache results or set scopes such that this is called as little as possible
+# TODO(MusicalNinjaDad): #30 Cache runpytest() results or set scopes to speed up tests
 @pytest.fixture
 def pytester_results(
     example_dir: CollectedDir,
