@@ -1,5 +1,3 @@
-"""Tests failures are likely due to the handling of the specific case, not basic functionality."""
-
 from __future__ import annotations
 
 import re
@@ -57,6 +55,39 @@ class ExpectedResults:
 parametrized = pytest.mark.parametrize(
     ["example_dir", "expected_results"],
     [
+        pytest.param(
+            ExampleDir(
+                files=[Path("tests/assets/notebook.ipynb").absolute()],
+                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
+            ),
+            ExpectedResults(
+                outcomes={"passed": 2},
+            ),
+            id="Copied notebook",
+        ),
+        pytest.param(
+            ExampleDir(
+                files=[Path("tests/assets/notebook_2tests.ipynb").absolute()],
+                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
+            ),
+            ExpectedResults(
+                outcomes={"passed": 3},
+            ),
+            id="Copied notebook with 2 test cells",
+        ),
+        pytest.param(
+            ExampleDir(
+                files=[
+                    Path("tests/assets/notebook_2tests.ipynb").absolute(),
+                    Path("tests/assets/notebook.ipynb").absolute(),
+                ],
+                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
+            ),
+            ExpectedResults(
+                outcomes={"passed": 5},
+            ),
+            id="Two copied notebooks - unsorted",
+        ),
         pytest.param(
             ExampleDir(
                 conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
