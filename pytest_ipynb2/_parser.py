@@ -15,6 +15,7 @@ if TYPE_CHECKING:
     with suppress(ImportError):  # not type-checking on python < 3.11
         from typing import Self
 
+
 class SourceList(list):
     """
     A `list` with non-continuous indices for storing the contents of cells.

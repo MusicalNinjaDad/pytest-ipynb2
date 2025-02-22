@@ -10,6 +10,7 @@ from pytest_ipynb2._pytester_helpers import CollectedDir, CollectionTree, Exampl
 if TYPE_CHECKING:
     from pytest_ipynb2.plugin import Cell
 
+
 @pytest.fixture
 def expected_tree(request: pytest.FixtureRequest, example_dir: CollectedDir) -> CollectionTree:
     trees = {
