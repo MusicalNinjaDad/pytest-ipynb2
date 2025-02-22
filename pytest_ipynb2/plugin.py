@@ -70,8 +70,8 @@ class Cell(pytest.Module):
 
         cellsabove = notebook.codecells[:cellid]
         testcell_source = notebook.testcells[cellid]
-
         testcell_ast = ast.parse(testcell_source, filename=str(self.path))
+
         _pytest.assertion.rewrite.rewrite_asserts(
             mod=testcell_ast,
             source=bytes(testcell_source, encoding="utf-8"),
