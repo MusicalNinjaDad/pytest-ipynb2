@@ -1,0 +1,14 @@
+drop 5fb8123 create test for failures section not present
+drop e42c513 add test for simple failing test case
+pick 53eb8a5 fix unregistered mark warning for selective xfail
+drop a1b3713 repr_failure for interactive debugging
+pick 394e570 use lists rather than dedent for expected test cell contents
+pick dc1efd2 comment out magics and calls to ipytest instead of deleting them
+pick 7e017bf add Cell protocol
+pick 67a3198 simplify Notebook initialisation
+drop 30c595f simple check for assertion re-writing
+drop 3c7b2fc xfail tests broken by partial implementation of Exception Repr
+pick 2d9a6c9 move pytester execution into own fixture
+squash 4412cac fmt
+pick 59ee593 integrate autoskip into pytester_results
+drop 8d72c40 improve statement grouping to better show intent
