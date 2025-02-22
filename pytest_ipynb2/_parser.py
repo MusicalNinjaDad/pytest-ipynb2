@@ -2,14 +2,18 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Protocol, Self, SupportsIndex, overload
+from typing import TYPE_CHECKING, Protocol, overload
 
 import nbformat
 
 if TYPE_CHECKING:
     from collections.abc import Generator
+    from contextlib import suppress
     from pathlib import Path
+    from typing import SupportsIndex
 
+    with suppress(ImportError):  # not type-checking on python < 3.11
+        from typing import Self
 
 class SourceList(list):
     """
