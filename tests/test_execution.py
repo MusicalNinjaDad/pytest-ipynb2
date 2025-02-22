@@ -29,15 +29,6 @@ def pytester_results(
 
 
 @dataclass
-class FailureDetails:
-    testcase: str
-    filename: str
-    details: list[str]
-    location: str
-    exceptiontype: type[Exception]
-
-
-@dataclass
 class ExpectedResults:
     outcomes: dict[str, int]
     """Dict of outcomes for https://docs.pytest.org/en/stable/reference/reference.html#pytest.RunResult.assert_outcomes"""
