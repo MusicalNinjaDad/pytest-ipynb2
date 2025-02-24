@@ -80,6 +80,13 @@ tests = [
     ),
 ]
 
+@pytest.mark.parametrize(
+    ["example_dir", "expected_files"],
+    tests,
+    indirect=["example_dir"],
+)
+def test_path(example_dir: CollectedDir, expected_files):  # noqa: ARG001
+    assert example_dir.path == example_dir.pytester_instance.path
 
 @pytest.mark.parametrize(
     ["example_dir", "expected_files"],
@@ -87,7 +94,7 @@ tests = [
     indirect=["example_dir"],
 )
 def test_filesexist(example_dir: CollectedDir, expected_files: list[str]):
-    tmp_path = example_dir.pytester_instance.path
+    tmp_path = example_dir.path
     files_exist = ((tmp_path / expected_file).exists() for expected_file in expected_files)
     assert all(files_exist), f"These are not the files you are looking for: {list(tmp_path.iterdir())}"
 
@@ -98,7 +105,7 @@ def test_filesexist(example_dir: CollectedDir, expected_files: list[str]):
     indirect=["example_dir"],
 )
 def test_filecontents(example_dir: CollectedDir, expected_files: dict[str, list[str]]):
-    tmp_path = example_dir.pytester_instance.path
+    tmp_path = example_dir.path
     for filename, expected_contents in expected_files.items():
         if expected_contents is not None:
             nb = nbformat.read(fp=tmp_path / filename, as_version=nbformat.NO_CONVERT)

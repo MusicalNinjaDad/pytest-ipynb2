@@ -16,7 +16,7 @@ def expected_tree(request: pytest.FixtureRequest, example_dir: CollectedDir) -> 
     trees = {
         "notebook": {
             ("<Session  exitstatus='<UNSET>' testsfailed=0 testscollected=0>", pytest.Session): {
-                (f"<Dir {example_dir.pytester_instance.path.name}>", pytest.Dir): {
+                (f"<Dir {example_dir.path.name}>", pytest.Dir): {
                     ("<Notebook notebook.ipynb>", pytest_ipynb2.plugin.Notebook): {
                         ("<Cell 4>", pytest_ipynb2.plugin.Cell): {
                             ("<Function test_adder>", pytest.Function): None,
@@ -28,7 +28,7 @@ def expected_tree(request: pytest.FixtureRequest, example_dir: CollectedDir) -> 
         },
         "notebook_2tests": {
             ("<Session  exitstatus='<UNSET>' testsfailed=0 testscollected=0>", pytest.Session): {
-                (f"<Dir {example_dir.pytester_instance.path.name}>", pytest.Dir): {
+                (f"<Dir {example_dir.path.name}>", pytest.Dir): {
                     ("<Notebook notebook_2tests.ipynb>", pytest_ipynb2.plugin.Notebook): {
                         ("<Cell 4>", pytest_ipynb2.plugin.Cell): {
                             ("<Function test_adder>", pytest.Function): None,
@@ -43,7 +43,7 @@ def expected_tree(request: pytest.FixtureRequest, example_dir: CollectedDir) -> 
         },
         "both notebooks": {
             ("<Session  exitstatus='<UNSET>' testsfailed=0 testscollected=0>", pytest.Session): {
-                (f"<Dir {example_dir.pytester_instance.path.name}>", pytest.Dir): {
+                (f"<Dir {example_dir.path.name}>", pytest.Dir): {
                     ("<Notebook notebook.ipynb>", pytest_ipynb2.plugin.Notebook): {
                         ("<Cell 4>", pytest_ipynb2.plugin.Cell): {
                             ("<Function test_adder>", pytest.Function): None,

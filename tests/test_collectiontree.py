@@ -18,7 +18,7 @@ def expected_tree(request: pytest.FixtureRequest, example_dir: CollectedDir) -> 
     trees = {
         "test_module": {
             ("<Session  exitstatus='<UNSET>' testsfailed=0 testscollected=0>", pytest.Session): {
-                (f"<Dir {example_dir.pytester_instance.path.name}>", pytest.Dir): {
+                (f"<Dir {example_dir.path.name}>", pytest.Dir): {
                     ("<Module test_module.py>", pytest.Module): {
                         ("<Function test_adder>", pytest.Function): None,
                         ("<Function test_globals>", pytest.Function): None,
@@ -28,7 +28,7 @@ def expected_tree(request: pytest.FixtureRequest, example_dir: CollectedDir) -> 
         },
         "two_modules": {
             ("<Session  exitstatus='<UNSET>' testsfailed=0 testscollected=0>", pytest.Session): {
-                (f"<Dir {example_dir.pytester_instance.path.name}>", pytest.Dir): {
+                (f"<Dir {example_dir.path.name}>", pytest.Dir): {
                     ("<Module test_module.py>", pytest.Module): {
                         ("<Function test_adder>", pytest.Function): None,
                         ("<Function test_globals>", pytest.Function): None,

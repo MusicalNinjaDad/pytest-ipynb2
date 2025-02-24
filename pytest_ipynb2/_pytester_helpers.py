@@ -13,6 +13,7 @@ import pytest
 if TYPE_CHECKING:
     from contextlib import suppress
     from pathlib import Path
+    from typing import Any
 
     with suppress(ImportError):  
         from typing import Self  # not type-checking on python < 3.11 so don't care if this fails
@@ -192,6 +193,10 @@ class CollectedDir:
     pytester_instance: pytest.Pytester
     dir_node: pytest.Dir
     items: list[pytest.Item]
+    path: Path | None = None
+
+    def __post_init__(self, *_: Any) -> None:
+        self.path = self.pytester_instance.path
 
 @dataclass(kw_only=True)
 class ExampleDir:
