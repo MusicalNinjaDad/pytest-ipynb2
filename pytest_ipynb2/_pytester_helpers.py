@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import sys
 from dataclasses import dataclass, field
+from functools import cached_property
 from textwrap import indent
 from typing import TYPE_CHECKING, Protocol
 
@@ -13,7 +14,6 @@ import pytest
 if TYPE_CHECKING:
     from contextlib import suppress
     from pathlib import Path
-    from typing import Any
 
     with suppress(ImportError):
         from typing import Self  # not type-checking on python < 3.11 so don't care if this fails
@@ -181,7 +181,6 @@ class CollectionTree:
         return f"{self.node!r}\n{children_repr}\n"
 
 
-@dataclass
 class ExampleDir:
     """
     A directory containing example files and the associated pytester instance.
@@ -193,12 +192,17 @@ class ExampleDir:
     """
 
     pytester_instance: pytest.Pytester
-    dir_node: pytest.Dir
     items: list[pytest.Item]
     path: Path | None = None
 
-    def __post_init__(self, *_: Any) -> None:
+    def __init__(self, pytester_instance: pytest.Pytester, items: list[pytest.Item]) -> None:
+        self.pytester_instance = pytester_instance
         self.path = self.pytester_instance.path
+        self.items = items
+
+    @cached_property
+    def dir_node(self) -> pytest.Dir:
+        return self.pytester_instance.getpathnode(self.path)
 
 
 @dataclass(kw_only=True)
@@ -241,7 +245,6 @@ def example_dir(request: ExampleDirRequest, pytester: pytest.Pytester) -> Exampl
 
     return ExampleDir(
         pytester_instance=pytester,
-        dir_node=dir_node,
         items=pytester.genitems([dir_node]),
     )
 
