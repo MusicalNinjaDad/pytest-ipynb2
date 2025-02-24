@@ -3,18 +3,18 @@ from pathlib import Path
 import nbformat
 import pytest
 
-from pytest_ipynb2._pytester_helpers import CollectedDir, ExampleDir, add_ipytest_magic
+from pytest_ipynb2._pytester_helpers import ExampleDir, ExampleDirSpec, add_ipytest_magic
 
 tests = [
     pytest.param(
-        ExampleDir(
+        ExampleDirSpec(
             files=[Path("tests/assets/test_module.py").absolute()],
         ),
         {"test_module.py": None},
         id="One File",
     ),
     pytest.param(
-        ExampleDir(
+        ExampleDirSpec(
             files=[Path("tests/assets/test_module.py").absolute(), Path("tests/assets/test_othermodule.py").absolute()],
         ),
         {
@@ -24,14 +24,14 @@ tests = [
         id="Two files",
     ),
     pytest.param(
-        ExampleDir(
+        ExampleDirSpec(
             files=[Path("tests/assets/notebook.ipynb").absolute()],
         ),
         {"notebook.ipynb": None},
         id="Copied Notebook",
     ),
     pytest.param(
-        ExampleDir(
+        ExampleDirSpec(
             notebooks={"generated": [add_ipytest_magic(Path("tests/assets/test_passing.py").read_text())]},
         ),
         {
@@ -49,7 +49,7 @@ tests = [
         id="Generated Notebook",
     ),
     pytest.param(
-        ExampleDir(
+        ExampleDirSpec(
             notebooks={
                 "generated": [
                     Path("tests/assets/import_ipytest.py").read_text(),
@@ -80,20 +80,22 @@ tests = [
     ),
 ]
 
-@pytest.mark.parametrize(
-    ["example_dir", "expected_files"],
-    tests,
-    indirect=["example_dir"],
-)
-def test_path(example_dir: CollectedDir, expected_files):  # noqa: ARG001
-    assert example_dir.path == example_dir.pytester_instance.path
 
 @pytest.mark.parametrize(
     ["example_dir", "expected_files"],
     tests,
     indirect=["example_dir"],
 )
-def test_filesexist(example_dir: CollectedDir, expected_files: list[str]):
+def test_path(example_dir: ExampleDir, expected_files):  # noqa: ARG001
+    assert example_dir.path == example_dir.pytester_instance.path
+
+
+@pytest.mark.parametrize(
+    ["example_dir", "expected_files"],
+    tests,
+    indirect=["example_dir"],
+)
+def test_filesexist(example_dir: ExampleDir, expected_files: list[str]):
     tmp_path = example_dir.path
     files_exist = ((tmp_path / expected_file).exists() for expected_file in expected_files)
     assert all(files_exist), f"These are not the files you are looking for: {list(tmp_path.iterdir())}"
@@ -104,7 +106,7 @@ def test_filesexist(example_dir: CollectedDir, expected_files: list[str]):
     tests,
     indirect=["example_dir"],
 )
-def test_filecontents(example_dir: CollectedDir, expected_files: dict[str, list[str]]):
+def test_filecontents(example_dir: ExampleDir, expected_files: dict[str, list[str]]):
     tmp_path = example_dir.path
     for filename, expected_contents in expected_files.items():
         if expected_contents is not None:

@@ -15,11 +15,12 @@ if TYPE_CHECKING:
     from pathlib import Path
     from typing import Any
 
-    with suppress(ImportError):  
+    with suppress(ImportError):
         from typing import Self  # not type-checking on python < 3.11 so don't care if this fails
 
-if sys.version_info < (3,10): # dataclass does not offer kw_only on python < 3.10
+if sys.version_info < (3, 10):  # dataclass does not offer kw_only on python < 3.10
     _dataclass = dataclass
+
     def dataclass(*args, **kwargs):  # noqa: ANN002, ANN003
         _ = kwargs.pop("kw_only", None)
         return _dataclass(*args, **kwargs)
@@ -181,11 +182,12 @@ class CollectionTree:
 
 
 @dataclass
-class CollectedDir:
+class ExampleDir:
     """
-    The various elements required to test directory collection.
+    A directory containing example files and the associated pytester instance.
 
-    - `pytester_instance`: pytest.Pytester
+    - `pytester`: pytest.Pytester
+    - `path`: pathlib.Path
     - `dir_node`: pytest.Dir
     - `items`: list[pytest.Item]
     """
@@ -198,8 +200,9 @@ class CollectedDir:
     def __post_init__(self, *_: Any) -> None:
         self.path = self.pytester_instance.path
 
+
 @dataclass(kw_only=True)
-class ExampleDir:
+class ExampleDirSpec:
     """The various elements to set up a pytester instance."""
 
     conftest: str = ""
@@ -211,11 +214,11 @@ class ExampleDir:
 class ExampleDirRequest(Protocol):
     """Typehint to param passed to example_dir."""
 
-    param: ExampleDir
+    param: ExampleDirSpec
 
 
 @pytest.fixture
-def example_dir(request: ExampleDirRequest, pytester: pytest.Pytester) -> CollectedDir:
+def example_dir(request: ExampleDirRequest, pytester: pytest.Pytester) -> ExampleDir:
     """Parameterised fixture. Requires a list of `Path`s to copy into a pytester instance."""
     example = request.param
     if example.conftest:
@@ -236,7 +239,7 @@ def example_dir(request: ExampleDirRequest, pytester: pytest.Pytester) -> Collec
 
     dir_node = pytester.getpathnode(pytester.path)
 
-    return CollectedDir(
+    return ExampleDir(
         pytester_instance=pytester,
         dir_node=dir_node,
         items=pytester.genitems([dir_node]),
