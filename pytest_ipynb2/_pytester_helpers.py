@@ -6,8 +6,8 @@ import sys
 from dataclasses import dataclass, field
 from functools import cached_property
 from textwrap import indent
-from types import MappingProxyType
 from typing import TYPE_CHECKING, Protocol
+from warnings import warn
 
 import nbformat
 import pytest
@@ -220,7 +220,7 @@ class ExampleDirSpec:
     ini: str = ""
     files: list[Path] = field(default_factory=list)
     notebooks: dict[str, list[str]] = field(default_factory=dict)
-    
+
     def __hash__(self) -> int:
         files = tuple(self.files)
         notebooks = tuple((notebook, "\n".join(contents)) for notebook, contents in self.notebooks.items())
@@ -233,29 +233,40 @@ class ExampleDirRequest(Protocol):
     param: ExampleDirSpec
 
 
+@pytest.fixture(scope="module")
+def example_dir_cache() -> dict[ExampleDirSpec, ExampleDir]:
+    return {}
+
+
 @pytest.fixture
-def example_dir(request: ExampleDirRequest, pytester: pytest.Pytester) -> ExampleDir:
+def example_dir(
+    request: ExampleDirRequest,
+    pytester: pytest.Pytester,
+    example_dir_cache: dict[ExampleDirSpec, ExampleDir],
+) -> ExampleDir:
     """Parameterised fixture. Requires a list of `Path`s to copy into a pytester instance."""
     example = request.param
-    if example.conftest:
-        pytester.makeconftest(request.param.conftest)
+    if (cached_dir := example_dir_cache.get(example)) is None:
+        if example.conftest:
+            pytester.makeconftest(request.param.conftest)
 
-    if example.ini:
-        pytester.makeini(f"[pytest]\n{example.ini}")
+        if example.ini:
+            pytester.makeini(f"[pytest]\n{example.ini}")
 
-    for filetocopy in example.files:
-        pytester.copy_example(str(filetocopy))
+        for filetocopy in example.files:
+            pytester.copy_example(str(filetocopy))
 
-    for notebook, contents in example.notebooks.items():
-        nbnode = nbformat.v4.new_notebook()
-        for cellsource in contents:
-            cellnode = nbformat.v4.new_code_cell(cellsource)
-            nbnode.cells.append(cellnode)
-        nbformat.write(nb=nbnode, fp=pytester.path / f"{notebook}.ipynb")
-
-    return ExampleDir(
-        pytester=pytester,
-    )
+        for notebook, contents in example.notebooks.items():
+            nbnode = nbformat.v4.new_notebook()
+            for cellsource in contents:
+                cellnode = nbformat.v4.new_code_cell(cellsource)
+                nbnode.cells.append(cellnode)
+            nbformat.write(nb=nbnode, fp=pytester.path / f"{notebook}.ipynb")
+        cached_dir = example_dir_cache[example] = ExampleDir(pytester=pytester)
+    else:
+        msg = f"Using cached {cached_dir.path} for {next(iter(request.keywords))}"
+        warn(msg, stacklevel=1)
+    return example_dir_cache[example]
 
 
 def add_ipytest_magic(source: str) -> str:
