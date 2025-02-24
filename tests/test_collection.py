@@ -5,18 +5,18 @@ import pytest
 
 import pytest_ipynb2
 import pytest_ipynb2.plugin
-from pytest_ipynb2._pytester_helpers import CollectedDir, CollectionTree, ExampleDir
+from pytest_ipynb2._pytester_helpers import CollectionTree, ExampleDir, ExampleDirSpec
 
 if TYPE_CHECKING:
     from pytest_ipynb2.plugin import Cell
 
 
 @pytest.fixture
-def expected_tree(request: pytest.FixtureRequest, example_dir: CollectedDir) -> CollectionTree:
+def expected_tree(request: pytest.FixtureRequest, example_dir: ExampleDir) -> CollectionTree:
     trees = {
         "notebook": {
             ("<Session  exitstatus='<UNSET>' testsfailed=0 testscollected=0>", pytest.Session): {
-                (f"<Dir {example_dir.pytester_instance.path.name}>", pytest.Dir): {
+                (f"<Dir {example_dir.path.name}>", pytest.Dir): {
                     ("<Notebook notebook.ipynb>", pytest_ipynb2.plugin.Notebook): {
                         ("<Cell 4>", pytest_ipynb2.plugin.Cell): {
                             ("<Function test_adder>", pytest.Function): None,
@@ -28,7 +28,7 @@ def expected_tree(request: pytest.FixtureRequest, example_dir: CollectedDir) -> 
         },
         "notebook_2tests": {
             ("<Session  exitstatus='<UNSET>' testsfailed=0 testscollected=0>", pytest.Session): {
-                (f"<Dir {example_dir.pytester_instance.path.name}>", pytest.Dir): {
+                (f"<Dir {example_dir.path.name}>", pytest.Dir): {
                     ("<Notebook notebook_2tests.ipynb>", pytest_ipynb2.plugin.Notebook): {
                         ("<Cell 4>", pytest_ipynb2.plugin.Cell): {
                             ("<Function test_adder>", pytest.Function): None,
@@ -43,7 +43,7 @@ def expected_tree(request: pytest.FixtureRequest, example_dir: CollectedDir) -> 
         },
         "both notebooks": {
             ("<Session  exitstatus='<UNSET>' testsfailed=0 testscollected=0>", pytest.Session): {
-                (f"<Dir {example_dir.pytester_instance.path.name}>", pytest.Dir): {
+                (f"<Dir {example_dir.path.name}>", pytest.Dir): {
                     ("<Notebook notebook.ipynb>", pytest_ipynb2.plugin.Notebook): {
                         ("<Cell 4>", pytest_ipynb2.plugin.Cell): {
                             ("<Function test_adder>", pytest.Function): None,
@@ -70,7 +70,7 @@ def expected_tree(request: pytest.FixtureRequest, example_dir: CollectedDir) -> 
     ["example_dir", "expected_tree"],
     [
         pytest.param(
-            ExampleDir(
+            ExampleDirSpec(
                 files=[Path("tests/assets/notebook.ipynb").absolute()],
                 conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
             ),
@@ -78,7 +78,7 @@ def expected_tree(request: pytest.FixtureRequest, example_dir: CollectedDir) -> 
             id="Simple Notebook",
         ),
         pytest.param(
-            ExampleDir(
+            ExampleDirSpec(
                 files=[Path("tests/assets/notebook_2tests.ipynb").absolute()],
                 conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
             ),
@@ -86,7 +86,7 @@ def expected_tree(request: pytest.FixtureRequest, example_dir: CollectedDir) -> 
             id="Notebook 2 tests",
         ),
         pytest.param(
-            ExampleDir(
+            ExampleDirSpec(
                 files=[
                     Path("tests/assets/notebook_2tests.ipynb").absolute(),
                     Path("tests/assets/notebook.ipynb").absolute(),
@@ -99,7 +99,7 @@ def expected_tree(request: pytest.FixtureRequest, example_dir: CollectedDir) -> 
     ],
     indirect=True,
 )
-def test_cell_collected(example_dir: CollectedDir, expected_tree: CollectionTree):
+def test_cell_collected(example_dir: ExampleDir, expected_tree: CollectionTree):
     assert CollectionTree.from_items(example_dir.items) == expected_tree
 
 
@@ -107,7 +107,7 @@ def test_cell_collected(example_dir: CollectedDir, expected_tree: CollectionTree
     "example_dir",
     [
         pytest.param(
-            ExampleDir(
+            ExampleDirSpec(
                 files=[Path("tests/assets/notebook.ipynb").absolute()],
                 conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
             ),
@@ -116,7 +116,7 @@ def test_cell_collected(example_dir: CollectedDir, expected_tree: CollectionTree
     ],
     indirect=True,
 )
-def test_notebook_collection(example_dir: CollectedDir):
+def test_notebook_collection(example_dir: ExampleDir):
     files = list(example_dir.dir_node.collect())
     assert files
     assert len(files) == 1
@@ -128,7 +128,7 @@ def test_notebook_collection(example_dir: CollectedDir):
     "example_dir",
     [
         pytest.param(
-            ExampleDir(
+            ExampleDirSpec(
                 files=[Path("tests/assets/notebook.ipynb").absolute()],
                 conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
             ),
@@ -137,7 +137,7 @@ def test_notebook_collection(example_dir: CollectedDir):
     ],
     indirect=True,
 )
-def test_cell_collection(example_dir: CollectedDir):
+def test_cell_collection(example_dir: ExampleDir):
     files = list(example_dir.dir_node.collect())
     cells = list(files[0].collect())
     assert cells
@@ -150,7 +150,7 @@ def test_cell_collection(example_dir: CollectedDir):
     "example_dir",
     [
         pytest.param(
-            ExampleDir(
+            ExampleDirSpec(
                 files=[Path("tests/assets/notebook.ipynb").absolute()],
                 conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
             ),
@@ -159,7 +159,7 @@ def test_cell_collection(example_dir: CollectedDir):
     ],
     indirect=True,
 )
-def test_functions(example_dir: CollectedDir):
+def test_functions(example_dir: ExampleDir):
     files = list(example_dir.dir_node.collect())
     cells = list(files[0].collect())
     functions = list(cells[0].collect())
@@ -174,7 +174,7 @@ def test_functions(example_dir: CollectedDir):
     "example_dir",
     [
         pytest.param(
-            ExampleDir(
+            ExampleDirSpec(
                 files=[Path("tests/assets/notebook.ipynb").absolute()],
                 conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
             ),
@@ -183,7 +183,7 @@ def test_functions(example_dir: CollectedDir):
     ],
     indirect=True,
 )
-def test_cellmodule_contents(example_dir: CollectedDir):
+def test_cellmodule_contents(example_dir: ExampleDir):
     cell: Cell = example_dir.items[0].parent
     # presence of `@py` entries before tests signifies pytest assertion re-writing has occured.
     expected_attrs = ["x", "y", "adder", "@py_builtins", "@pytest_ar", "test_adder", "test_globals"]

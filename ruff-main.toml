@@ -3,3 +3,6 @@ extend = "pyproject.toml"
 lint.extend-select = [
     "TD",  # TODOs need a description, even outside of `main`
 ]
+lint.extend-ignore = [
+    "TD002", # Don't need TODO authors - github issue gives that info
+]

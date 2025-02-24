@@ -7,18 +7,18 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from pytest_ipynb2._pytester_helpers import CollectionTree, ExampleDir
+from pytest_ipynb2._pytester_helpers import CollectionTree, ExampleDirSpec
 
 if TYPE_CHECKING:
-    from pytest_ipynb2._pytester_helpers import CollectedDir
+    from pytest_ipynb2._pytester_helpers import ExampleDir
 
 
 @pytest.fixture
-def expected_tree(request: pytest.FixtureRequest, example_dir: CollectedDir) -> CollectionTree:
+def expected_tree(request: pytest.FixtureRequest, example_dir: ExampleDir) -> CollectionTree:
     trees = {
         "test_module": {
             ("<Session  exitstatus='<UNSET>' testsfailed=0 testscollected=0>", pytest.Session): {
-                (f"<Dir {example_dir.pytester_instance.path.name}>", pytest.Dir): {
+                (f"<Dir {example_dir.path.name}>", pytest.Dir): {
                     ("<Module test_module.py>", pytest.Module): {
                         ("<Function test_adder>", pytest.Function): None,
                         ("<Function test_globals>", pytest.Function): None,
@@ -28,7 +28,7 @@ def expected_tree(request: pytest.FixtureRequest, example_dir: CollectedDir) -> 
         },
         "two_modules": {
             ("<Session  exitstatus='<UNSET>' testsfailed=0 testscollected=0>", pytest.Session): {
-                (f"<Dir {example_dir.pytester_instance.path.name}>", pytest.Dir): {
+                (f"<Dir {example_dir.path.name}>", pytest.Dir): {
                     ("<Module test_module.py>", pytest.Module): {
                         ("<Function test_adder>", pytest.Function): None,
                         ("<Function test_globals>", pytest.Function): None,
@@ -105,15 +105,18 @@ def test_from_dict_single_root():
     ["example_dir", "expected_tree"],
     [
         pytest.param(
-            ExampleDir(
+            ExampleDirSpec(
                 files=[Path("tests/assets/test_module.py").absolute()],
             ),
             "test_module",
             id="One module",
         ),
         pytest.param(
-            ExampleDir(
-                [Path("tests/assets/test_module.py").absolute(), Path("tests/assets/test_othermodule.py").absolute()],
+            ExampleDirSpec(
+                files=[
+                    Path("tests/assets/test_module.py").absolute(),
+                    Path("tests/assets/test_othermodule.py").absolute(),
+                ],
             ),
             "two_modules",
             id="Two modules",
@@ -121,7 +124,7 @@ def test_from_dict_single_root():
     ],
     indirect=True,
 )
-def test_from_items(example_dir: CollectedDir, expected_tree: CollectionTree):
+def test_from_items(example_dir: ExampleDir, expected_tree: CollectionTree):
     tree = CollectionTree.from_items(example_dir.items)
     assert tree == expected_tree
 
