@@ -112,3 +112,9 @@ def test_filecontents(example_dir: ExampleDir, expected_files: dict[str, list[st
         if expected_contents is not None:
             nb = nbformat.read(fp=tmp_path / filename, as_version=nbformat.NO_CONVERT)
             assert [cell.source for cell in nb.cells] == expected_contents
+
+def test_hashable_spec():
+    spec = ExampleDirSpec(
+            files=[Path("tests/assets/test_module.py").absolute()],
+        )
+    assert {spec: None}

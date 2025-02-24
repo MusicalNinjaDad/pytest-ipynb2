@@ -6,6 +6,7 @@ import sys
 from dataclasses import dataclass, field
 from functools import cached_property
 from textwrap import indent
+from types import MappingProxyType
 from typing import TYPE_CHECKING, Protocol
 
 import nbformat
@@ -219,6 +220,11 @@ class ExampleDirSpec:
     ini: str = ""
     files: list[Path] = field(default_factory=list)
     notebooks: dict[str, list[str]] = field(default_factory=dict)
+    
+    def __hash__(self) -> int:
+        files = tuple(self.files)
+        notebooks = tuple((notebook, "\n".join(contents)) for notebook, contents in self.notebooks.items())
+        return hash((self.conftest, self.ini, files, notebooks))
 
 
 class ExampleDirRequest(Protocol):
