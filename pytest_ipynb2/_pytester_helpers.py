@@ -206,6 +206,10 @@ class ExampleDir:
     def items(self) -> list[pytest.Item]:
         return self.pytester.genitems([self.dir_node])
 
+    @cached_property
+    def runresult(self) -> pytest.RunResult:
+        return self.pytester.runpytest()
+
 
 @dataclass(kw_only=True)
 class ExampleDirSpec:

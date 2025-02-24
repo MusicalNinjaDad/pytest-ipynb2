@@ -24,7 +24,7 @@ def pytester_results(
     testname = request.function.__name__.removeprefix("test_")
     expected = getattr(expected_results, testname)
     if expected or expected is None:
-        return example_dir.pytester.runpytest()
+        return example_dir.runresult
     pytest.skip(reason="No expected result")
 
 
