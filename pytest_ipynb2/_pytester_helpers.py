@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+import sys
 from dataclasses import dataclass, field
+from functools import cached_property
 from textwrap import indent
 from typing import TYPE_CHECKING, Protocol
+from warnings import warn
 
 import nbformat
 import pytest
@@ -12,9 +15,18 @@ import pytest
 if TYPE_CHECKING:
     from contextlib import suppress
     from pathlib import Path
+    from types import FunctionType
+    from typing import Any
 
-    with suppress(ImportError):  # not type-checking on python < 3.11
-        from typing import Self
+    with suppress(ImportError):
+        from typing import Self  # not type-checking on python < 3.11 so don't care if this fails
+
+if sys.version_info < (3, 10):  # dataclass does not offer kw_only on python < 3.10 # pragma: no cover
+    _dataclass = dataclass
+
+    def dataclass(*args, **kwargs):  # noqa: ANN002, ANN003
+        _ = kwargs.pop("kw_only", None)
+        return _dataclass(*args, **kwargs)
 
 
 class CollectionTree:
@@ -172,66 +184,124 @@ class CollectionTree:
         return f"{self.node!r}\n{children_repr}\n"
 
 
-@dataclass
-class CollectedDir:
+class ExampleDir:
     """
-    The various elements required to test directory collection.
+    A directory containing example files and the associated pytester instance.
 
-    - `pytester_instance`: pytest.Pytester
+    - `pytester`: pytest.Pytester
+    - `path`: pathlib.Path
     - `dir_node`: pytest.Dir
     - `items`: list[pytest.Item]
     """
 
-    pytester_instance: pytest.Pytester
-    dir_node: pytest.Dir
-    items: list[pytest.Item]
+    pytester: pytest.Pytester
+    path: Path | None = None
+
+    def __init__(self, pytester: pytest.Pytester) -> None:
+        self.pytester = pytester
+        self.path = self.pytester.path
+
+    @cached_property
+    def dir_node(self) -> pytest.Dir:
+        return self.pytester.getpathnode(self.path)
+
+    @cached_property
+    def items(self) -> list[pytest.Item]:
+        return self.pytester.genitems([self.dir_node])
+
+    @cached_property
+    def runresult(self) -> pytest.RunResult:
+        return self.pytester.runpytest()
 
 
-@dataclass
-class ExampleDir:
+@dataclass(kw_only=True)
+class ExampleDirSpec:
     """The various elements to set up a pytester instance."""
 
-    files: list[Path] = field(default_factory=list)
     conftest: str = ""
     ini: str = ""
+    files: list[Path] = field(default_factory=list)
     notebooks: dict[str, list[str]] = field(default_factory=dict)
 
+    def __hash__(self) -> int:
+        files = tuple(self.files)
+        notebooks = tuple((notebook, "\n".join(contents)) for notebook, contents in self.notebooks.items())
+        return hash((self.conftest, self.ini, files, notebooks))
 
-class ExampleDirRequest(Protocol):
-    """Typehint to param passed to example_dir."""
 
-    param: ExampleDir
+class FunctionRequest(Protocol):
+    function: FunctionType
+    keywords: dict[str, Any]
+
+
+class ExampleDirRequest(FunctionRequest):
+    param: ExampleDirSpec
+
+
+@pytest.fixture(scope="module")
+def example_dir_cache() -> dict[ExampleDirSpec, ExampleDir]:
+    return {}
 
 
 @pytest.fixture
-def example_dir(request: ExampleDirRequest, pytester: pytest.Pytester) -> CollectedDir:
+def example_dir(
+    request: ExampleDirRequest,
+    pytester: pytest.Pytester,
+    example_dir_cache: dict[ExampleDirSpec, ExampleDir],
+) -> ExampleDir:
     """Parameterised fixture. Requires a list of `Path`s to copy into a pytester instance."""
     example = request.param
-    if example.conftest:
-        pytester.makeconftest(request.param.conftest)
+    if (cached_dir := example_dir_cache.get(example)) is None:
+        if example.conftest:
+            pytester.makeconftest(request.param.conftest)
 
-    if example.ini:
-        pytester.makeini(f"[pytest]\n{example.ini}")
+        if example.ini:
+            pytester.makeini(f"[pytest]\n{example.ini}")
 
-    for filetocopy in example.files:
-        pytester.copy_example(str(filetocopy))
+        for filetocopy in example.files:
+            pytester.copy_example(str(filetocopy))
 
-    for notebook, contents in example.notebooks.items():
-        nbnode = nbformat.v4.new_notebook()
-        for cellsource in contents:
-            cellnode = nbformat.v4.new_code_cell(cellsource)
-            nbnode.cells.append(cellnode)
-        nbformat.write(nb=nbnode, fp=pytester.path / f"{notebook}.ipynb")
-
-    dir_node = pytester.getpathnode(pytester.path)
-
-    return CollectedDir(
-        pytester_instance=pytester,
-        dir_node=dir_node,
-        items=pytester.genitems([dir_node]),
-    )
+        for notebook, contents in example.notebooks.items():
+            nbnode = nbformat.v4.new_notebook()
+            for cellsource in contents:
+                cellnode = nbformat.v4.new_code_cell(cellsource)
+                nbnode.cells.append(cellnode)
+            nbformat.write(nb=nbnode, fp=pytester.path / f"{notebook}.ipynb")
+        cached_dir = example_dir_cache[example] = ExampleDir(pytester=pytester)
+    else:
+        msg = f"Using cached {cached_dir.path} for {next(iter(request.keywords))}"
+        warn(msg, stacklevel=1)
+    return example_dir_cache[example]
 
 
 def add_ipytest_magic(source: str) -> str:
     """Add %%ipytest magic to the source code."""
     return f"%%ipytest\n\n{source}"
+
+
+def pytest_configure(config: pytest.Config) -> None: # pragma: no cover
+    # Tests will be needed if this ever becomes public functionality
+    """Register autoskip & xfail_for marks."""
+    config.addinivalue_line("markers", "autoskip: automatically skip test if expected results not provided")
+    config.addinivalue_line("markers", "xfail_for: xfail specified tests dynamically")
+
+
+@pytest.hookimpl(tryfirst=True)
+def pytest_runtest_setup(item: pytest.Function) -> None: # pragma: no cover
+    # Tests will be needed if this ever becomes public functionality
+    if item.get_closest_marker("autoskip"):
+        test_name = item.originalname.removeprefix("test_")
+        expected = getattr(item.callspec.getparam("expected_results"), test_name)
+        if not expected and expected is not None:
+            item.add_marker(pytest.mark.skip(reason="No expected results"))
+
+
+def pytest_collection_modifyitems(items: list[pytest.Function]) -> None: # pragma: no cover
+    # Tests will be needed if this ever becomes public functionality
+    """xfail on presence of a custom marker: `xfail_for(tests:list[str], reasons:list[str])`."""  # noqa: D403
+    for item in items:
+        test_name = item.originalname.removeprefix("test_")
+        if xfail_for := item.get_closest_marker("xfail_for"):
+            for xfail_test, reason in zip(xfail_for.kwargs.get("tests"), xfail_for.kwargs.get("reasons")):
+                if xfail_test == test_name:
+                    item.add_marker(pytest.mark.xfail(reason=reason, strict=True))

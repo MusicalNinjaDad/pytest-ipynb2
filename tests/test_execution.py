@@ -6,26 +6,11 @@ from pathlib import Path
 
 import pytest
 
-from pytest_ipynb2._pytester_helpers import CollectedDir, ExampleDir, add_ipytest_magic
+from pytest_ipynb2._pytester_helpers import ExampleDir, ExampleDirSpec, add_ipytest_magic
 
 LINESTART = "^"
 LINEEND = "$"
 WHITESPACE = r"\s*"
-
-
-# TODO(MusicalNinjaDad): #30 Cache runpytest() results or set scopes to speed up tests
-@pytest.fixture
-def pytester_results(
-    example_dir: CollectedDir,
-    expected_results: ExpectedResults,
-    request: pytest.FixtureRequest,
-) -> pytest.RunResult:
-    """Skip if no expected result, otherwise runpytest in the example_dir and return the result."""
-    testname = request.function.__name__.removeprefix("test_")
-    expected = getattr(expected_results, testname)
-    if expected or expected is None:
-        return example_dir.pytester_instance.runpytest()
-    pytest.skip(reason="No expected result")
 
 
 @dataclass
@@ -47,7 +32,7 @@ parametrized = pytest.mark.parametrize(
     ["example_dir", "expected_results"],
     [
         pytest.param(
-            ExampleDir(
+            ExampleDirSpec(
                 files=[Path("tests/assets/notebook.ipynb").absolute()],
                 conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
             ),
@@ -57,7 +42,7 @@ parametrized = pytest.mark.parametrize(
             id="Copied notebook",
         ),
         pytest.param(
-            ExampleDir(
+            ExampleDirSpec(
                 files=[Path("tests/assets/notebook_2tests.ipynb").absolute()],
                 conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
             ),
@@ -67,7 +52,7 @@ parametrized = pytest.mark.parametrize(
             id="Copied notebook with 2 test cells",
         ),
         pytest.param(
-            ExampleDir(
+            ExampleDirSpec(
                 files=[
                     Path("tests/assets/notebook_2tests.ipynb").absolute(),
                     Path("tests/assets/notebook.ipynb").absolute(),
@@ -80,7 +65,7 @@ parametrized = pytest.mark.parametrize(
             id="Two copied notebooks - unsorted",
         ),
         pytest.param(
-            ExampleDir(
+            ExampleDirSpec(
                 conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
                 notebooks={"passing": [add_ipytest_magic(Path("tests/assets/test_passing.py").read_text())]},
             ),
@@ -92,7 +77,7 @@ parametrized = pytest.mark.parametrize(
             id="Single Cell",
         ),
         pytest.param(
-            ExampleDir(
+            ExampleDirSpec(
                 conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
                 notebooks={"failing": [add_ipytest_magic(Path("tests/assets/test_failing.py").read_text())]},
             ),
@@ -104,7 +89,7 @@ parametrized = pytest.mark.parametrize(
             id="Failing Test",
         ),
         pytest.param(
-            ExampleDir(
+            ExampleDirSpec(
                 conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
                 notebooks={"fixture": [add_ipytest_magic(Path("tests/assets/test_fixture.py").read_text())]},
             ),
@@ -114,7 +99,7 @@ parametrized = pytest.mark.parametrize(
             id="Test with fixture",
         ),
         pytest.param(
-            ExampleDir(
+            ExampleDirSpec(
                 conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
                 notebooks={"marks": [add_ipytest_magic(Path("tests/assets/test_param.py").read_text())]},
                 ini="addopts = -rx",
@@ -127,7 +112,7 @@ parametrized = pytest.mark.parametrize(
             id="Test with parameters and marks",
         ),
         pytest.param(
-            ExampleDir(
+            ExampleDirSpec(
                 conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
                 notebooks={
                     "autoconfig": [
@@ -143,7 +128,7 @@ parametrized = pytest.mark.parametrize(
             id="Notebook calls autoconfig",
         ),
         pytest.param(
-            ExampleDir(
+            ExampleDirSpec(
                 conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
                 notebooks={
                     "notests": [Path("tests/assets/test_module.py").read_text()],
@@ -155,7 +140,7 @@ parametrized = pytest.mark.parametrize(
             id="No ipytest cells",
         ),
         pytest.param(
-            ExampleDir(
+            ExampleDirSpec(
                 conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
                 notebooks={
                     "nocells": [],
@@ -167,7 +152,7 @@ parametrized = pytest.mark.parametrize(
             id="Empty notebook",
         ),
         pytest.param(
-            ExampleDir(
+            ExampleDirSpec(
                 conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
                 notebooks={
                     "comments": [
@@ -182,7 +167,7 @@ parametrized = pytest.mark.parametrize(
             id="ipytest not first line",
         ),
         pytest.param(
-            ExampleDir(
+            ExampleDirSpec(
                 conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
                 files=[
                     Path("tests/assets/test_module.py"),
@@ -196,7 +181,7 @@ parametrized = pytest.mark.parametrize(
             id="mixed file types",
         ),
         pytest.param(
-            ExampleDir(
+            ExampleDirSpec(
                 conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
                 notebooks={
                     "globals": [
@@ -215,7 +200,7 @@ parametrized = pytest.mark.parametrize(
             id="cell execution order",
         ),
         pytest.param(
-            ExampleDir(
+            ExampleDirSpec(
                 conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
                 files=[Path("tests/assets/test_module.py")],
             ),
@@ -226,7 +211,7 @@ parametrized = pytest.mark.parametrize(
             id="output python module",
         ),
         pytest.param(
-            ExampleDir(
+            ExampleDirSpec(
                 conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
                 ini="addopts = -vv",
                 notebooks={
@@ -260,26 +245,29 @@ parametrized = pytest.mark.parametrize(
 
 
 @parametrized
-def test_outcomes(pytester_results: pytest.RunResult, expected_results: ExpectedResults):
+@pytest.mark.autoskip
+def test_outcomes(example_dir: ExampleDir, expected_results: ExpectedResults):
     try:
-        pytester_results.assert_outcomes(**expected_results.outcomes)
+        example_dir.runresult.assert_outcomes(**expected_results.outcomes)
     except AssertionError:
-        pytest.fail(f"{pytester_results.stdout}")
+        pytest.fail(f"{example_dir.runresult.stdout}")
 
 
 @parametrized
-def test_logreport(pytester_results: pytest.RunResult, expected_results: ExpectedResults):
+@pytest.mark.autoskip
+def test_logreport(example_dir: ExampleDir, expected_results: ExpectedResults):
     stdout_regexes = [
         f"{LINESTART}{re.escape(filename)}{WHITESPACE}"
         f"{re.escape(outcomes)}{WHITESPACE}"
         f"{re.escape('[')}{progress:3d}%{re.escape(']')}{WHITESPACE}{LINEEND}"
         for filename, outcomes, progress in expected_results.logreport
     ]
-    pytester_results.stdout.re_match_lines(stdout_regexes, consecutive=True)
+    example_dir.runresult.stdout.re_match_lines(stdout_regexes, consecutive=True)
 
 
 @parametrized
-def test_summary(pytester_results: pytest.RunResult, expected_results: ExpectedResults):
+@pytest.mark.autoskip
+def test_summary(example_dir: ExampleDir, expected_results: ExpectedResults):
     summary_regexes = ["[=]* short test summary info [=]*"]
     if expected_results.summary is not None:
         summary_regexes += [
@@ -292,9 +280,13 @@ def test_summary(pytester_results: pytest.RunResult, expected_results: ExpectedR
             for result, location, exceptiontype, message in expected_results.summary
         ]  # message is currently not provided until we fix Assertion re-writing
         summary_regexes += ["[=]*"]
-        pytester_results.stdout.re_match_lines(summary_regexes, consecutive=True)
+        example_dir.runresult.stdout.re_match_lines(summary_regexes, consecutive=True)
     else:
         assert (
-            re.search(f"{LINESTART}{summary_regexes[0]}{LINEEND}", str(pytester_results.stdout), flags=re.MULTILINE)
+            re.search(
+                f"{LINESTART}{summary_regexes[0]}{LINEEND}",
+                str(example_dir.runresult.stdout),
+                flags=re.MULTILINE,
+            )
             is None
         )
