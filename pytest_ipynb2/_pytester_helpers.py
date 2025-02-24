@@ -255,3 +255,19 @@ def example_dir(request: ExampleDirRequest, pytester: pytest.Pytester) -> Exampl
 def add_ipytest_magic(source: str) -> str:
     """Add %%ipytest magic to the source code."""
     return f"%%ipytest\n\n{source}"
+
+
+def pytest_configure(config: pytest.Config) -> None:
+    """Register autoskip mark."""
+    config.addinivalue_line("markers", "autoskip: automatically skip test if expected results not provided")
+
+
+@pytest.hookimpl(tryfirst=True)
+def pytest_runtest_setup(item: pytest.Function) -> None:
+    if item.get_closest_marker("autoskip"):
+        test_name = item.originalname.removeprefix("test_")
+        expected = getattr(item.callspec.getparam("expected_results"), test_name)
+        if expected or expected is None:
+            pass
+        else:
+            item.add_marker(pytest.mark.skip(reason="No expected results"))

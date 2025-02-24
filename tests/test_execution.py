@@ -260,6 +260,7 @@ parametrized = pytest.mark.parametrize(
 
 
 @parametrized
+@pytest.mark.autoskip
 def test_outcomes(example_dir: ExampleDir, expected_results: ExpectedResults):
     try:
         example_dir.runresult.assert_outcomes(**expected_results.outcomes)
@@ -279,7 +280,8 @@ def test_logreport(example_dir: ExampleDir, expected_results: ExpectedResults):
 
 
 @parametrized
-def test_summary(pytester_results: pytest.RunResult, expected_results: ExpectedResults):
+@pytest.mark.autoskip
+def test_summary(example_dir: ExampleDir, expected_results: ExpectedResults):
     summary_regexes = ["[=]* short test summary info [=]*"]
     if expected_results.summary is not None:
         summary_regexes += [
@@ -292,9 +294,11 @@ def test_summary(pytester_results: pytest.RunResult, expected_results: ExpectedR
             for result, location, exceptiontype, message in expected_results.summary
         ]  # message is currently not provided until we fix Assertion re-writing
         summary_regexes += ["[=]*"]
-        pytester_results.stdout.re_match_lines(summary_regexes, consecutive=True)
+        example_dir.runresult.stdout.re_match_lines(summary_regexes, consecutive=True)
     else:
         assert (
-            re.search(f"{LINESTART}{summary_regexes[0]}{LINEEND}", str(pytester_results.stdout), flags=re.MULTILINE)
+            re.search(
+                f"{LINESTART}{summary_regexes[0]}{LINEEND}", str(example_dir.runresult.stdout), flags=re.MULTILINE,
+            )
             is None
         )
