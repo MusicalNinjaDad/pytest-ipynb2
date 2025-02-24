@@ -267,7 +267,5 @@ def pytest_runtest_setup(item: pytest.Function) -> None:
     if item.get_closest_marker("autoskip"):
         test_name = item.originalname.removeprefix("test_")
         expected = getattr(item.callspec.getparam("expected_results"), test_name)
-        if expected or expected is None:
-            pass
-        else:
+        if not expected and expected is not None:
             item.add_marker(pytest.mark.skip(reason="No expected results"))
