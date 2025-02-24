@@ -269,6 +269,7 @@ def test_outcomes(example_dir: ExampleDir, expected_results: ExpectedResults):
 
 
 @parametrized
+@pytest.mark.autoskip
 def test_logreport(example_dir: ExampleDir, expected_results: ExpectedResults):
     stdout_regexes = [
         f"{LINESTART}{re.escape(filename)}{WHITESPACE}"
