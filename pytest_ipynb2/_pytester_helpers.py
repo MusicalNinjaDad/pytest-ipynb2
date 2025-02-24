@@ -279,7 +279,7 @@ def add_ipytest_magic(source: str) -> str:
     return f"%%ipytest\n\n{source}"
 
 
-def pytest_configure(config: pytest.Config) -> None: # pragma: no cover
+def pytest_configure(config: pytest.Config) -> None:  # pragma: no cover
     # Tests will be needed if this ever becomes public functionality
     """Register autoskip & xfail_for marks."""
     config.addinivalue_line("markers", "autoskip: automatically skip test if expected results not provided")
@@ -287,7 +287,7 @@ def pytest_configure(config: pytest.Config) -> None: # pragma: no cover
 
 
 @pytest.hookimpl(tryfirst=True)
-def pytest_runtest_setup(item: pytest.Function) -> None: # pragma: no cover
+def pytest_runtest_setup(item: pytest.Function) -> None:  # pragma: no cover
     # Tests will be needed if this ever becomes public functionality
     if item.get_closest_marker("autoskip"):
         test_name = item.originalname.removeprefix("test_")
@@ -296,7 +296,7 @@ def pytest_runtest_setup(item: pytest.Function) -> None: # pragma: no cover
             item.add_marker(pytest.mark.skip(reason="No expected results"))
 
 
-def pytest_collection_modifyitems(items: list[pytest.Function]) -> None: # pragma: no cover
+def pytest_collection_modifyitems(items: list[pytest.Function]) -> None:  # pragma: no cover
     # Tests will be needed if this ever becomes public functionality
     """xfail on presence of a custom marker: `xfail_for(tests:list[str], reasons:list[str])`."""  # noqa: D403
     for item in items:
