@@ -191,18 +191,18 @@ class ExampleDir:
     - `items`: list[pytest.Item]
     """
 
-    pytester_instance: pytest.Pytester
+    pytester: pytest.Pytester
     items: list[pytest.Item]
     path: Path | None = None
 
-    def __init__(self, pytester_instance: pytest.Pytester, items: list[pytest.Item]) -> None:
-        self.pytester_instance = pytester_instance
-        self.path = self.pytester_instance.path
+    def __init__(self, pytester: pytest.Pytester, items: list[pytest.Item]) -> None:
+        self.pytester = pytester
+        self.path = self.pytester.path
         self.items = items
 
     @cached_property
     def dir_node(self) -> pytest.Dir:
-        return self.pytester_instance.getpathnode(self.path)
+        return self.pytester.getpathnode(self.path)
 
 
 @dataclass(kw_only=True)
@@ -244,7 +244,7 @@ def example_dir(request: ExampleDirRequest, pytester: pytest.Pytester) -> Exampl
     dir_node = pytester.getpathnode(pytester.path)
 
     return ExampleDir(
-        pytester_instance=pytester,
+        pytester=pytester,
         items=pytester.genitems([dir_node]),
     )
 

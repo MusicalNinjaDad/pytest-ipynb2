@@ -87,7 +87,7 @@ tests = [
     indirect=["example_dir"],
 )
 def test_path(example_dir: ExampleDir, expected_files):  # noqa: ARG001
-    assert example_dir.path == example_dir.pytester_instance.path
+    assert example_dir.path == example_dir.pytester.path
 
 
 @pytest.mark.parametrize(
