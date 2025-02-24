@@ -192,17 +192,19 @@ class ExampleDir:
     """
 
     pytester: pytest.Pytester
-    items: list[pytest.Item]
     path: Path | None = None
 
-    def __init__(self, pytester: pytest.Pytester, items: list[pytest.Item]) -> None:
+    def __init__(self, pytester: pytest.Pytester) -> None:
         self.pytester = pytester
         self.path = self.pytester.path
-        self.items = items
 
     @cached_property
     def dir_node(self) -> pytest.Dir:
         return self.pytester.getpathnode(self.path)
+
+    @cached_property
+    def items(self) -> list[pytest.Item]:
+        return self.pytester.genitems([self.dir_node])
 
 
 @dataclass(kw_only=True)
@@ -241,11 +243,8 @@ def example_dir(request: ExampleDirRequest, pytester: pytest.Pytester) -> Exampl
             nbnode.cells.append(cellnode)
         nbformat.write(nb=nbnode, fp=pytester.path / f"{notebook}.ipynb")
 
-    dir_node = pytester.getpathnode(pytester.path)
-
     return ExampleDir(
         pytester=pytester,
-        items=pytester.genitems([dir_node]),
     )
 
 
