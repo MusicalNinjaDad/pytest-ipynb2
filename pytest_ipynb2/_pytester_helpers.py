@@ -258,8 +258,9 @@ def add_ipytest_magic(source: str) -> str:
 
 
 def pytest_configure(config: pytest.Config) -> None:
-    """Register autoskip mark."""
+    """Register autoskip & xfail_for marks."""
     config.addinivalue_line("markers", "autoskip: automatically skip test if expected results not provided")
+    config.addinivalue_line("markers", "xfail_for: xfail specified tests dynamically")
 
 
 @pytest.hookimpl(tryfirst=True)
@@ -269,3 +270,13 @@ def pytest_runtest_setup(item: pytest.Function) -> None:
         expected = getattr(item.callspec.getparam("expected_results"), test_name)
         if not expected and expected is not None:
             item.add_marker(pytest.mark.skip(reason="No expected results"))
+
+
+def pytest_collection_modifyitems(items: list[pytest.Function]) -> None:
+    """xfail on presence of a custom marker: `xfail_for(tests:list[str], reasons:list[str])`."""  # noqa: D403
+    for item in items:
+        test_name = item.originalname.removeprefix("test_")
+        if xfail_for := item.get_closest_marker("xfail_for"):
+            for xfail_test, reason in zip(xfail_for.kwargs.get("tests"), xfail_for.kwargs.get("reasons")):
+                if xfail_test == test_name:
+                    item.add_marker(pytest.mark.xfail(reason=reason, strict=True))
