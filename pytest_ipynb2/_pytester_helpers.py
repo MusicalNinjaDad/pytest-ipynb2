@@ -279,14 +279,16 @@ def add_ipytest_magic(source: str) -> str:
     return f"%%ipytest\n\n{source}"
 
 
-def pytest_configure(config: pytest.Config) -> None:
+def pytest_configure(config: pytest.Config) -> None: # pragma: no cover
+    # Tests will be needed if this ever becomes public functionality
     """Register autoskip & xfail_for marks."""
     config.addinivalue_line("markers", "autoskip: automatically skip test if expected results not provided")
     config.addinivalue_line("markers", "xfail_for: xfail specified tests dynamically")
 
 
 @pytest.hookimpl(tryfirst=True)
-def pytest_runtest_setup(item: pytest.Function) -> None:
+def pytest_runtest_setup(item: pytest.Function) -> None: # pragma: no cover
+    # Tests will be needed if this ever becomes public functionality
     if item.get_closest_marker("autoskip"):
         test_name = item.originalname.removeprefix("test_")
         expected = getattr(item.callspec.getparam("expected_results"), test_name)
