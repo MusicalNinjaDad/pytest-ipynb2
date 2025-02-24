@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import sys
 from dataclasses import dataclass, field
 from textwrap import indent
 from typing import TYPE_CHECKING, Protocol
@@ -15,6 +16,12 @@ if TYPE_CHECKING:
 
     with suppress(ImportError):  # not type-checking on python < 3.11
         from typing import Self
+
+if sys.version_info < (3,10): # dataclass does not offer kw_only on python < 3.10
+    _dataclass = dataclass
+    def dataclass(*args, **kwargs):  # noqa: ANN002, ANN003
+        kwargs.__delitem__("kw_only")
+        return _dataclass(*args, **kwargs)
 
 
 class CollectionTree:
