@@ -14,18 +14,6 @@ WHITESPACE = r"\s*"
 
 
 # TODO(MusicalNinjaDad): #30 Cache runpytest() results or set scopes to speed up tests
-@pytest.fixture
-def pytester_results(
-    example_dir: ExampleDir,
-    expected_results: ExpectedResults,
-    request: pytest.FixtureRequest,
-) -> pytest.RunResult:
-    """Skip if no expected result, otherwise runpytest in the example_dir and return the result."""
-    testname = request.function.__name__.removeprefix("test_")
-    expected = getattr(expected_results, testname)
-    if expected or expected is None:
-        return example_dir.runresult
-    pytest.skip(reason="No expected result")
 
 
 @dataclass
@@ -299,7 +287,9 @@ def test_summary(example_dir: ExampleDir, expected_results: ExpectedResults):
     else:
         assert (
             re.search(
-                f"{LINESTART}{summary_regexes[0]}{LINEEND}", str(example_dir.runresult.stdout), flags=re.MULTILINE,
+                f"{LINESTART}{summary_regexes[0]}{LINEEND}",
+                str(example_dir.runresult.stdout),
+                flags=re.MULTILINE,
             )
             is None
         )
