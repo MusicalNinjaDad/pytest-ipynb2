@@ -15,11 +15,13 @@ import pytest
 if TYPE_CHECKING:
     from contextlib import suppress
     from pathlib import Path
+    from types import FunctionType
+    from typing import Any
 
     with suppress(ImportError):
         from typing import Self  # not type-checking on python < 3.11 so don't care if this fails
 
-if sys.version_info < (3, 10):  # dataclass does not offer kw_only on python < 3.10
+if sys.version_info < (3, 10):  # dataclass does not offer kw_only on python < 3.10 # pragma: no cover
     _dataclass = dataclass
 
     def dataclass(*args, **kwargs):  # noqa: ANN002, ANN003
@@ -227,9 +229,12 @@ class ExampleDirSpec:
         return hash((self.conftest, self.ini, files, notebooks))
 
 
-class ExampleDirRequest(Protocol):
-    """Typehint to param passed to example_dir."""
+class FunctionRequest(Protocol):
+    function: FunctionType
+    keywords: dict[str, Any]
 
+
+class ExampleDirRequest(FunctionRequest):
     param: ExampleDirSpec
 
 
