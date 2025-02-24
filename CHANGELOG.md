@@ -9,7 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Consolidated and simplified tests
+- Consolidated, simplified tests [#29][pr-29] & made them faster [#31][pr-31]
+
+[pr-29]: https://github.com/MusicalNinjaDad/pytest-ipynb2/pull/29
+[pr-31]: https://github.com/MusicalNinjaDad/pytest-ipynb2/pull/31
 
 ## [0.2.1] - 2025-02-19
 
