@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 if sys.version_info < (3,10): # dataclass does not offer kw_only on python < 3.10
     _dataclass = dataclass
     def dataclass(*args, **kwargs):  # noqa: ANN002, ANN003
-        kwargs.__delitem__("kw_only")
+        _ = kwargs.pop("kw_only", None)
         return _dataclass(*args, **kwargs)
 
 
