@@ -268,14 +268,14 @@ def test_outcomes(example_dir: ExampleDir, expected_results: ExpectedResults):
 
 
 @parametrized
-def test_logreport(pytester_results: pytest.RunResult, expected_results: ExpectedResults):
+def test_logreport(example_dir: ExampleDir, expected_results: ExpectedResults):
     stdout_regexes = [
         f"{LINESTART}{re.escape(filename)}{WHITESPACE}"
         f"{re.escape(outcomes)}{WHITESPACE}"
         f"{re.escape('[')}{progress:3d}%{re.escape(']')}{WHITESPACE}{LINEEND}"
         for filename, outcomes, progress in expected_results.logreport
     ]
-    pytester_results.stdout.re_match_lines(stdout_regexes, consecutive=True)
+    example_dir.runresult.stdout.re_match_lines(stdout_regexes, consecutive=True)
 
 
 @parametrized
