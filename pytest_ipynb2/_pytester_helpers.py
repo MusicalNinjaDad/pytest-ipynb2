@@ -14,8 +14,8 @@ if TYPE_CHECKING:
     from contextlib import suppress
     from pathlib import Path
 
-    with suppress(ImportError):  # not type-checking on python < 3.11
-        from typing import Self
+    with suppress(ImportError):  
+        from typing import Self  # not type-checking on python < 3.11 so don't care if this fails
 
 if sys.version_info < (3,10): # dataclass does not offer kw_only on python < 3.10
     _dataclass = dataclass
