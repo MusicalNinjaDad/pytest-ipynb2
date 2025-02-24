@@ -260,11 +260,11 @@ parametrized = pytest.mark.parametrize(
 
 
 @parametrized
-def test_outcomes(pytester_results: pytest.RunResult, expected_results: ExpectedResults):
+def test_outcomes(example_dir: ExampleDir, expected_results: ExpectedResults):
     try:
-        pytester_results.assert_outcomes(**expected_results.outcomes)
+        example_dir.runresult.assert_outcomes(**expected_results.outcomes)
     except AssertionError:
-        pytest.fail(f"{pytester_results.stdout}")
+        pytest.fail(f"{example_dir.runresult.stdout}")
 
 
 @parametrized
