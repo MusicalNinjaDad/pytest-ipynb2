@@ -294,7 +294,8 @@ def pytest_runtest_setup(item: pytest.Function) -> None:
             item.add_marker(pytest.mark.skip(reason="No expected results"))
 
 
-def pytest_collection_modifyitems(items: list[pytest.Function]) -> None:
+def pytest_collection_modifyitems(items: list[pytest.Function]) -> None: # pragma: no cover
+    # Tests will be needed if this ever becomes public functionality
     """xfail on presence of a custom marker: `xfail_for(tests:list[str], reasons:list[str])`."""  # noqa: D403
     for item in items:
         test_name = item.originalname.removeprefix("test_")
