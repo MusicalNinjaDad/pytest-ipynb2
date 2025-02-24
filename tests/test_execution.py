@@ -13,9 +13,6 @@ LINEEND = "$"
 WHITESPACE = r"\s*"
 
 
-# TODO(MusicalNinjaDad): #30 Cache runpytest() results or set scopes to speed up tests
-
-
 @dataclass
 class ExpectedResults:
     outcomes: dict[str, int]
