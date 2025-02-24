@@ -186,14 +186,13 @@ class CollectedDir:
     dir_node: pytest.Dir
     items: list[pytest.Item]
 
-
-@dataclass
+@dataclass(kw_only=True)
 class ExampleDir:
     """The various elements to set up a pytester instance."""
 
-    files: list[Path] = field(default_factory=list)
     conftest: str = ""
     ini: str = ""
+    files: list[Path] = field(default_factory=list)
     notebooks: dict[str, list[str]] = field(default_factory=dict)
 
 

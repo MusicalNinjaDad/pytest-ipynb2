@@ -8,14 +8,14 @@ from pytest_ipynb2._pytester_helpers import CollectedDir, ExampleDir, add_ipytes
 tests = [
     pytest.param(
         ExampleDir(
-            [Path("tests/assets/test_module.py").absolute()],
+            files=[Path("tests/assets/test_module.py").absolute()],
         ),
         {"test_module.py": None},
         id="One File",
     ),
     pytest.param(
         ExampleDir(
-            [Path("tests/assets/test_module.py").absolute(), Path("tests/assets/test_othermodule.py").absolute()],
+            files=[Path("tests/assets/test_module.py").absolute(), Path("tests/assets/test_othermodule.py").absolute()],
         ),
         {
             "test_module.py": None,
@@ -25,7 +25,7 @@ tests = [
     ),
     pytest.param(
         ExampleDir(
-            [Path("tests/assets/notebook.ipynb").absolute()],
+            files=[Path("tests/assets/notebook.ipynb").absolute()],
         ),
         {"notebook.ipynb": None},
         id="Copied Notebook",
