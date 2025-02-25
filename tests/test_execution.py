@@ -324,9 +324,6 @@ def test_summary(example_dir: ExampleDir, expected_results: ExpectedResults):
 @parametrized
 @pytest.mark.autoskip
 def test_failures(example_dir: ExampleDir, expected_results: ExpectedResults):
-    if expected_results.failures is not None and not expected_results.failures:
-        pytest.skip(reason="No expected result")
-
     results = example_dir.runresult
     regexes = ["[=]* FAILURES [=]*"]
     if expected_results.failures is not None:
