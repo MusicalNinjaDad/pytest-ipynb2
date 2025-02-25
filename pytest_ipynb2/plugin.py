@@ -92,12 +92,6 @@ class Cell(pytest.Module):
         """Override pytest which checks `.obj.__code__.co_filename` == `.path`."""
         return self.path, 0, self.getmodpath()
 
-    def repr_failure(self, excinfo: pytest.ExceptionInfo) -> str:
-        """Override - see Node._repr_failure_py for ideas."""
-        _rf = super().repr_failure(excinfo)
-        _wierdness = str(_rf)
-        return f"{excinfo.type} in {self.nodeid}"
-
     def collect(self) -> Generator[pytest.Function, None, None]:
         """Replace the reportinfo method on the children, if present."""
         for item in super().collect():
