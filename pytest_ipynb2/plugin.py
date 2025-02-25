@@ -130,4 +130,5 @@ def pytest_runtest_logreport(report: pytest.TestReport) -> None:
 def pytest_exception_interact(call: pytest.CallInfo, report: pytest.TestReport) -> None:  # noqa: ARG001
     """For debugging purposes."""
     if report.nodeid.split("::")[0].endswith(".ipynb"):
+        # call.excinfo.traceback[-1].getsource needs patching. Returns a <_pytest._code.source.Source object>
         pass
