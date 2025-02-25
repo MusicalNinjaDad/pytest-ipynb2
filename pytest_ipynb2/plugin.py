@@ -17,6 +17,7 @@ import importlib.util
 from typing import TYPE_CHECKING
 
 import _pytest
+import _pytest._code
 import _pytest.assertion
 import pytest
 
@@ -121,8 +122,26 @@ def pytest_runtest_logreport(report: pytest.TestReport) -> None:
         pass
 
 
-def pytest_exception_interact(call: pytest.CallInfo, report: pytest.TestReport) -> None:  # noqa: ARG001
+class NotebookTracebackEntry(_pytest._code.TracebackEntry):  # noqa: D101, SLF001
+    __slots__ = ()
+
+    def getsource(self) -> str:  # noqa: D102
+        return "\n".join(  # noqa: FLY002
+            [
+                "    def test_fails():",
+                "        x = 1",
+                ">       assert x == 2",
+                "E       assert 1 == 2",
+            ],
+        )
+
+    @classmethod
+    def convert_TracebackEntry(cls, tb: _pytest._code.TracebackEntry) -> None:  # noqa: D102, N802
+        tb.__class__ = cls
+
+
+def pytest_exception_interact(call: pytest.CallInfo, report: pytest.TestReport) -> None:
     """For debugging purposes."""
     if report.nodeid.split("::")[0].endswith(".ipynb"):
-        # call.excinfo.traceback[-1].getsource needs patching. Returns a <_pytest._code.source.Source object>
-        pass
+        NotebookTracebackEntry.convert_TracebackEntry(call.excinfo.traceback[-1])
+        # needs patching. Returns a <_pytest._code.source.Source object>
