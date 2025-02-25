@@ -96,7 +96,7 @@ parametrized = pytest.mark.parametrize(
             ExpectedResults(
                 outcomes={"failed": 1},
                 logreport=[("failing.ipynb", "F", 100)],
-                summary=[("FAILED", "failing.ipynb::Cell0::test_fails", AssertionError, None)],
+                summary=[("FAILED", "failing.ipynb::Cell0::test_fails", None, "assert 1 == 2")],
                 failures=[
                     FailureDetails(
                         testcase="test_fails",
@@ -265,7 +265,7 @@ parametrized = pytest.mark.parametrize(
                     ("two_cells.ipynb::Cell0::test_fails", "FAILED", 66),
                     ("two_cells.ipynb::Cell1::test_pass", "PASSED", 100),
                 ],
-                summary=[("FAILED", "two_cells.ipynb::Cell0::test_fails", AssertionError, None)],
+                summary=[("FAILED", "two_cells.ipynb::Cell0::test_fails", None, "assert 1 == 2")],
             ),
             id="Verbose two notebooks",
             marks=pytest.mark.xfail_for(summary="Broken while adjusting Exception Repr"),
