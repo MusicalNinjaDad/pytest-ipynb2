@@ -302,6 +302,6 @@ def pytest_collection_modifyitems(items: list[pytest.Function]) -> None:  # prag
     for item in items:
         test_name = item.originalname.removeprefix("test_")
         if xfail_for := item.get_closest_marker("xfail_for"):
-            for xfail_test, reason in zip(xfail_for.kwargs.get("tests"), xfail_for.kwargs.get("reasons")):
+            for xfail_test, reason in xfail_for.kwargs.items():
                 if xfail_test == test_name:
                     item.add_marker(pytest.mark.xfail(reason=reason, strict=True))
