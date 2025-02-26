@@ -41,14 +41,16 @@ class Notebook(pytest.File):
         parsed = _ParsedNotebook(self.path)
         for testcellid in parsed.testcells.ids():
             name = f"{CELL_PREFIX}{testcellid}"
+            nodeid = f"{self.nodeid}::{name}"
             cell = Cell.from_parent(
                 parent=self,
                 name=name,
-                nodeid=f"{self.nodeid}::{name}",
+                nodeid=nodeid,
                 path=self.path,
             )
             cell.stash[ipynb2_notebook] = parsed
             cell.stash[ipynb2_cellid] = testcellid
+            self.config.pytest_ipynb2_registry.add(nodeid)
             yield cell
 
 
@@ -101,6 +103,10 @@ class Cell(pytest.Module):
                 item.repr_failure = self.repr_failure
             yield item
 
+
+def pytest_configure(config: pytest.Config) -> None:
+    """Add a registry of our objects to the config."""
+    config.pytest_ipynb2_registry = set()
 
 def pytest_collect_file(file_path: Path, parent: pytest.Collector) -> Notebook | None:
     """Hook implementation to collect jupyter notebooks."""
