@@ -205,5 +205,10 @@ def test_cellmodule_contents(example_dir: ExampleDir):
 )
 def test_nodeid_registration(example_dir: ExampleDir):
     session: pytest.Session = CollectionTree.from_items(example_dir.items).node
-    expected_nodes = {"notebook.ipynb::Cell4", "notebook.ipynb"}
+    expected_nodes = {
+        "notebook.ipynb::Cell4",
+        "notebook.ipynb",
+        "notebook.ipynb::Cell4::test_adder",
+        "notebook.ipynb::Cell4::test_globals",
+    }
     assert getattr(session.config, pytest_ipynb2.plugin.NODE_REGISTRY) == expected_nodes

@@ -98,7 +98,10 @@ class Cell(pytest.Module):
 
     def collect(self) -> Generator[pytest.Function, None, None]:
         """Replace the reportinfo method on the children, if present."""
+        node_registry: set = getattr(self.config, NODE_REGISTRY)
+
         for item in super().collect():
+            node_registry.add(item.nodeid)
             if hasattr(item, "reportinfo"):  # pragma: no branch # TODO(MusicalNinjaDad): #22 Tests grouped in Class
                 item.reportinfo = self._reportinfo
             if hasattr(item, "repr_failure"):
