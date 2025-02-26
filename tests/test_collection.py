@@ -205,4 +205,4 @@ def test_cellmodule_contents(example_dir: ExampleDir):
 )
 def test_cellid_registration(example_dir: ExampleDir):
     session: pytest.Session = CollectionTree.from_items(example_dir.items).node
-    assert "notebook.ipynb::Cell4" in session.config.pytest_ipynb2_registry
+    assert "notebook.ipynb::Cell4" in getattr(session.config, pytest_ipynb2.plugin.NODE_REGISTRY)

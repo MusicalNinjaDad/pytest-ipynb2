@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import ast
 import importlib.util
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Final
 
 import _pytest
 import _pytest.assertion
@@ -30,7 +30,8 @@ from ._parser import Notebook as _ParsedNotebook
 ipynb2_notebook = pytest.StashKey[_ParsedNotebook]()
 ipynb2_cellid = pytest.StashKey[int]()
 
-CELL_PREFIX = "Cell"
+CELL_PREFIX: Final[str] = "Cell"
+NODE_REGISTRY: Final[str] = "pytest_ipynb2_registry"
 
 
 class Notebook(pytest.File):
@@ -39,6 +40,7 @@ class Notebook(pytest.File):
     def collect(self) -> Generator[Cell, None, None]:
         """Yield `Cell`s for all cells which contain tests."""
         parsed = _ParsedNotebook(self.path)
+        node_registry: set = getattr(self.config, NODE_REGISTRY)
         for testcellid in parsed.testcells.ids():
             name = f"{CELL_PREFIX}{testcellid}"
             nodeid = f"{self.nodeid}::{name}"
@@ -50,7 +52,7 @@ class Notebook(pytest.File):
             )
             cell.stash[ipynb2_notebook] = parsed
             cell.stash[ipynb2_cellid] = testcellid
-            self.config.pytest_ipynb2_registry.add(nodeid)
+            node_registry.add(nodeid)
             yield cell
 
 
@@ -106,7 +108,7 @@ class Cell(pytest.Module):
 
 def pytest_configure(config: pytest.Config) -> None:
     """Add a registry of our objects to the config."""
-    config.pytest_ipynb2_registry = set()
+    setattr(config, NODE_REGISTRY ,set())
 
 def pytest_collect_file(file_path: Path, parent: pytest.Collector) -> Notebook | None:
     """Hook implementation to collect jupyter notebooks."""
