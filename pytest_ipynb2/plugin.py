@@ -113,7 +113,9 @@ def pytest_configure(config: pytest.Config) -> None:
 def pytest_collect_file(file_path: Path, parent: pytest.Collector) -> Notebook | None:
     """Hook implementation to collect jupyter notebooks."""
     if file_path.suffix == ".ipynb":
-        return Notebook.from_parent(parent=parent, path=file_path, nodeid=file_path.name)
+        nodeid=file_path.name
+        getattr(parent.config, NODE_REGISTRY).add(nodeid)
+        return Notebook.from_parent(parent=parent, path=file_path, nodeid=nodeid)
     return None
 
 
