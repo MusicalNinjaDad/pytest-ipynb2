@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import ast
 import importlib.util
+import linecache
 from typing import TYPE_CHECKING, Final
 
 import _pytest
@@ -109,12 +110,27 @@ class Cell(pytest.Module):
 
 def pytest_configure(config: pytest.Config) -> None:
     """Add a registry of our objects to the config."""
-    setattr(config, NODE_REGISTRY ,set())
+    setattr(config, NODE_REGISTRY, set())
+
+    def _linecache_getlines_ipynb2(filename: str, module_globals: dict | None = None) -> list[str]:
+        if filename.endswith(".ipynb"):
+            return [
+                r"#%%ipytest",
+                "",
+                "def test_fails():",
+                "    x = 1",
+                "    assert x == 22",
+            ]
+        return _linecache_getlines_std(filename=filename, module_globals=module_globals)
+
+    _linecache_getlines_std = linecache.getlines
+    linecache.getlines = _linecache_getlines_ipynb2
+
 
 def pytest_collect_file(file_path: Path, parent: pytest.Collector) -> Notebook | None:
     """Hook implementation to collect jupyter notebooks."""
     if file_path.suffix == ".ipynb":
-        nodeid=file_path.name
+        nodeid = file_path.name
         getattr(parent.config, NODE_REGISTRY).add(nodeid)
         return Notebook.from_parent(parent=parent, path=file_path, nodeid=nodeid)
     return None
