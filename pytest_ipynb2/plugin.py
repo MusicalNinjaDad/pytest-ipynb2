@@ -104,8 +104,6 @@ class Cell(pytest.Module):
             node_registry.add(item.nodeid)
             if hasattr(item, "reportinfo"):  # pragma: no branch # TODO(MusicalNinjaDad): #22 Tests grouped in Class
                 item.reportinfo = self._reportinfo
-            if hasattr(item, "repr_failure"):
-                item.repr_failure = self.repr_failure
             yield item
 
 
