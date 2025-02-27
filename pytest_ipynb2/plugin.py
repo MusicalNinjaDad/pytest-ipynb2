@@ -111,6 +111,7 @@ class Cell(IpynbItemMixin, pytest.Module):
 
     def collect(self) -> Generator[pytest.Function, None, None]:
         """Rebless children to include our overrides from the Mixin."""
+        # TODO(MusicalNinjaDad): #22 Handle Tests grouped in Class
         for item in super().collect():
             item_type = type(item)
             ipynbtype = types.new_class(item_type.__name__, (IpynbItemMixin, item_type))
