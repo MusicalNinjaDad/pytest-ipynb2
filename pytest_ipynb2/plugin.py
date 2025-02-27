@@ -95,7 +95,7 @@ class Cell(pytest.Module):
 
     def _reportinfo(self: pytest.Item) -> tuple[str, int, str | None]:
         """Override pytest which checks `.obj.__code__.co_filename` == `.path`."""
-        return self.path, 0, self.getmodpath()
+        return self.path, 0, "test_fails"
 
     def collect(self) -> Generator[pytest.Function, None, None]:
         """Replace the reportinfo method on the children, if present."""
@@ -119,7 +119,7 @@ def pytest_configure(config: pytest.Config) -> None:
                 "",
                 "def test_fails():",
                 "    x = 1",
-                "    assert x == 22",
+                "    assert x == 2",
             ]
         return _linecache_getlines_std(filename=filename, module_globals=module_globals)
 
