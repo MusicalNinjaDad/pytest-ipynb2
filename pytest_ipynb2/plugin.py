@@ -4,10 +4,6 @@ Pytest plugin to collect jupyter Notebooks.
 - Identifies all cells which use the `%%ipytest` magic
 - adds the notebook, cell and any test functions to the collection tree
 - relies on pytest logic and configuration to identify test functions.
-
-Known Issues:
-
-- No Assertion rewriting.
 """
 
 from __future__ import annotations
@@ -80,6 +76,15 @@ class Cell(pytest.Module):
         return f"<{type(self).__name__} {self.stash[ipynb2_cellid]}>"
 
     def _getobj(self) -> ModuleType:
+        """
+        The main magic.
+
+        - loads the cell's source
+        - applies assertion rewriting
+        - creates a pseudo-module for the cell, with a pseudo-filename
+        - executes all non-test code cells above
+        - then executes the test cell
+        """
         notebook = self.stash[ipynb2_notebook]
         cellid = self.stash[ipynb2_cellid]
 
@@ -105,7 +110,7 @@ class Cell(pytest.Module):
         return dummy_module
 
     def collect(self) -> Generator[pytest.Function, None, None]:
-        """Replace the reportinfo method on the children."""
+        """Rebless children to include our overrides from the Mixin."""
         for item in super().collect():
             item_type = type(item)
             ipynbtype = types.new_class(item_type.__name__, (IpynbItemMixin, item_type))
@@ -137,6 +142,8 @@ def pytest_configure(config: pytest.Config) -> None:  # noqa: ARG001
     _pytest._code.code.FormattedExcinfo._makepath = lambda s, p: "failing.ipynb::Cell0"  # noqa: ARG005, SLF001
     # patching _pytest.pathlib.bestrelpath (or _pytest._code.code.bestrelpath) doesn't work
     # the patched code is not called
+    # patching call.excinfo.traceback[-1].getsource (returns a <_pytest._code.source.Source object>) in
+    # pytest_exception_interact showed a bit of promise but hopefully more surgical options are possible
 
 
 def pytest_collect_file(file_path: Path, parent: pytest.Collector) -> Notebook | None:
@@ -162,5 +169,4 @@ def pytest_runtest_logreport(report: pytest.TestReport) -> None:
 def pytest_exception_interact(call: pytest.CallInfo, report: pytest.TestReport) -> None:  # noqa: ARG001
     """For debugging purposes."""
     if report.nodeid.split("::")[0].endswith(".ipynb"):
-        # call.excinfo.traceback[-1].getsource needs patching. Returns a <_pytest._code.source.Source object>
         pass
