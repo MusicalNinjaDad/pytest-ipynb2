@@ -128,7 +128,7 @@ class CollectionTree:
         A dummy node for a `CollectionTree`, used by `CollectionTree.from_dict()`.
 
         Compares equal to a genuine `pytest.Node` if:
-            - `type(Node)` == `_DummyNode.nodetype` (strict, subclasses will not match)
+            - `isinstance(Node,_DummyNode.nodetype)`
             - `repr(Node)` == `_DummyNode.name`.
         """
 
@@ -143,7 +143,7 @@ class CollectionTree:
                 sametype = self.nodetype == other.nodetype
             except AttributeError:
                 samename = self.name == repr(other)
-                sametype = self.nodetype is type(other)
+                sametype = isinstance(other, self.nodetype)
             return samename and sametype
 
         def __repr__(self) -> str:

@@ -15,6 +15,7 @@ from __future__ import annotations
 import ast
 import importlib.util
 import linecache
+import types
 from typing import TYPE_CHECKING, Final
 
 import _pytest
@@ -34,6 +35,17 @@ ipynb2_cellid = pytest.StashKey[int]()
 
 CELL_PREFIX: Final[str] = "Cell"
 NODE_REGISTRY: Final[str] = "pytest_ipynb2_registry"
+
+
+class IpynbItemMixin:
+    """Provides various overrides to handle our pseudo-path."""
+
+    path: Path
+    name: str
+
+    def reportinfo(self: pytest.Item) -> tuple[Path, int, str]:
+        """Override pytest which checks `.obj.__code__.co_filename` == `.path`."""
+        return self.path, 0, self.name
 
 
 class Notebook(pytest.File):
@@ -95,18 +107,16 @@ class Cell(pytest.Module):
         exec(testcell, dummy_module.__dict__)  # noqa: S102
         return dummy_module
 
-    def _reportinfo(self: pytest.Item) -> tuple[str, int, str | None]:
-        """Override pytest which checks `.obj.__code__.co_filename` == `.path`."""
-        return self.path, 0, "test_fails"
-
     def collect(self) -> Generator[pytest.Function, None, None]:
         """Replace the reportinfo method on the children, if present."""
         node_registry: set = getattr(self.config, NODE_REGISTRY)
 
         for item in super().collect():
+            item_type = type(item)
+            ipynbtype = types.new_class(item_type.__name__, (IpynbItemMixin, item_type))
+            item.__class__ = ipynbtype
             node_registry.add(item.nodeid)
-            if hasattr(item, "reportinfo"):  # pragma: no branch # TODO(MusicalNinjaDad): #22 Tests grouped in Class
-                item.reportinfo = self._reportinfo
+            # TODO(MusicalNinjaDad): #22 Tests grouped in Class
             yield item
 
 
@@ -128,15 +138,13 @@ def pytest_configure(config: pytest.Config) -> None:
     _linecache_getlines_std = linecache.getlines
     linecache.getlines = _linecache_getlines_ipynb2
 
-    #TODO: nicer approach probably requires subclassing Path, providing a custom .relativeto and
+    # TODO: nicer approach probably requires subclassing Path, providing a custom .relativeto and
     # patching _pytest.pathlib.commonpath, which may be helped by a .filepath to strip the ::Celln,
     # it may also be possible (nice, but YAGNI?) to override .__str__ and remove the <> unless that breaks
     # other stuff in pytest that doesn't yet use pathlib but manipulates string paths instead ...
-    _pytest._code.code.FormattedExcinfo._makepath = lambda s,p: "failing.ipynb::Cell0"  # noqa: ARG005, SLF001
-    #patching _pytest.pathlib.bestrelpath (or _pytest._code.code.bestrelpath) doesn't work
+    _pytest._code.code.FormattedExcinfo._makepath = lambda s, p: "failing.ipynb::Cell0"  # noqa: ARG005, SLF001
+    # patching _pytest.pathlib.bestrelpath (or _pytest._code.code.bestrelpath) doesn't work
     # the patched code is not called
-    
-    
 
 
 def pytest_collect_file(file_path: Path, parent: pytest.Collector) -> Notebook | None:
