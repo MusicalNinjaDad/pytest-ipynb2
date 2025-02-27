@@ -18,6 +18,7 @@ import linecache
 from typing import TYPE_CHECKING, Final
 
 import _pytest
+import _pytest._code
 import _pytest.assertion
 import pytest
 
@@ -84,7 +85,8 @@ class Cell(pytest.Module):
             config=self.config,
         )
 
-        testcell = compile(testcell_ast, filename=self.path, mode="exec")
+        cell_filename = f"<{self.path}::Cell{cellid}>"
+        testcell = compile(testcell_ast, filename=cell_filename, mode="exec")
 
         dummy_spec = importlib.util.spec_from_loader(f"{self.name}", loader=None)
         dummy_module = importlib.util.module_from_spec(dummy_spec)
@@ -113,7 +115,7 @@ def pytest_configure(config: pytest.Config) -> None:
     setattr(config, NODE_REGISTRY, set())
 
     def _linecache_getlines_ipynb2(filename: str, module_globals: dict | None = None) -> list[str]:
-        if filename.endswith(".ipynb"):
+        if filename.split("::")[0].endswith(".ipynb"):
             return [
                 r"#%%ipytest",
                 "",
@@ -125,6 +127,12 @@ def pytest_configure(config: pytest.Config) -> None:
 
     _linecache_getlines_std = linecache.getlines
     linecache.getlines = _linecache_getlines_ipynb2
+
+
+    _pytest._code.code.FormattedExcinfo._makepath = lambda s,p: "failing.ipynb::Cell0"  # noqa: ARG005, SLF001
+    #patching _pytest.pathlib.bestrelpath (or _pytest._code.code.bestrelpath) doesn't work
+    #nicer approach probably requires subclassing Path, providing a custome .relativeto and
+    # patching _pytest.pathlib.commonpath
 
 
 def pytest_collect_file(file_path: Path, parent: pytest.Collector) -> Notebook | None:
