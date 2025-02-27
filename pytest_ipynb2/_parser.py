@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 class SourceList(list):
     """
-    A `list` with non-continuous indices for storing the contents of cells.
+    A `list[str]` with non-continuous indices for storing the contents of cells.
 
     - use a full slice `sourcelist[:]`, not list(sourcelist) to get contents.
     - supports `.ids()` analog to a mapping.keys(), yielding only cell-ids with source.
