@@ -34,7 +34,6 @@ ipynb2_notebook = pytest.StashKey[_ParsedNotebook]()
 ipynb2_cellid = pytest.StashKey[int]()
 
 CELL_PREFIX: Final[str] = "Cell"
-NODE_REGISTRY: Final[str] = "pytest_ipynb2_registry"
 
 
 class IpynbItemMixin:
@@ -54,7 +53,6 @@ class Notebook(pytest.File):
     def collect(self) -> Generator[Cell, None, None]:
         """Yield `Cell`s for all cells which contain tests."""
         parsed = _ParsedNotebook(self.path)
-        node_registry: set = getattr(self.config, NODE_REGISTRY)
         for testcellid in parsed.testcells.ids():
             name = f"{CELL_PREFIX}{testcellid}"
             nodeid = f"{self.nodeid}::{name}"
@@ -66,7 +64,6 @@ class Notebook(pytest.File):
             )
             cell.stash[ipynb2_notebook] = parsed
             cell.stash[ipynb2_cellid] = testcellid
-            node_registry.add(nodeid)
             yield cell
 
 
@@ -108,21 +105,16 @@ class Cell(pytest.Module):
         return dummy_module
 
     def collect(self) -> Generator[pytest.Function, None, None]:
-        """Replace the reportinfo method on the children, if present."""
-        node_registry: set = getattr(self.config, NODE_REGISTRY)
-
+        """Replace the reportinfo method on the children."""
         for item in super().collect():
             item_type = type(item)
             ipynbtype = types.new_class(item_type.__name__, (IpynbItemMixin, item_type))
             item.__class__ = ipynbtype
-            node_registry.add(item.nodeid)
-            # TODO(MusicalNinjaDad): #22 Tests grouped in Class
             yield item
 
 
-def pytest_configure(config: pytest.Config) -> None:
-    """Add a registry of our objects to the config."""
-    setattr(config, NODE_REGISTRY, set())
+def pytest_configure(config: pytest.Config) -> None:  # noqa: ARG001
+    """Monkeypatch a few things to cope with us including the Cell in a pseudo-path."""
 
     def _linecache_getlines_ipynb2(filename: str, module_globals: dict | None = None) -> list[str]:
         if filename.split("::")[0].endswith(".ipynb"):
@@ -151,7 +143,6 @@ def pytest_collect_file(file_path: Path, parent: pytest.Collector) -> Notebook |
     """Hook implementation to collect jupyter notebooks."""
     if file_path.suffix == ".ipynb":
         nodeid = file_path.name
-        getattr(parent.config, NODE_REGISTRY).add(nodeid)
         return Notebook.from_parent(parent=parent, path=file_path, nodeid=nodeid)
     return None
 

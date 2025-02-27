@@ -189,26 +189,3 @@ def test_cellmodule_contents(example_dir: ExampleDir):
     expected_attrs = ["x", "y", "adder", "@py_builtins", "@pytest_ar", "test_adder", "test_globals"]
     public_attrs = [attr for attr in cell._obj.__dict__ if not attr.startswith("__")]  # noqa: SLF001
     assert public_attrs == expected_attrs
-
-@pytest.mark.parametrize(
-    "example_dir",
-    [
-        pytest.param(
-            ExampleDirSpec(
-                files=[Path("tests/assets/notebook.ipynb").absolute()],
-                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
-            ),
-            id="Simple Notebook",
-        ),
-    ],
-    indirect=True,
-)
-def test_nodeid_registration(example_dir: ExampleDir):
-    session: pytest.Session = CollectionTree.from_items(example_dir.items).node
-    expected_nodes = {
-        "notebook.ipynb::Cell4",
-        "notebook.ipynb",
-        "notebook.ipynb::Cell4::test_adder",
-        "notebook.ipynb::Cell4::test_globals",
-    }
-    assert getattr(session.config, pytest_ipynb2.plugin.NODE_REGISTRY) == expected_nodes
