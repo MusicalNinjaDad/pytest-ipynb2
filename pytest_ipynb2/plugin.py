@@ -63,7 +63,7 @@ class Notebook(pytest.File):
             yield cell
 
 
-class Cell(pytest.Module):
+class Cell(IpynbItemMixin, pytest.Module):
     """
     A collector for jupyter notebook cells.
 
