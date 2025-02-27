@@ -128,11 +128,15 @@ def pytest_configure(config: pytest.Config) -> None:
     _linecache_getlines_std = linecache.getlines
     linecache.getlines = _linecache_getlines_ipynb2
 
-
+    #TODO: nicer approach probably requires subclassing Path, providing a custom .relativeto and
+    # patching _pytest.pathlib.commonpath, which may be helped by a .filepath to strip the ::Celln,
+    # it may also be possible (nice, but YAGNI?) to override .__str__ and remove the <> unless that breaks
+    # other stuff in pytest that doesn't yet use pathlib but manipulates string paths instead ...
     _pytest._code.code.FormattedExcinfo._makepath = lambda s,p: "failing.ipynb::Cell0"  # noqa: ARG005, SLF001
     #patching _pytest.pathlib.bestrelpath (or _pytest._code.code.bestrelpath) doesn't work
-    #nicer approach probably requires subclassing Path, providing a custome .relativeto and
-    # patching _pytest.pathlib.commonpath
+    # the patched code is not called
+    
+    
 
 
 def pytest_collect_file(file_path: Path, parent: pytest.Collector) -> Notebook | None:
