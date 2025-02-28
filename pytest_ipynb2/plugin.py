@@ -9,13 +9,12 @@ Pytest plugin to collect jupyter Notebooks.
 from __future__ import annotations
 
 import ast
-from contextlib import suppress
-from functools import cached_property
 import importlib.util
 import linecache
-import os
 import types
-from typing import TYPE_CHECKING, Any, Final
+from contextlib import suppress
+from functools import cached_property
+from typing import TYPE_CHECKING, Final
 
 import _pytest
 import _pytest._code
@@ -25,6 +24,7 @@ import _pytest.pathlib
 import pytest
 
 if TYPE_CHECKING:
+    import os
     from collections.abc import Generator
     from types import ModuleType
 
@@ -47,29 +47,35 @@ class CellPath(Path):
         return f"<{super().__str__()}>"
 
     def __fspath__(self) -> str:
-        """Return the path to the notebook."""
-        # return str(self.get_notebookpath(str(self)))
-        # # _pytest._code.code.Traceback.cut() compares os.fspath(path) with str(code.path) 
-        # # so str & __fspath__ must return same value or entry is not identified as relevant.
+        """Return the same as `str` due to pytest wierdness."""
+        # TODO: Change `CellPath.__fspath__` to return path to notebook when pytest fixes their path handling.
+        # Ideally we would `return str(self.get_notebookpath(str(self)))` here but ...
+        # `_pytest._code.code.Traceback.cut()` compares `os.fspath(path)` with `str(code.path)`
+        # so `str` & `__fspath__` must return same value or the TracebackEntry is not identified
+        # as relevant and we end up with the full unfiltered traceback on test failures.
         return str(self)
-    
-    def __eq__(self, other: Any) -> bool:
+
+    def __eq__(self, other: object) -> bool:
+        """Equality testing handled by `pathlib.Path`."""
         return Path(self) == other
-    
-    def __hash__(self):
+
+    def __hash__(self) -> int:
+        """Hashing handled by `pathlib.Path`."""
         return super().__hash__()
-    
-    def exists(self, *, follow_symlinks = True):
+
+    def exists(self, *, follow_symlinks: bool = True) -> bool:
+        """(Only) check that the notebook exists."""
+        # TODO: Extend `CellPath.exists` to also check that the cell exists (if performance allows)
         return self.notebook.exists(follow_symlinks=follow_symlinks)
 
     @cached_property
     def notebook(self) -> Path:
         """Path of the notebook."""
         return type(self).get_notebookpath(str(self))
-    
+
     @cached_property
-    def cell(self) -> Path:
-        """Path of the notebook."""
+    def cell(self) -> str:
+        """The cell specifier (e.g. "Cell0")."""
         return f"{CELL_PREFIX}{type(self).get_cellid(str(self))}"
 
     @staticmethod
@@ -96,10 +102,10 @@ class IpynbItemMixin:
     path: CellPath
     name: str
 
-    def reportinfo(self) -> tuple[CellPath, int, str]:
+    def reportinfo(self) -> tuple[Path, int, str]:
         """
-        Override pytest which checks `.obj.__code__.co_filename` == `.path`.
-        
+        Returns tuple of notebook path, (linenumber=)0, Celln::testname.
+
         `reportinfo` is used by `location` and included as the header line in the report:
             ```
             ==== FAILURES ====
@@ -107,23 +113,6 @@ class IpynbItemMixin:
             ```
         """
         return self.path.notebook, 0, f"{self.path.cell}::{self.name}"
-    
-    # @cached_property
-    # def location(self: pytest.Item) -> tuple[CellPath, int, str]:
-    #     """
-    #     Use pathlib's relative_to not pytests complicated extra logic.
-
-    #     Location[0] is NOT DIRECTLY responsible for the filename in the final line of a test failure report.
-    #     But the `nodes.Item` version of it does trigger caching via `main._node_location_to_relpath`
-    #     (which uses `main.bestrelpath` and uses `nodes.absolutepath()`.
-                
-    #     Returns a tuple of ``(relfspath, lineno, testname)`` for this item
-    #     where ``relfspath`` is file path relative to ``config.rootpath``
-    #     and lineno is a 0-based line number.
-    #     """
-    #     location: tuple[CellPath, int, str] = self.reportinfo()
-    #     # return location[0].relative_to(self.session.config.rootpath), location[1], location[2]
-    #     return "FOO", 3, "BAR"
 
 
 class Notebook(pytest.File):
@@ -204,7 +193,7 @@ class Cell(IpynbItemMixin, pytest.Module):
 
 
 def pytest_configure(config: pytest.Config) -> None:  # noqa: ARG001
-    """Monkeypatch a few things to cope with us including the Cell in a pseudo-path."""
+    """Monkeypatch a few things to handle CellPath."""
 
     def _linecache_getlines_ipynb2(filename: str, module_globals: dict | None = None) -> list[str]:
         if CellPath.is_cellpath(filename):
@@ -214,48 +203,50 @@ def pytest_configure(config: pytest.Config) -> None:  # noqa: ARG001
         return _linecache_getlines_std(filename=filename, module_globals=module_globals)
 
     _linecache_getlines_std = linecache.getlines
-    linecache.getlines = _linecache_getlines_ipynb2
+    linecache.getlines = _linecache_getlines_ipynb2  # Analog to how doctest does it (apparently).
 
-    # TODO: nicer approach probably requires subclassing Path, providing a custom .relativeto and
-    # patching _pytest.pathlib.commonpath, which may be helped by a .filepath to strip the ::Celln,
-    # it may also be possible (nice, but YAGNI?) to override .__str__ and remove the <> unless that breaks
-    # other stuff in pytest that doesn't yet use pathlib but manipulates string paths instead ...
-
-    # _pytest._code.code.FormattedExcinfo._makepath = lambda s, p: "failing.ipynb::Cell0"  # noqa: ARG005, SLF001
-    
     _pytest_commonpath = _pytest.pathlib.commonpath
 
     def _commonpath(path1: CellPath | os.PathLike, path2: CellPath | os.PathLike) -> Path | None:
         """Let pytest handle this with wierd logic, but just give it the notebook path so it can manage."""
+        # pytype: disable=attribute-error
         with suppress(AttributeError):
             path1 = path1.notebook
         with suppress(AttributeError):
             path2 = path2.notebook
+        # pytype: enable=attribute-error
         return _pytest_commonpath(path1, path2)
-    
+
     _pytest.pathlib.commonpath = _commonpath
 
+    # pytest has some unique handling to get the absolute path of a file. Possbily no longer needed with later
+    # versions of pathlib? Hopefully we will be able to remove this patch with a later version of pytest.
+    #
+    # The original function is defined in _pytest.pathlib but
+    # both `code` and `nodes` import it as  `from .pathlib import absolutepath`
+    # so we need to patch in both these namespaces...
     _pytest_absolutepath = _pytest.pathlib.absolutepath
-    # _pytest_code_absolutepath = _pytest._code.code.absolutepath
 
     def _absolutepath(path: str | os.PathLike[str] | Path) -> Path:
         """Return accurate absolute path for string representations of CellPath."""
+        # pytype: disable=attribute-error
         try:
-            return path.absolute() # pytest prefers to avoid this, guessing for historical reasons???
+            return path.absolute()  # pytest prefers to avoid this, guessing for historical reasons???
         except AttributeError:
-            with suppress(AttributeError): # in case this is not a `str` but some other `PathLike`
+            with suppress(AttributeError):  # in case this is not a `str` but some other `PathLike`
                 if CellPath.is_cellpath(path):
                     return CellPath(path.removeprefix("<").removesuffix(">")).absolute()
         return _pytest_absolutepath(path)
-    
-    # _pytest.pathlib.absolutepath = _absolutepath
-    _pytest._code.code.absolutepath = _absolutepath
-    _pytest.nodes.absolutepath = _absolutepath
+        # pytype: enable=attribute-error
 
-    # patching _pytest.pathlib.bestrelpath (or _pytest._code.code.bestrelpath) doesn't work
-    # the patched code is not called
-    # patching call.excinfo.traceback[-1].getsource (returns a <_pytest._code.source.Source object>) in
-    # pytest_exception_interact showed a bit of promise but hopefully more surgical options are possible
+    # `code.Code.path` calls `absolutepath(self.raw.co_filename)` which is the info primarily used in
+    # `TracebackEntry` and therefore relevant for failure reporting.
+    _pytest._code.code.absolutepath = _absolutepath  # noqa: SLF001
+
+    # # `nodes.Item.location` calls `absolutepath()` and then `main._node_location_to_relpath` which caches the
+    # # results in `_bestrelpathcache[node_path]` very early in the test process - so we also need to patch in nodes
+    # # IF we provide the full CellPath as reportinfo[0], currently we only provide the notebook and so can avoid this.
+    # _pytest.nodes.absolutepath = _absolutepath
 
 
 def pytest_collect_file(file_path: Path, parent: pytest.Collector) -> Notebook | None:
