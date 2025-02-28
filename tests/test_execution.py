@@ -99,7 +99,7 @@ parametrized = pytest.mark.parametrize(
                 summary=[("FAILED", "failing.ipynb::Cell0::test_fails", None, "assert 1 == 2")],
                 failures=[
                     FailureDetails(
-                        testcase="test_fails",
+                        testcase="Cell0::test_fails",
                         details=[
                             "    def test_fails():",
                             "        x = 1",
@@ -267,9 +267,9 @@ parametrized = pytest.mark.parametrize(
                 summary=[("FAILED", "two_cells.ipynb::Cell0::test_fails", None, "assert 1 == 2")],
             ),
             id="Verbose two notebooks",
-            marks=pytest.mark.xfail_for(
-                logreport="Failing while we play with pseudo-path resolution",
-            ),
+            # marks=pytest.mark.xfail_for(
+            #     logreport="Failing while we play with pseudo-path resolution",
+            # ),
         ),
     ],
     indirect=["example_dir"],

@@ -66,6 +66,11 @@ class CellPath(Path):
     def notebook(self) -> Path:
         """Path of the notebook."""
         return type(self).get_notebookpath(str(self))
+    
+    @cached_property
+    def cell(self) -> Path:
+        """Path of the notebook."""
+        return f"{CELL_PREFIX}{type(self).get_cellid(str(self))}"
 
     @staticmethod
     def is_cellpath(path: str) -> bool:
@@ -88,10 +93,10 @@ class CellPath(Path):
 class IpynbItemMixin:
     """Provides various overrides to handle our pseudo-path."""
 
-    path: Path
+    path: CellPath
     name: str
 
-    def reportinfo(self: pytest.Item) -> tuple[CellPath, int, str]:
+    def reportinfo(self) -> tuple[CellPath, int, str]:
         """
         Override pytest which checks `.obj.__code__.co_filename` == `.path`.
         
@@ -101,7 +106,7 @@ class IpynbItemMixin:
             ___ reportinfo[2] ___
             ```
         """
-        return self.path, 0, self.name
+        return self.path.notebook, 0, f"{self.path.cell}::{self.name}"
     
     # @cached_property
     # def location(self: pytest.Item) -> tuple[CellPath, int, str]:
