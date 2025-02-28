@@ -244,8 +244,8 @@ class Cell(IpynbItemMixin, pytest.Module):
         # TODO(MusicalNinjaDad): #22 Handle Tests grouped in Class
         for item in super().collect():
             item_type = type(item)
-            ipynbtype = types.new_class(item_type.__name__, (IpynbItemMixin, item_type))
-            item.__class__ = ipynbtype
+            type_with_mixin = types.new_class(item_type.__name__, (IpynbItemMixin, item_type))
+            item.__class__ = type_with_mixin
             yield item
 
 
