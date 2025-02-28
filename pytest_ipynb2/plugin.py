@@ -255,21 +255,3 @@ def pytest_collect_file(file_path: Path, parent: pytest.Collector) -> Notebook |
         nodeid = file_path.name
         return Notebook.from_parent(parent=parent, path=file_path, nodeid=nodeid)
     return None
-
-
-def pytest_runtest_makereport(item: pytest.Item, call: pytest.CallInfo) -> None:  # noqa: ARG001
-    """For debugging purposes."""
-    if item.nodeid.split("::")[0].endswith(".ipynb"):
-        pass
-
-
-def pytest_runtest_logreport(report: pytest.TestReport) -> None:
-    """For debugging purposes."""
-    if report.nodeid.split("::")[0].endswith(".ipynb"):
-        pass
-
-
-def pytest_exception_interact(call: pytest.CallInfo, report: pytest.TestReport) -> None:  # noqa: ARG001
-    """For debugging purposes."""
-    if report.nodeid.split("::")[0].endswith(".ipynb"):
-        pass
