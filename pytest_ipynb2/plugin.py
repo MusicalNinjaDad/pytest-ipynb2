@@ -15,6 +15,7 @@ import types
 from contextlib import suppress
 from functools import cached_property
 from pathlib import Path
+from types import FunctionType, ModuleType
 from typing import TYPE_CHECKING, Final
 
 import _pytest._code
@@ -28,11 +29,11 @@ from ._parser import Notebook as _ParsedNotebook
 if TYPE_CHECKING:
     import os
     from collections.abc import Generator
-    from types import ModuleType
 
 
 ipynb2_notebook = pytest.StashKey[_ParsedNotebook]()
 ipynb2_cellid = pytest.StashKey[int]()
+ipynb2_monkeypatches = pytest.StashKey[dict[tuple[ModuleType, str], FunctionType]]()
 
 CELL_PREFIX: Final[str] = "Cell"
 
@@ -94,9 +95,11 @@ class CellPath(Path):
         return int(cellid)
 
     @staticmethod
-    def patch_linecache() -> None:
+    def patch_linecache() -> dict[tuple[ModuleType, str], FunctionType]:
         """Patch linecache.getlines to handle CellPaths (like doctest does)."""
-        _linecache_getlines_std = linecache.getlines
+        original_functions = {}
+
+        original_functions[linecache, "getlines"] = _linecache_getlines_std = linecache.getlines
 
         def _linecache_getlines_ipynb2(filename: str, module_globals: dict | None = None) -> list[str]:
             if CellPath.is_cellpath(filename):
@@ -107,10 +110,14 @@ class CellPath(Path):
 
         linecache.getlines = _linecache_getlines_ipynb2
 
+        return original_functions
+
     @staticmethod
-    def patch_pytest_pathlib() -> None:
+    def patch_pytest_pathlib() -> dict[tuple[ModuleType, str], FunctionType]:
         """Patch _pytest.pathlib functions."""
-        _pytest_commonpath = _pytest.pathlib.commonpath
+        original_functions = {}
+
+        original_functions[(_pytest.pathlib, "commonpath")] = _pytest_commonpath = _pytest.pathlib.commonpath
 
         def _commonpath(path1: CellPath | os.PathLike, path2: CellPath | os.PathLike) -> Path | None:
             """Let pytest handle this with wierd logic, but just give it the notebook path so it can manage."""
@@ -130,7 +137,7 @@ class CellPath(Path):
         # The original function is defined in _pytest.pathlib but
         # both `code` and `nodes` import it as  `from .pathlib import absolutepath`
         # so we need to patch in both these namespaces...
-        _pytest_absolutepath = _pytest.pathlib.absolutepath
+        original_functions[(_pytest.pathlib, "absolutepath")] = _pytest_absolutepath = _pytest.pathlib.absolutepath
 
         def _absolutepath(path: str | os.PathLike[str] | Path) -> Path:
             """Return accurate absolute path for string representations of CellPath."""
@@ -147,6 +154,7 @@ class CellPath(Path):
         # `code.Code.path` calls `absolutepath(self.raw.co_filename)` which is the info primarily used in
         # `TracebackEntry` and therefore relevant for failure reporting.
         _pytest._code.code.absolutepath = _absolutepath  # noqa: SLF001
+        return original_functions
 
 
 class IpynbItemMixin:
@@ -249,10 +257,16 @@ class Cell(IpynbItemMixin, pytest.Module):
             yield item
 
 
-def pytest_configure(config: pytest.Config) -> None:  # noqa: ARG001
+def pytest_sessionstart(session: pytest.Session) -> None:
     """Monkeypatch a few things to handle CellPath."""
-    CellPath.patch_linecache()
-    CellPath.patch_pytest_pathlib()
+    session.stash[ipynb2_monkeypatches] = CellPath.patch_linecache()
+    session.stash[ipynb2_monkeypatches] |= CellPath.patch_pytest_pathlib()
+
+
+def pytest_sessionfinish(session: pytest.Session, exitstatus: int | pytest.ExitCode) -> None:  # noqa: ARG001
+    """Revert Monkeypatches - for complete safety."""
+    for (module, attr), orig in session.stash[ipynb2_monkeypatches].items():
+        setattr(module, attr, orig)
 
 
 def pytest_collect_file(file_path: Path, parent: pytest.Collector) -> Notebook | None:
