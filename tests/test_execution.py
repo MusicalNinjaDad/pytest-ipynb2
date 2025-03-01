@@ -271,6 +271,32 @@ parametrized = pytest.mark.parametrize(
             #     logreport="Failing while we play with pseudo-path resolution",
             # ),
         ),
+        pytest.param(
+            ExampleDirSpec(
+                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
+                files=[Path("tests/assets/test_failing.py")],
+            ),
+            ExpectedResults(
+                outcomes={"failed": 1},
+                logreport=[("test_failing.py", "F", 100)],
+                summary=[("FAILED", "test_failing.py::test_fails", None, "assert 1 == 2")],
+                failures=[
+                    FailureDetails(
+                        testcase="test_fails",
+                        details=[
+                            "    def test_fails():",
+                            "        x = 1",
+                            ">       assert x == 2",
+                            "E       assert 1 == 2",
+                        ],
+                        filename="test_failing.py",
+                        exceptiontype=AssertionError,
+                        location="3",
+                    ),
+                ],
+            ),
+            id="failing python module",
+        ),
     ],
     indirect=["example_dir"],
 )
