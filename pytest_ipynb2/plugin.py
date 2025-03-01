@@ -37,7 +37,7 @@ if TYPE_CHECKING:
 
 if sys.version_info < (3, 12):
     _Path = Path
-    Path = type(_Path())
+    Path: Final[type] = type(_Path())
 
 
 ipynb2_notebook = pytest.StashKey[_ParsedNotebook]()
@@ -71,16 +71,16 @@ class CellPath(Path):
         """Hashing handled by `pathlib.Path`."""
         return super().__hash__()
 
-    def exists(self, *, follow_symlinks: bool = True) -> bool:
+    def exists(self, *args: Any, **kwargs: Any) -> bool:
         """(Only) check that the notebook exists."""
         # TODO: Extend `CellPath.exists` to also check that the cell exists (if performance allows)
-        return self.notebook.exists(follow_symlinks=follow_symlinks)
+        return self.notebook.exists(*args, **kwargs)
 
     if sys.version_info < (3, 13):
 
-        def relative_to(self, other: PathLike, /, *_deprecated: Any, walk_up: bool = False) -> Self:
+        def relative_to(self, other: PathLike, *args: Any, **kwargs: Any) -> Self:
             """Relative_to only works out-of-the-box on python 3.13 and above."""
-            return type(self)(f"{self.notebook.relative_to(other, walk_up=walk_up)}::{self.cell}")
+            return type(self)(f"{self.notebook.relative_to(other, *args, **kwargs)}::{self.cell}")
 
     @cached_property
     def notebook(self) -> Path:
