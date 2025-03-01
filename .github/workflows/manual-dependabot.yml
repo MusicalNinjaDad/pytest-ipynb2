@@ -9,7 +9,7 @@ on:
     paths:
         - "pyproject.toml"
         - "requirements.txt"
-        - ".github/workflows/manual-dependabot.yml"
+        - ".github/**"
 
 jobs:
   run-dependabot:
@@ -20,12 +20,17 @@ jobs:
 
       - name: Set up Go
         uses: actions/setup-go@v4
+        with:
+          go-version: '1.21'
 
       - name: Install Dependabot CLI
-        run: go install github.com/dependabot/cli/cmd/dependabot@latest
+        run: go install github.com/dependabot/cli@latest
 
       - name: Run Dependabot
         env:
           TARGET_BRANCH: ${{ github.event_name == 'push' && github.ref_name || github.event.inputs.target-branch }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: dependabot update python --target-branch "$TARGET_BRANCH"
+        run: |
+          dependabot update pip ${{ github.repository }} \
+            --branch ${{ env.TARGET_BRANCH }} \
+            --updater-image dependabot/dependabot-core:latest
