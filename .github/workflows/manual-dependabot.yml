@@ -1,0 +1,33 @@
+name: 'Manual Dependabot'
+on:
+  workflow_dispatch:
+    inputs:
+      target-branch:
+        description: 'Target branch for Dependabot'
+        required: true
+  push:
+    paths:
+        - "pyproject.toml"
+        - "requirements.txt"
+        - ".github/workflows/manual-dependabot.yml"
+
+jobs:
+  run-dependabot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+
+      - name: Install Dependabot CLI
+        run: go install github.com/dependabot/cli/cmd/dependabot@latest
+      
+      - name: Run Dependabot
+        env:
+          TARGET_BRANCH: ${{ github.event_name == 'push' && github.ref_name || github.event.inputs.target-branch }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          dependabot update uv ${{ github.repository }} \
+            --branch ${{ env.TARGET_BRANCH }}
