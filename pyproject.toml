@@ -38,34 +38,6 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools.packages.find]
 where = ["."]
 
-[dependency-groups]
-lint = ["ruff"]
-typing = [
-    { include-group = "test" },
-    "pytype; python_version <= '3.12'",
-    "typing_extensions", # required for Python3.10 and below
-]
-test = ["pytest-doctest-mkdocstrings"]
-cov = [
-    { include-group = "test" },
-    "pytest-cov",
-]
-doc = [
-    "black",
-    "mkdocs",
-    "mkdocstrings[python]",
-    "mkdocs-material",
-    "pymdown-extensions",
-]
-dev = [
-    { include-group = "lint" },
-    { include-group = "typing" },
-    { include-group = "test" },
-    { include-group = "cov" },
-    { include-group = "doc" },
-    "jupyter", # python's toml decoder won't accept a text entry at the start of the array, only at the end!!
-]
-
 [tool.pytest.ini_options]
 xfail_strict = true
 addopts = [
