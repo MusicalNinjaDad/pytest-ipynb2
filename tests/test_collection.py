@@ -185,6 +185,7 @@ def test_functions(example_dir: ExampleDir):
 )
 def test_cellmodule_contents(example_dir: ExampleDir):
     cell: Cell = example_dir.items[0].parent
-    expected_attrs = ["x", "y", "adder", "test_adder", "test_globals"]
+    # presence of `@py` entries before tests signifies pytest assertion re-writing has occured.
+    expected_attrs = ["x", "y", "adder", "@py_builtins", "@pytest_ar", "test_adder", "test_globals"]
     public_attrs = [attr for attr in cell._obj.__dict__ if not attr.startswith("__")]  # noqa: SLF001
     assert public_attrs == expected_attrs

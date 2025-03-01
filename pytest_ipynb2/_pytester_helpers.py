@@ -128,7 +128,7 @@ class CollectionTree:
         A dummy node for a `CollectionTree`, used by `CollectionTree.from_dict()`.
 
         Compares equal to a genuine `pytest.Node` if:
-            - `type(Node)` == `_DummyNode.nodetype` (strict, subclasses will not match)
+            - `isinstance(Node,_DummyNode.nodetype)`
             - `repr(Node)` == `_DummyNode.name`.
         """
 
@@ -143,7 +143,7 @@ class CollectionTree:
                 sametype = self.nodetype == other.nodetype
             except AttributeError:
                 samename = self.name == repr(other)
-                sametype = self.nodetype is type(other)
+                sametype = isinstance(other, self.nodetype)
             return samename and sametype
 
         def __repr__(self) -> str:
@@ -269,6 +269,7 @@ def example_dir(
             nbformat.write(nb=nbnode, fp=pytester.path / f"{notebook}.ipynb")
         cached_dir = example_dir_cache[example] = ExampleDir(pytester=pytester)
     else:
+        # 1st keyword is the test name (incl. any parametrized id)
         msg = f"Using cached {cached_dir.path} for {next(iter(request.keywords))}"
         warn(msg, stacklevel=1)
     return example_dir_cache[example]
@@ -279,7 +280,7 @@ def add_ipytest_magic(source: str) -> str:
     return f"%%ipytest\n\n{source}"
 
 
-def pytest_configure(config: pytest.Config) -> None: # pragma: no cover
+def pytest_configure(config: pytest.Config) -> None:  # pragma: no cover
     # Tests will be needed if this ever becomes public functionality
     """Register autoskip & xfail_for marks."""
     config.addinivalue_line("markers", "autoskip: automatically skip test if expected results not provided")
@@ -287,7 +288,7 @@ def pytest_configure(config: pytest.Config) -> None: # pragma: no cover
 
 
 @pytest.hookimpl(tryfirst=True)
-def pytest_runtest_setup(item: pytest.Function) -> None: # pragma: no cover
+def pytest_runtest_setup(item: pytest.Function) -> None:  # pragma: no cover
     # Tests will be needed if this ever becomes public functionality
     if item.get_closest_marker("autoskip"):
         test_name = item.originalname.removeprefix("test_")
@@ -296,12 +297,12 @@ def pytest_runtest_setup(item: pytest.Function) -> None: # pragma: no cover
             item.add_marker(pytest.mark.skip(reason="No expected results"))
 
 
-def pytest_collection_modifyitems(items: list[pytest.Function]) -> None: # pragma: no cover
+def pytest_collection_modifyitems(items: list[pytest.Function]) -> None:  # pragma: no cover
     # Tests will be needed if this ever becomes public functionality
     """xfail on presence of a custom marker: `xfail_for(tests:list[str], reasons:list[str])`."""  # noqa: D403
     for item in items:
         test_name = item.originalname.removeprefix("test_")
         if xfail_for := item.get_closest_marker("xfail_for"):
-            for xfail_test, reason in zip(xfail_for.kwargs.get("tests"), xfail_for.kwargs.get("reasons")):
+            for xfail_test, reason in xfail_for.kwargs.items():
                 if xfail_test == test_name:
                     item.add_marker(pytest.mark.xfail(reason=reason, strict=True))

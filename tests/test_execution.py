@@ -14,6 +14,15 @@ WHITESPACE = r"\s*"
 
 
 @dataclass
+class FailureDetails:
+    testcase: str
+    filename: str
+    details: list[str]
+    location: str
+    exceptiontype: type[Exception]
+
+
+@dataclass
 class ExpectedResults:
     outcomes: dict[str, int]
     """Dict of outcomes for https://docs.pytest.org/en/stable/reference/reference.html#pytest.RunResult.assert_outcomes"""
@@ -26,6 +35,8 @@ class ExpectedResults:
     - Tuple per line: Result, location, Exception raised, Exception message
     - Explicity pass `None` to express "No test summary" or "Element not included"
     """
+    failures: list[FailureDetails] | None = field(default_factory=list)
+    """Details of any test failures. Explicity pass `None` to assert no failures."""
 
 
 parametrized = pytest.mark.parametrize(
@@ -73,6 +84,7 @@ parametrized = pytest.mark.parametrize(
                 outcomes={"passed": 1},
                 logreport=[("passing.ipynb", ".", 100)],
                 summary=None,
+                failures=None,
             ),
             id="Single Cell",
         ),
@@ -84,8 +96,25 @@ parametrized = pytest.mark.parametrize(
             ExpectedResults(
                 outcomes={"failed": 1},
                 logreport=[("failing.ipynb", "F", 100)],
-                summary=[("FAILED", "failing.ipynb::Cell0::test_fails", AssertionError, None)],
+                summary=[("FAILED", "failing.ipynb::Cell0::test_fails", None, "assert 1 == 2")],
+                failures=[
+                    FailureDetails(
+                        testcase="Cell0::test_fails",
+                        details=[
+                            "    def test_fails():",
+                            "        x = 1",
+                            ">       assert x == 2",
+                            "E       assert 1 == 2",
+                        ],
+                        filename="failing.ipynb::Cell0",
+                        exceptiontype=AssertionError,
+                        location="5",
+                    ),
+                ],
             ),
+            # marks=pytest.mark.xfail_for(
+            #     failures="Exception Repr not yet implemented",
+            # ),
             id="Failing Test",
         ),
         pytest.param(
@@ -235,9 +264,35 @@ parametrized = pytest.mark.parametrize(
                     ("two_cells.ipynb::Cell0::test_fails", "FAILED", 66),
                     ("two_cells.ipynb::Cell1::test_pass", "PASSED", 100),
                 ],
-                summary=[("FAILED", "two_cells.ipynb::Cell0::test_fails", AssertionError, None)],
+                summary=[("FAILED", "two_cells.ipynb::Cell0::test_fails", None, "assert 1 == 2")],
             ),
             id="Verbose two notebooks",
+        ),
+        pytest.param(
+            ExampleDirSpec(
+                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
+                files=[Path("tests/assets/test_failing.py")],
+            ),
+            ExpectedResults(
+                outcomes={"failed": 1},
+                logreport=[("test_failing.py", "F", 100)],
+                summary=[("FAILED", "test_failing.py::test_fails", None, "assert 1 == 2")],
+                failures=[
+                    FailureDetails(
+                        testcase="test_fails",
+                        details=[
+                            "    def test_fails():",
+                            "        x = 1",
+                            ">       assert x == 2",
+                            "E       assert 1 == 2",
+                        ],
+                        filename="test_failing.py",
+                        exceptiontype=AssertionError,
+                        location="3",
+                    ),
+                ],
+            ),
+            id="failing python module",
         ),
     ],
     indirect=["example_dir"],
@@ -290,3 +345,22 @@ def test_summary(example_dir: ExampleDir, expected_results: ExpectedResults):
             )
             is None
         )
+
+
+@parametrized
+@pytest.mark.autoskip
+def test_failures(example_dir: ExampleDir, expected_results: ExpectedResults):
+    results = example_dir.runresult
+    regexes = ["[=]* FAILURES [=]*"]
+    if expected_results.failures is not None:
+        for failure in expected_results.failures:
+            regexes += [
+                f"[_]* {failure.testcase} [_*]",
+                "",
+                *failure.details,
+                "",
+                f"{failure.filename}:{failure.location}: {failure.exceptiontype.__name__}",
+            ]
+        results.stdout.re_match_lines(regexes, consecutive=True)
+    else:
+        assert re.search(f"{LINESTART}{regexes[0]}{LINEEND}", str(results.stdout), flags=re.MULTILINE) is None
