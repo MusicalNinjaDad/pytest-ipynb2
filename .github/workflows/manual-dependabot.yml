@@ -18,11 +18,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.21'
+
+      - name: Install Dependabot CLI
+        run: go install github.com/dependabot/cli@latest
+
       - name: Run Dependabot
-        uses: docker://ghcr.io/dependabot/dependabot-core
         env:
           TARGET_BRANCH: ${{ github.event_name == 'push' && github.ref_name || github.event.inputs.target-branch }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          entrypoint: bundle
-          args: exec dependabot update --config-file .github/dependabot.yml --target-branch ${{ env.TARGET_BRANCH }}
+        run: dependabot update python --target-branch "$TARGET_BRANCH"
