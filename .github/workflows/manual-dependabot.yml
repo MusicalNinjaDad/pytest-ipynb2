@@ -1,0 +1,27 @@
+name: 'Manual Dependabot'
+on:
+  workflow_dispatch:
+    inputs:
+      target-branch:
+        description: 'Target branch for Dependabot'
+        required: true
+
+jobs:
+  run-dependabot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Install Dependabot
+        run: pip install dependabot-core
+
+      - name: Run Dependabot
+        run: |
+          target_branch=${{ github.event.inputs.target-branch }}
+          dependabot update --target-branch $target_branch
