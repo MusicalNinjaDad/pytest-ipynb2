@@ -5,6 +5,12 @@ on:
       target-branch:
         description: 'Target branch for Dependabot'
         required: true
+  push:
+    paths:
+        - "pyproject.toml"
+        - "requirements.txt"
+        - ".github/**"
+
 
 jobs:
   run-dependabot:
@@ -23,5 +29,9 @@ jobs:
 
       - name: Run Dependabot
         run: |
-          target_branch=${{ github.event.inputs.target-branch }}
+          if [ "${{ github.event_name }}" == "push" ]; then
+            target_branch=${GITHUB_REF#refs/heads/}
+          else
+            target_branch=${{ github.event.inputs.target-branch }}
+          fi
           dependabot update --target-branch $target_branch
