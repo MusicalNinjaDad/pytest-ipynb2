@@ -230,9 +230,9 @@ class ExampleDirSpec:
 
 
 class FunctionRequest(Protocol):
+    config: pytest.Config
     function: FunctionType
     keywords: dict[str, Any]
-    config: pytest.Config
 
 
 class ExampleDirRequest(FunctionRequest):
