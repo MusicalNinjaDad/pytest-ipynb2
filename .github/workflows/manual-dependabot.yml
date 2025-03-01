@@ -11,7 +11,6 @@ on:
         - "requirements.txt"
         - ".github/**"
 
-
 jobs:
   run-dependabot:
     runs-on: ubuntu-latest
@@ -23,8 +22,7 @@ jobs:
         uses: docker://ghcr.io/dependabot/dependabot-core
         env:
           TARGET_BRANCH: ${{ github.event_name == 'push' && github.ref_name || github.event.inputs.target-branch }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          args: |
-            update
-            --config-file .github/dependabot.yml
-            --target-branch ${{ env.TARGET_BRANCH }}
+          entrypoint: dependabot
+          args: update --config-file .github/dependabot.yml --target-branch ${{ env.TARGET_BRANCH }}
