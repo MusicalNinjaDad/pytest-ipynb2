@@ -11,12 +11,13 @@ from __future__ import annotations
 import ast
 import importlib.util
 import linecache
+import sys
 import types
 from contextlib import suppress
 from functools import cached_property
 from pathlib import Path
 from types import FunctionType, ModuleType
-from typing import TYPE_CHECKING, Final
+from typing import TYPE_CHECKING, Any, Final
 
 import _pytest._code
 import _pytest.assertion
@@ -29,6 +30,10 @@ from ._parser import Notebook as _ParsedNotebook
 if TYPE_CHECKING:
     import os
     from collections.abc import Generator
+    from os import PathLike
+
+    with suppress(ImportError):
+        from typing import Self
 
 
 ipynb2_notebook = pytest.StashKey[_ParsedNotebook]()
@@ -66,6 +71,12 @@ class CellPath(Path):
         """(Only) check that the notebook exists."""
         # TODO: Extend `CellPath.exists` to also check that the cell exists (if performance allows)
         return self.notebook.exists(follow_symlinks=follow_symlinks)
+
+    if sys.version_info < (3, 13):
+
+        def relative_to(self, other: PathLike, /, *_deprecated: Any, walk_up: bool = False) -> Self:
+            """Relative_to only works out-of-the-box on python 3.13 and above."""
+            return type(self)(f"{self.notebook.relative_to(other, walk_up=walk_up)}::{self.cell}")
 
     @cached_property
     def notebook(self) -> Path:
