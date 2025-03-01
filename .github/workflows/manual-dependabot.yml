@@ -30,5 +30,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           dependabot update pip ${{ github.repository }} \
-            --branch ${{ env.TARGET_BRANCH }} \
-            --updater-image dependabot/dependabot-core:latest
+            --branch ${{ env.TARGET_BRANCH }}
