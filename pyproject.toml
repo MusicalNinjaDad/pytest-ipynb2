@@ -50,13 +50,13 @@
 [dependency-groups]
     lint = ["ruff"]
     typing = [
-        {include-group = "test"},
+        { include-group = "test" },
         "pytype; python_version <= '3.12'",
         "typing_extensions", # required for Python3.10 and below
     ]
     test = ["pytest-doctest-mkdocstrings"]
     cov = [
-        {include-group = "test"},
+        { include-group = "test" },
         "pytest-cov",
     ]
     doc = [
@@ -67,11 +67,11 @@
         "pymdown-extensions",
     ]
     dev = [
-        {include-group = "lint"},
-        {include-group = "typing"},
-        {include-group = "test"},
-        {include-group = "cov"},
-        {include-group = "doc"},
+        { include-group = "lint" },
+        { include-group = "typing" },
+        { include-group = "test" },
+        { include-group = "cov" },
+        { include-group = "doc" },
         "jupyter", # python's toml decoder won't accept a text entry at the start of the array, only at the end!!
     ]
 
@@ -91,11 +91,11 @@
     source = ["pytest_ipynb2"]
 
 [tool.coverage.report]
-exclude_also = [
-    "def __repr__",
-    "if TYPE_CHECKING:",
-    "except ImportError:",
-    "@overload",
+    exclude_also = [
+        "def __repr__",
+        "if TYPE_CHECKING:",
+        "except ImportError:",
+        "@overload",
     ]
 
 [tool.coverage.html]
@@ -145,7 +145,6 @@ exclude_also = [
     ]
 
 [tool.ruff.lint.per-file-ignores]
-    # Additional ignores for tests 
     "**/test_*.py" = [
         "INP001",  # Missing __init__.py
         "ANN",     # Missing type annotations
@@ -164,10 +163,6 @@ exclude_also = [
 
     "**/__init__.py" = [
         "F401", # Unused imports are fine: using __init__.py to expose them with implicit __ALL__
-    ]
-
-    "tests/assets/expected.pyi" = [
-        "ANN001", "ANN201", # Cannot automatically generate type annotations
     ]
 
     "**/*.ipynb" = [
