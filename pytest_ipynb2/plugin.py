@@ -11,7 +11,6 @@ from __future__ import annotations
 import ast
 import importlib.util
 import linecache
-import os
 import sys
 import types
 from contextlib import suppress
@@ -29,11 +28,16 @@ import pytest
 from ._parser import Notebook as _ParsedNotebook
 
 if TYPE_CHECKING:
+    import os
     from collections.abc import Generator
     from os import PathLike
 
     with suppress(ImportError):
         from typing import Self
+
+if sys.version_info < (3, 12):
+    _Path = Path
+    Path = type(_Path())
 
 
 ipynb2_notebook = pytest.StashKey[_ParsedNotebook]()
@@ -77,12 +81,6 @@ class CellPath(Path):
         def relative_to(self, other: PathLike, /, *_deprecated: Any, walk_up: bool = False) -> Self:
             """Relative_to only works out-of-the-box on python 3.13 and above."""
             return type(self)(f"{self.notebook.relative_to(other, walk_up=walk_up)}::{self.cell}")
-
-    if sys.version_info < (3, 12):
-
-        @cached_property
-        def _flavour(self):
-            return os.path
 
     @cached_property
     def notebook(self) -> Path:
