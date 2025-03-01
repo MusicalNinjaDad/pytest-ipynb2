@@ -19,19 +19,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.x'
-
-      - name: Install Dependabot
-        run: pip install dependabot-core
-
       - name: Run Dependabot
-        run: |
-          if [ "${{ github.event_name }}" == "push" ]; then
-            target_branch=${GITHUB_REF#refs/heads/}
-          else
-            target_branch=${{ github.event.inputs.target-branch }}
-          fi
-          dependabot update --target-branch $target_branch
+        uses: docker://ghcr.io/dependabot/dependabot-core
+        env:
+          TARGET_BRANCH: ${{ github.event_name == 'push' && github.ref_name || github.event.inputs.target-branch }}
+        with:
+          args: |
+            update
+            --config-file .github/dependabot.yml
+            --target-branch ${{ env.TARGET_BRANCH }}
