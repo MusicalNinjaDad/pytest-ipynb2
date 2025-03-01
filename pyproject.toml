@@ -23,7 +23,6 @@ dependencies = [
 ]
 
 [project.urls]
-# Homepage = ""
 Documentation = "https://musicalninjadad.github.io/pytest-ipynb2"
 Repository = "https://github.com/MusicalNinjaDad/pytest-ipynb2"
 Issues = "https://github.com/MusicalNinjaDad/pytest-ipynb2/issues"
@@ -32,20 +31,12 @@ Changelog = "https://github.com/MusicalNinjaDad/pytest-ipynb2/blob/main/CHANGELO
 [tool.setuptools.dynamic]
 version = { file = "__pyversion__" }
 
-# ===========================
-#       Build, package
-# ===========================
-
 [build-system]
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
 where = ["."]
-
-# ===========================
-#  Test, lint, documentation
-# ===========================
 
 [dependency-groups]
 lint = ["ruff"]
