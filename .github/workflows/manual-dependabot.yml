@@ -29,5 +29,5 @@ jobs:
           TARGET_BRANCH: ${{ github.event_name == 'push' && github.ref_name || github.event.inputs.target-branch }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          dependabot update pip ${{ github.repository }} \
+          dependabot update uv ${{ github.repository }} \
             --branch ${{ env.TARGET_BRANCH }}
