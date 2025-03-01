@@ -9,7 +9,7 @@ on:
     paths:
         - "pyproject.toml"
         - "requirements.txt"
-        - ".github/**"
+        - ".github/workflows/manual-dependabot.yml"
 
 jobs:
   run-dependabot:
