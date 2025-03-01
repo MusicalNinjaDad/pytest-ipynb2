@@ -24,5 +24,5 @@ jobs:
           TARGET_BRANCH: ${{ github.event_name == 'push' && github.ref_name || github.event.inputs.target-branch }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          entrypoint: dependabot
+          entrypoint: /usr/local/bin/dependabot
           args: update --config-file .github/dependabot.yml --target-branch ${{ env.TARGET_BRANCH }}
