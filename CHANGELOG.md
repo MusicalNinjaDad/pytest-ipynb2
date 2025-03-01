@@ -9,20 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Implemented assertion rewriting [#35][pr-35]
+- Implemented assertion rewriting [#36][pr-36]
 
 ### Fixed
 
-- Provide meaningful reports for failing test cases [#35][pr-35]
+- Provide meaningful reports for failing test cases [#36][pr-36]
 
 ### Changed
 
-- Simplified xfail_for interface to take testname as keyword and reason as value [#35][pr-35]
+- Simplified xfail_for interface to take testname as keyword and reason as value [#36][pr-36]
 - Consolidated, simplified tests [#29][pr-29] & made them faster [#31][pr-31]
 
 [pr-29]: https://github.com/MusicalNinjaDad/pytest-ipynb2/pull/29
 [pr-31]: https://github.com/MusicalNinjaDad/pytest-ipynb2/pull/31
-[pr-35]: https://github.com/MusicalNinjaDad/pytest-ipynb2/pull/35
+[pr-36]: https://github.com/MusicalNinjaDad/pytest-ipynb2/pull/36
 
 ## [0.2.1] - 2025-02-19
 
