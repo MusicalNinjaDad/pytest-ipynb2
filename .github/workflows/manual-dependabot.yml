@@ -9,7 +9,7 @@ on:
     paths:
         - "pyproject.toml"
         - "requirements.txt"
-        - ".github/**"
+        - ".github/workflows/manual-dependabot.yml"
 
 jobs:
   run-dependabot:
@@ -20,11 +20,9 @@ jobs:
 
       - name: Set up Go
         uses: actions/setup-go@v4
-        with:
-          go-version: '1.21'
 
       - name: Install Dependabot CLI
-        run: go install github.com/dependabot/cli@latest
+        run: go install github.com/dependabot/cli/cmd/dependabot@latest
 
       - name: Run Dependabot
         env:
