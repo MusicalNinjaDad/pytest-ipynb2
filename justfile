@@ -49,6 +49,9 @@ check:
   @- just test
   @- just type-check
 
+lint-main:
+  uv run ruff check . --config=ruff-main.toml
+
 # format and fix linting errors with ruff
 fix:
   - uv run ruff check . --fix
