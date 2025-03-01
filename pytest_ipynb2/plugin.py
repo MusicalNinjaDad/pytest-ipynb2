@@ -56,7 +56,7 @@ class CellPath(Path):
 
     def __fspath__(self) -> str:
         """Return the same as `str` due to pytest wierdness."""
-        # TODO: Change `CellPath.__fspath__` to return path to notebook when pytest fixes their path handling.
+        # TODO: #32 Change `CellPath.__fspath__` to return path to notebook when pytest fixes their path handling.
         # Ideally we would `return str(self.get_notebookpath(str(self)))` here but ...
         # `_pytest._code.code.Traceback.cut()` compares `os.fspath(path)` with `str(code.path)`
         # so `str` & `__fspath__` must return same value or the TracebackEntry is not identified
@@ -73,7 +73,7 @@ class CellPath(Path):
 
     def exists(self, *args: Any, **kwargs: Any) -> bool:
         """(Only) check that the notebook exists."""
-        # TODO: Extend `CellPath.exists` to also check that the cell exists (if performance allows)
+        # TODO: #33 Extend `CellPath.exists` to also check that the cell exists (if performance allows)
         return self.notebook.exists(*args, **kwargs)
 
     if sys.version_info < (3, 13):
