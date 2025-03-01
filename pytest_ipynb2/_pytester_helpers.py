@@ -269,6 +269,7 @@ def example_dir(
             nbformat.write(nb=nbnode, fp=pytester.path / f"{notebook}.ipynb")
         cached_dir = example_dir_cache[example] = ExampleDir(pytester=pytester)
     else:
+        # 1st keyword is the test name (incl. any parametrized id)
         msg = f"Using cached {cached_dir.path} for {next(iter(request.keywords))}"
         warn(msg, stacklevel=1)
     return example_dir_cache[example]
