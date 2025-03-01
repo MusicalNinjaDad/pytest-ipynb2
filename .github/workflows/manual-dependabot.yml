@@ -20,12 +20,10 @@ jobs:
 
       - name: Set up Go
         uses: actions/setup-go@v4
-        with:
-          go-version: '1.21'
 
       - name: Install Dependabot CLI
-        run: go install github.com/dependabot/cli@latest
-
+        run: go install github.com/dependabot/cli/cmd/dependabot@latest
+      
       - name: Run Dependabot
         env:
           TARGET_BRANCH: ${{ github.event_name == 'push' && github.ref_name || github.event.inputs.target-branch }}
