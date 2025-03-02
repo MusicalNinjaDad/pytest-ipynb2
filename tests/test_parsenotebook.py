@@ -101,19 +101,24 @@ def test_codecells_partial_slice(testnotebook: Notebook):
     assert testnotebook.codecells[:4] == expected
 
 
-def test_muggle():
-    source = [
-        r"%%ipytest",
-        "",
-        "x=2",
-    ]
-    muggled = SourceList(["\n".join(source)]).muggle()
-    assert muggled == [
-        "\n".join(
+@pytest.mark.parametrize(
+    ["source", "expected"],
+    [
+        pytest.param(
+            [
+                r"%%ipytest",
+                "",
+                "x=2",
+            ],
             [
                 r"# %%ipytest",
                 "",
                 "x=2",
             ],
+            id=r"%%ipytest at start",
         ),
-    ]
+    ],
+)
+def test_muggle(source: list[str], expected: list[str]):
+    muggled = SourceList(["\n".join(source)]).muggle()
+    assert muggled == ["\n".join(expected)]
