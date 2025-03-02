@@ -5,11 +5,11 @@ on:
       target-branch:
         description: 'Target branch for Dependabot'
         required: true
-  push:
-    paths:
-        - "pyproject.toml"
-        - "requirements.txt"
-        - ".github/workflows/manual-dependabot.yml"
+  # push:
+  #   paths:
+  #       - "pyproject.toml"
+  #       - "requirements.txt"
+  #       - ".github/workflows/manual-dependabot.yml"
 
 jobs:
   run-dependabot:

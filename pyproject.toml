@@ -48,16 +48,24 @@
 # ===========================
 
 [dependency-groups]
-    lint = ["ruff"]
-    typing = [
-        { include-group = "test" },
+    lint = [
+        "ruff",
+    ]
+    typing_unique = [ # unique groups needed for now as dependabot uses tomlrb which cannot cope with mixed inline-tables and strings
         "pytype; python_version <= '3.12'",
         "typing_extensions", # required for Python3.10 and below
     ]
+    typing = [
+        { include-group = "test" },
+        { include-group = "typing_unique" },
+    ]
     test = ["pytest-doctest-mkdocstrings"]
+    cov_unique = [
+        "pytest-cov",
+    ]
     cov = [
         { include-group = "test" },
-        "pytest-cov",
+        { include-group = "cov_unique" },
     ]
     doc = [
         "black",
@@ -66,13 +74,16 @@
         "mkdocs-material",
         "pymdown-extensions",
     ]
+    dev_unique = [
+        "jupyter",
+    ]
     dev = [
         { include-group = "lint" },
         { include-group = "typing" },
         { include-group = "test" },
         { include-group = "cov" },
         { include-group = "doc" },
-        "jupyter", # python's toml decoder won't accept a text entry at the start of the array, only at the end!!
+        { include-group = "dev_unique" },
     ]
 
 [tool.pytest.ini_options]
