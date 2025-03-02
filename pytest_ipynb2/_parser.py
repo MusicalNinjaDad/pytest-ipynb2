@@ -60,7 +60,7 @@ class SourceList(list):
         def _ismagic(line: str) -> bool:
             return (line.strip().startswith("%") or line.strip().startswith("ipytest"))
 
-        def _muggleentry(source: str) -> str:
+        def _muggle(source: str) -> str:
             if source is None:
                 return None
             muggled = [
@@ -69,7 +69,7 @@ class SourceList(list):
             ]
             return "\n".join(muggled)
 
-        return type(self)([_muggleentry(source) for source in list(self)])
+        return type(self)([_muggle(source) for source in list(self)])
 
 
 class Notebook:
