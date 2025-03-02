@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [unreleased]
 
+### Fixed
+
+- Handle notebooks not in test rootdir [#45][pr-45]
+
+[pr-45]: https://github.com/MusicalNinjaDad/pytest-ipynb2/pull/45
+
 ### Changed
 
 - Only issue warnings from cached ExampleDir on verbosity 3 [#40][pr-40]
