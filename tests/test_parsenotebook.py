@@ -49,7 +49,7 @@ def test_sources_testcells(testnotebook: Notebook):
         None,
         None,
         None,
-        "\n".join(  # noqa: FLY002
+        "\n".join(
             [
                 r"# %%ipytest",
                 "",
@@ -100,6 +100,7 @@ def test_codecells_partial_slice(testnotebook: Notebook):
     ]
     assert testnotebook.codecells[:4] == expected
 
+
 def test_muggle():
     source = [
         r"%%ipytest",
@@ -107,8 +108,12 @@ def test_muggle():
         "x=2",
     ]
     muggled = SourceList(["\n".join(source)]).muggle()
-    assert muggled == ["\n".join([  # noqa: FLY002
-        r"# %%ipytest",
-        "",
-        "x=2",
-    ])]
+    assert muggled == [
+        "\n".join(
+            [
+                r"# %%ipytest",
+                "",
+                "x=2",
+            ],
+        ),
+    ]
