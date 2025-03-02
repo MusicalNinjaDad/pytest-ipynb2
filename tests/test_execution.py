@@ -112,9 +112,6 @@ parametrized = pytest.mark.parametrize(
                     ),
                 ],
             ),
-            # marks=pytest.mark.xfail_for(
-            #     failures="Exception Repr not yet implemented",
-            # ),
             id="Failing Test",
         ),
         pytest.param(
