@@ -5,6 +5,7 @@ from __future__ import annotations
 import sys
 from dataclasses import dataclass, field
 from functools import cached_property
+from pathlib import Path
 from textwrap import indent
 from typing import TYPE_CHECKING, Protocol
 from warnings import warn
@@ -14,7 +15,6 @@ import pytest
 
 if TYPE_CHECKING:
     from contextlib import suppress
-    from pathlib import Path
     from types import FunctionType
     from typing import Any
 
@@ -218,6 +218,7 @@ class ExampleDir:
 class ExampleDirSpec:
     """The various elements to set up a pytester instance."""
 
+    path: Path = Path()
     conftest: str = ""
     ini: str = ""
     files: list[Path] = field(default_factory=list)

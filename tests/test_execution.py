@@ -291,6 +291,36 @@ parametrized = pytest.mark.parametrize(
             ),
             id="failing python module",
         ),
+        pytest.param(
+            ExampleDirSpec(
+                path=Path("notebooks"),
+                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
+                ini="addopts = -vv",
+                notebooks={
+                    "two_cells": [
+                        add_ipytest_magic(
+                            "\n".join(
+                                [
+                                    Path("tests/assets/test_passing.py").read_text(),
+                                    Path("tests/assets/test_failing.py").read_text(),
+                                ],
+                            ),
+                        ),
+                        add_ipytest_magic(Path("tests/assets/test_passing.py").read_text()),
+                    ],
+                },
+            ),
+            ExpectedResults(
+                outcomes={"passed": 2, "failed": 1},
+                logreport=[
+                    ("notebooks/two_cells.ipynb::Cell0::test_pass", "PASSED", 33),
+                    ("notebooks/two_cells.ipynb::Cell0::test_fails", "FAILED", 66),
+                    ("notebooks/two_cells.ipynb::Cell1::test_pass", "PASSED", 100),
+                ],
+                summary=[("FAILED", "notebooks/two_cells.ipynb::Cell0::test_fails", None, "assert 1 == 2")],
+            ),
+            id="Subdirectory verbose",
+        ),
     ],
     indirect=["example_dir"],
 )
