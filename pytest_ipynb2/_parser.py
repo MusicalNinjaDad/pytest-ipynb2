@@ -57,11 +57,14 @@ class SourceList(list):
     def muggle(self) -> Self:
         """Comment out any ipython magics."""
 
+        def _ismagic(line: str) -> bool:
+            return (line.strip().startswith("%") or line.strip().startswith("ipytest"))
+
         def _muggleentry(source: str) -> str:
             if source is None:
                 return None
             muggled = [
-                f"# {line}" if (line.strip().startswith("%") or line.strip().startswith("ipytest")) else line
+                f"# {line}" if _ismagic(line) else line
                 for line in source.splitlines()
             ]
             return "\n".join(muggled)
