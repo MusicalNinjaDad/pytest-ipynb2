@@ -11,6 +11,7 @@ from __future__ import annotations
 import ast
 import importlib.util
 import linecache
+import os
 import sys
 import types
 from contextlib import suppress
@@ -28,7 +29,6 @@ import pytest
 from ._parser import Notebook as _ParsedNotebook
 
 if TYPE_CHECKING:
-    import os
     from collections.abc import Generator
     from os import PathLike
 
@@ -287,6 +287,6 @@ def pytest_sessionfinish(session: pytest.Session, exitstatus: int | pytest.ExitC
 def pytest_collect_file(file_path: Path, parent: pytest.Collector) -> Notebook | None:
     """Hook implementation to collect jupyter notebooks."""
     if file_path.suffix == ".ipynb":
-        nodeid = file_path.name
+        nodeid = os.fspath(file_path.relative_to(parent.config.rootpath))
         return Notebook.from_parent(parent=parent, path=file_path, nodeid=nodeid)
     return None

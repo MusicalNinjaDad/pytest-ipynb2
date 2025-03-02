@@ -5,6 +5,7 @@ from __future__ import annotations
 import sys
 from dataclasses import dataclass, field
 from functools import cached_property
+from pathlib import Path
 from textwrap import indent
 from typing import TYPE_CHECKING, Protocol
 from warnings import warn
@@ -14,7 +15,6 @@ import pytest
 
 if TYPE_CHECKING:
     from contextlib import suppress
-    from pathlib import Path
     from types import FunctionType
     from typing import Any
 
@@ -218,6 +218,7 @@ class ExampleDir:
 class ExampleDirSpec:
     """The various elements to set up a pytester instance."""
 
+    path: Path = Path()  # Currently only relevant for notebooks - everything else goes in rootdir
     conftest: str = ""
     ini: str = ""
     files: list[Path] = field(default_factory=list)
@@ -253,6 +254,7 @@ def example_dir(
     """Parameterised fixture. Requires a list of `Path`s to copy into a pytester instance."""
     example = request.param
     if (cached_dir := example_dir_cache.get(example)) is None:
+        (pytester.path / example.path).mkdir(parents=True, exist_ok=True)
         if example.conftest:
             pytester.makeconftest(request.param.conftest)
 
@@ -267,7 +269,7 @@ def example_dir(
             for cellsource in contents:
                 cellnode = nbformat.v4.new_code_cell(cellsource)
                 nbnode.cells.append(cellnode)
-            nbformat.write(nb=nbnode, fp=pytester.path / f"{notebook}.ipynb")
+            nbformat.write(nb=nbnode, fp=pytester.path / example.path / f"{notebook}.ipynb")
         cached_dir = example_dir_cache[example] = ExampleDir(pytester=pytester)
     elif request.config.get_verbosity() >= 3:  # noqa: PLR2004 # pragma: no cover
         # 1st keyword is the test name (incl. any parametrized id)

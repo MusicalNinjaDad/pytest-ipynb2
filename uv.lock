@@ -1837,6 +1837,9 @@ cov = [
     { name = "pytest-cov" },
     { name = "pytest-doctest-mkdocstrings" },
 ]
+cov-unique = [
+    { name = "pytest-cov" },
+]
 dev = [
     { name = "black" },
     { name = "jupyter" },
@@ -1850,6 +1853,9 @@ dev = [
     { name = "pytype", version = "2024.10.11", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10' and python_full_version < '3.13'" },
     { name = "ruff" },
     { name = "typing-extensions" },
+]
+dev-unique = [
+    { name = "jupyter" },
 ]
 doc = [
     { name = "black" },
@@ -1870,6 +1876,11 @@ typing = [
     { name = "pytype", version = "2024.10.11", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10' and python_full_version < '3.13'" },
     { name = "typing-extensions" },
 ]
+typing-unique = [
+    { name = "pytype", version = "2024.9.13", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
+    { name = "pytype", version = "2024.10.11", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10' and python_full_version < '3.13'" },
+    { name = "typing-extensions" },
+]
 
 [package.metadata]
 requires-dist = [
@@ -1885,6 +1896,7 @@ cov = [
     { name = "pytest-cov" },
     { name = "pytest-doctest-mkdocstrings" },
 ]
+cov-unique = [{ name = "pytest-cov" }]
 dev = [
     { name = "black" },
     { name = "jupyter" },
@@ -1898,6 +1910,7 @@ dev = [
     { name = "ruff" },
     { name = "typing-extensions" },
 ]
+dev-unique = [{ name = "jupyter" }]
 doc = [
     { name = "black" },
     { name = "mkdocs" },
@@ -1909,6 +1922,10 @@ lint = [{ name = "ruff" }]
 test = [{ name = "pytest-doctest-mkdocstrings" }]
 typing = [
     { name = "pytest-doctest-mkdocstrings" },
+    { name = "pytype", marker = "python_full_version < '3.13'" },
+    { name = "typing-extensions" },
+]
+typing-unique = [
     { name = "pytype", marker = "python_full_version < '3.13'" },
     { name = "typing-extensions" },
 ]
