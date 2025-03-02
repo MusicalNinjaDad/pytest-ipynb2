@@ -115,7 +115,31 @@ def test_codecells_partial_slice(testnotebook: Notebook):
                 "",
                 "x=2",
             ],
-            id=r"%%ipytest at start",
+            id="ipytest at start",
+        ),
+        pytest.param(
+            [
+                "# initialise matplotlib",
+                r"%matplotlib",
+                "",
+                "x=2",
+            ],
+            [
+                "# initialise matplotlib",
+                r"# %matplotlib",
+                "",
+                "x=2",
+            ],
+            id="magic call not at start",
+        ),
+        pytest.param(
+            [
+                r"env = %env",
+            ],
+            [
+                r"# env = %env",
+            ],
+            id="magic in expression",
         ),
     ],
 )
