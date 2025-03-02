@@ -218,7 +218,7 @@ class ExampleDir:
 class ExampleDirSpec:
     """The various elements to set up a pytester instance."""
 
-    path: Path = Path() # Currently only relevant for notebooks - everything else goes in rootdir
+    path: Path = Path()  # Currently only relevant for notebooks - everything else goes in rootdir
     conftest: str = ""
     ini: str = ""
     files: list[Path] = field(default_factory=list)
