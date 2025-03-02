@@ -30,6 +30,7 @@
                 // python
                 "python.defaultInterpreterPath": "./.venv/bin/python3",
                 "python.testing.pytestEnabled": true,
+                "python.testing.autoTestDiscoverOnSaveEnabled": false, // given the work we are doing in pytest-ipynb2 this keeps hanging!
                 "[python]": {
                     "editor.rulers": [
                         120
