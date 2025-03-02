@@ -3,7 +3,7 @@ from textwrap import dedent
 
 import pytest
 
-from pytest_ipynb2._parser import Notebook
+from pytest_ipynb2._parser import Notebook, SourceList
 
 # TODO(MusicalNinjaDad): #23 Add tests for multiple lines with `%%ipytest` and calls to ipytest functions
 
@@ -99,3 +99,16 @@ def test_codecells_partial_slice(testnotebook: Notebook):
                 return a + b"""),
     ]
     assert testnotebook.codecells[:4] == expected
+
+def test_muggle():
+    source = [
+        r"%%ipytest",
+        "",
+        "x=2",
+    ]
+    muggled = SourceList(["\n".join(source)]).muggle()
+    assert muggled == ["\n".join([  # noqa: FLY002
+        r"# %%ipytest",
+        "",
+        "x=2",
+    ])]
