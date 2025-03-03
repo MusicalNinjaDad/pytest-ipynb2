@@ -143,10 +143,13 @@ class Notebook:
     """
 
     def __init__(self, filepath: Path) -> None:
-        self.codecells: SourceList
-        """The code cells *excluding* any identified as test cells"""
-        self.testcells: SourceList
-        """The code cells which are identified as containing tests, based upon the presence of the `%%ipytest`magic."""
+        self.muggled_codecells: SourceList
+        """The code cells *excluding* any identified as test cells. With magic & ipytest lines commented out."""
+        self.muggled_testcells: SourceList
+        """
+        The code cells which are identified as containing tests, based upon the presence of the `%%ipytest`magic.
+        With magic & ipytest lines commented out.
+        """
 
         contents = nbformat.read(fp=str(filepath), as_version=4)
         nbformat.validate(contents)
@@ -161,10 +164,10 @@ class Notebook:
         def _iscodecell(cell: Cell) -> bool:
             return cell.cell_type == "code"
 
-        self.codecells = SourceList(
+        self.muggled_codecells = SourceList(
             cell.source.muggled if _iscodecell(cell) and not _istestcell(cell) else None for cell in cells
         )
-        self.testcells = SourceList(cell.source.muggled if _istestcell(cell) else None for cell in cells)
+        self.muggled_testcells = SourceList(cell.source.muggled if _istestcell(cell) else None for cell in cells)
 
 
 class Cell(Protocol):

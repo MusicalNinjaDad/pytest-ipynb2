@@ -15,11 +15,11 @@ def testnotebook():
 
 
 def test_codecells_indexes(testnotebook: Notebook):
-    assert list(testnotebook.codecells.ids()) == [1, 3, 5]
+    assert list(testnotebook.muggled_codecells.ids()) == [1, 3, 5]
 
 
 def test_testcells_indexes(testnotebook: Notebook):
-    assert list(testnotebook.testcells.ids()) == [4]
+    assert list(testnotebook.muggled_testcells.ids()) == [4]
 
 
 def test_testcell_contents(testnotebook: Notebook):
@@ -34,13 +34,13 @@ def test_testcell_contents(testnotebook: Notebook):
         "def test_globals():",
         "    assert x == 1",
     ]
-    assert testnotebook.testcells[4] == "\n".join(expected)
+    assert testnotebook.muggled_testcells[4] == "\n".join(expected)
 
 
 def test_codecells_index_a_testcell(testnotebook: Notebook):
     msg = "Cell 4 is not present in this SourceList."
     with pytest.raises(IndexError, match=msg):
-        testnotebook.codecells[4]
+        testnotebook.muggled_codecells[4]
 
 
 def test_sources_testcells(testnotebook: Notebook):
@@ -64,7 +64,7 @@ def test_sources_testcells(testnotebook: Notebook):
         ),
         None,
     ]
-    assert testnotebook.testcells == expected
+    assert testnotebook.muggled_testcells == expected
 
 
 def test_testcell_fullslice(testnotebook: Notebook):
@@ -79,7 +79,7 @@ def test_testcell_fullslice(testnotebook: Notebook):
         "def test_globals():",
         "    assert x == 1",
     ]
-    assert testnotebook.testcells[:] == ["\n".join(expected)]
+    assert testnotebook.muggled_testcells[:] == ["\n".join(expected)]
 
 
 def test_codecells_partial_slice(testnotebook: Notebook):
@@ -98,7 +98,7 @@ def test_codecells_partial_slice(testnotebook: Notebook):
             def adder(a, b):
                 return a + b"""),
     ]
-    assert testnotebook.codecells[:4] == expected
+    assert testnotebook.muggled_codecells[:4] == expected
 
 
 @pytest.mark.parametrize(
