@@ -64,10 +64,7 @@ class Source:
         return self._string
 
     def __eq__(self, other: object) -> bool:
-        try:
-            return self._string == other._string
-        except AttributeError:
-            return False
+        return str(self) == str(other)
 
     def __hash__(self) -> int:
         return hash(self._string)
@@ -134,27 +131,6 @@ class SourceList(list):
             msg = f"Cell {index} is not present in this SourceList."
             raise IndexError(msg)
         return source
-
-    @cached_property
-    def muggled(self) -> Self:
-        """Comment out any ipython magics."""
-
-        def joinlines(lines: list[str]) -> str:
-            return "\n".join(lines)
-
-        def _muggle(source: Source) -> str:
-            if source is not None:
-                nocellmagics = source.muggle_cellmagics()
-                linestomuggle = nocellmagics.find_magiclines()
-                muggled = [
-                    f"# {line}" if lineno in linestomuggle else line
-                    for lineno, line in enumerate(nocellmagics, start=1)
-                ]
-                source = joinlines(muggled)
-            return source
-
-        return type(self)([_muggle(source) for source in list(self)])
-
 
 class Notebook:
     """
