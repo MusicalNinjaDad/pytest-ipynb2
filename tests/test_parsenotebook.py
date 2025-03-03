@@ -3,7 +3,7 @@ from textwrap import dedent
 
 import pytest
 
-from pytest_ipynb2._parser import Notebook, Source, SourceList
+from pytest_ipynb2._parser import Notebook, Source
 
 # TODO(MusicalNinjaDad): #23 Add tests for multiple lines with `%%ipytest` and calls to ipytest functions
 

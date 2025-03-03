@@ -20,22 +20,22 @@ if TYPE_CHECKING:
 
 
 class MagicFinder(ast.NodeVisitor):
-    def __init__(self):
+    def __init__(self) -> None:
         self.magiclines = set()
         self.magicnames = {"get_ipython", "ipytest"}
         super().__init__()
 
-    def visit_Call(self, node: ast.Call):
+    def visit_Call(self, node: ast.Call):  # noqa: N802
         if getattr(node.func, "id", None) in self.magicnames:
             self.magiclines.add(node.lineno)
         self.generic_visit(node)
 
-    def visit_Attribute(self, node: ast.Attribute):
+    def visit_Attribute(self, node: ast.Attribute):  # noqa: N802
         if getattr(node.value, "id", None) in self.magicnames:
             self.magiclines.add(node.lineno)
         self.generic_visit(node)
 
-    def visit_Import(self, node: ast.Import):
+    def visit_Import(self, node: ast.Import):  # noqa: N802
         for mod in node.names:
             if mod.name == "ipytest":
                 self.magiclines.add(node.lineno)
@@ -44,7 +44,7 @@ class MagicFinder(ast.NodeVisitor):
                 break
         self.generic_visit(node)
 
-    def visit_ImportFrom(self, node: ast.ImportFrom):
+    def visit_ImportFrom(self, node: ast.ImportFrom):  # noqa: N802
         if node.module in self.magicnames:
             self.magiclines.add(node.lineno)
             for attr in node.names:
@@ -74,7 +74,7 @@ class Source:
     def muggle_cellmagics(self) -> Self:
         newcontents = [f"# {line}" if line.strip().startswith(r"%%") else line for line in self]
         return type(self)(newcontents)
-    
+
     def find_magiclines(self) -> set[int]:
         transformer = IPython.core.inputtransformer2.TransformerManager()
         finder = MagicFinder()
@@ -82,16 +82,16 @@ class Source:
         tree = ast.parse(str(transformed))
         finder.visit(tree)
         return finder.magiclines
-    
+
     @cached_property
     def muggled(self) -> Self:
         nocellmagics = self.muggle_cellmagics()
         linestomuggle = nocellmagics.find_magiclines()
         muggledlines = [
-                    f"# {line}" if lineno in linestomuggle else line
-                    for lineno, line in enumerate(nocellmagics, start=1)
-                ]
+            f"# {line}" if lineno in linestomuggle else line for lineno, line in enumerate(nocellmagics, start=1)
+        ]
         return type(self)(muggledlines)
+
 
 class SourceList(list[Source]):
     """
@@ -130,6 +130,7 @@ class SourceList(list[Source]):
             msg = f"Cell {index} is not present in this SourceList."
             raise IndexError(msg)
         return source
+
 
 class Notebook:
     """
