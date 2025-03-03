@@ -65,10 +65,7 @@ class CellSource:
     """
 
     def __init__(self, contents: Sequence[str] | str):
-        if isinstance(contents, str):
-            self._string = contents
-        else:
-            self._string = "\n".join(contents)
+        self._string = contents if isinstance(contents, str) else "\n".join(contents)
 
     def __str__(self) -> str:
         return self._string
