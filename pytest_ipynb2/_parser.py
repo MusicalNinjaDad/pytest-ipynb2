@@ -88,7 +88,8 @@ class SourceList(list):
                 for mod in node.names:
                     if mod.name == "ipytest":
                         self.magiclines.add(node.lineno)
-                        self.magicnames.add(getattr(mod, "asname", mod.name))
+                        if mod.asname is not None:
+                            self.magicnames.add(mod.asname)
                         break
                 self.generic_visit(node)
 
