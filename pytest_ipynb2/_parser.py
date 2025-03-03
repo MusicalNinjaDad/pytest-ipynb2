@@ -71,15 +71,16 @@ class SourceList(list):
         class MagicFinder(ast.NodeVisitor):
             def __init__(self):
                 self.magiclines = set()
+                self.magicnames = {"get_ipython", "ipytest"}
                 super().__init__()
 
             def visit_Call(self, node: ast.Call):
-                if getattr(node.func, "id", None) == "get_ipython":
+                if getattr(node.func, "id", None) in self.magicnames:
                     self.magiclines.add(node.lineno)
                 self.generic_visit(node)
             
             def visit_Attribute(self, node: ast.Attribute):
-                if getattr(node.value, "id", None) == "ipytest":
+                if getattr(node.value, "id", None) in self.magicnames:
                     self.magiclines.add(node.lineno)
                 self.generic_visit(node)
             
@@ -87,6 +88,7 @@ class SourceList(list):
                 for mod in node.names:
                     if mod.name == "ipytest":
                         self.magiclines.add(node.lineno)
+                        self.magicnames.add(getattr(mod, "asname", mod.name))
                         break
                 self.generic_visit(node)
 
