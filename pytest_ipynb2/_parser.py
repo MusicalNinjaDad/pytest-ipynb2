@@ -115,14 +115,8 @@ class SourceList(list):
     def muggle(self) -> Self:
         """Comment out any ipython magics."""
 
-        def _iscellmagic(line: str) -> bool:
-            return line.strip().startswith(r"%%")
-
         def joinlines(lines: list[str]) -> str:
             return "\n".join(lines)
-
-        def commentout(line: str) -> str:
-            return f"# {line}"
 
         def _muggle(source: str) -> str:
             if source is not None:
