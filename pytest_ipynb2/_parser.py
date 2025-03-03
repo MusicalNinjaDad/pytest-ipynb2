@@ -92,6 +92,13 @@ class SourceList(list):
                         break
                 self.generic_visit(node)
 
+            def visit_ImportFrom(self, node: ast.ImportFrom):
+                if node.module in self.magicnames:
+                    self.magiclines.add(node.lineno)
+                    for attr in node.names:
+                        self.magicnames.add(attr.asname if attr.asname is not None else attr.name)
+                self.generic_visit(node)
+
         def _muggle(source: str) -> str:
             if source is not None:
                 lines = source.splitlines()
