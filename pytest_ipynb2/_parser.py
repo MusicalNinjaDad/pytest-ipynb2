@@ -87,7 +87,7 @@ class CellSource:
         newcontents = [f"# {line}" if line.strip().startswith(r"%%") else line for line in self]
         return type(self)(newcontents)
 
-    def find_magiclines(self) -> set[int]:
+    def magiclines(self) -> set[int]:
         """Return a list of all lines (starting at 1), the `MagicFinder` identifies."""
         transformer = IPython.core.inputtransformer2.TransformerManager()
         finder = MagicFinder()
@@ -96,16 +96,16 @@ class CellSource:
         finder.visit(tree)
         return finder.magiclines
 
+    def commentout(self, lines: Iterator[int]) -> Self:
+        return type(self)([f"# {line}" if lineno in lines else line for lineno, line in enumerate(self, start=1)])
+            
     @cached_property
     def muggled(self) -> Self:
         """A version of this `Source` with magic (and ipytest) lines commented out."""
         nocellmagics = self.muggle_cellmagics()
         # Need to do this first otherwise ipython transformer munges the whole cell into a single `run_cell_magic` line
-        linestomuggle = nocellmagics.find_magiclines()
-        muggledlines = [
-            f"# {line}" if lineno in linestomuggle else line for lineno, line in enumerate(nocellmagics, start=1)
-        ]
-        return type(self)(muggledlines)
+        linestomuggle = nocellmagics.magiclines()
+        return nocellmagics.commentout(linestomuggle)
 
 
 class SourceList(list[CellSource]):
