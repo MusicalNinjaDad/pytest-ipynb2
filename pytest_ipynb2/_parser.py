@@ -52,7 +52,7 @@ class MagicFinder(ast.NodeVisitor):
         self.generic_visit(node)
 
 
-class Source:
+class CellSource:
     def __init__(self, contents: Sequence[str] | str):
         if isinstance(contents, str):
             self._string = contents
@@ -93,9 +93,9 @@ class Source:
         return type(self)(muggledlines)
 
 
-class SourceList(list[Source]):
+class SourceList(list[CellSource]):
     """
-    A `list[Source]` with non-continuous indices for storing the contents of cells.
+    A `list[CellSource]` with non-continuous indices for storing the contents of cells.
 
     - use a full slice `sourcelist[:]`, not list(sourcelist) to get contents.
     - supports `.ids()` analog to a mapping.keys(), yielding only cell-ids with source.
@@ -108,10 +108,10 @@ class SourceList(list[Source]):
                 yield key
 
     @overload
-    def __getitem__(self, index: SupportsIndex) -> Source: ...
+    def __getitem__(self, index: SupportsIndex) -> CellSource: ...
 
     @overload
-    def __getitem__(self, index: slice) -> list[Source]: ...
+    def __getitem__(self, index: slice) -> list[CellSource]: ...
 
     def __getitem__(self, index):
         """
@@ -162,9 +162,9 @@ class Notebook:
             return cell.cell_type == "code"
 
         self.codecells = SourceList(
-            Source(cell.source).muggled if _iscodecell(cell) and not _istestcell(cell) else None for cell in cells
+            CellSource(cell.source).muggled if _iscodecell(cell) and not _istestcell(cell) else None for cell in cells
         )
-        self.testcells = SourceList(Source(cell.source).muggled if _istestcell(cell) else None for cell in cells)
+        self.testcells = SourceList(CellSource(cell.source).muggled if _istestcell(cell) else None for cell in cells)
 
 
 class Cell(Protocol):

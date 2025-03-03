@@ -3,7 +3,7 @@ from textwrap import dedent
 
 import pytest
 
-from pytest_ipynb2._parser import Notebook, Source
+from pytest_ipynb2._parser import Notebook, CellSource
 
 # TODO(MusicalNinjaDad): #23 Add tests for multiple lines with `%%ipytest` and calls to ipytest functions
 
@@ -210,5 +210,5 @@ def test_codecells_partial_slice(testnotebook: Notebook):
     ],
 )
 def test_muggle(source: list[str], expected: list[str]):
-    muggled = Source(source).muggled
-    assert muggled == Source(expected)
+    muggled = CellSource(source).muggled
+    assert muggled == CellSource(expected)
