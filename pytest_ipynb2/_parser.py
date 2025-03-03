@@ -10,7 +10,7 @@ import IPython.core.inputtransformer2
 import nbformat
 
 if TYPE_CHECKING:
-    from collections.abc import Generator, Iterator, Sequence
+    from collections.abc import Collection, Generator, Iterator, Sequence
     from contextlib import suppress
     from pathlib import Path
     from typing import SupportsIndex
@@ -58,7 +58,7 @@ class MagicFinder(ast.NodeVisitor):
 class CellSource:
     """
     Contains source code of a ipynb cell.
-    
+
     - Initialisable either from a multiline string, or a sequence of strings (one per line)
     - String representation is multiline string
     - Iterates by line
@@ -85,7 +85,7 @@ class CellSource:
     @property
     def cellmagiclines(self) -> set[int]:
         """Return a new CellSource with any lines containing cellmagics commented out."""
-        return {lineno for lineno, line in enumerate(self, start=1) if line.strip().startswith(r"%%") }
+        return {lineno for lineno, line in enumerate(self, start=1) if line.strip().startswith(r"%%")}
 
     @property
     def magiclines(self) -> set[int]:
@@ -97,13 +97,13 @@ class CellSource:
         finder.visit(tree)
         return finder.magiclines
 
-    def commentout(self, lines: Iterator[int]) -> Self:
+    def commentout(self, lines: Collection[int]) -> Self:
         return type(self)([f"# {line}" if lineno in lines else line for lineno, line in enumerate(self, start=1)])
-            
+
     @cached_property
     def muggled(self) -> Self:
         """A version of this `Source` with magic (and ipytest) lines commented out."""
-        # Need to handle cell magics first otherwise ipython transformer 
+        # Need to handle cell magics first otherwise ipython transformer
         # munges the whole cell into a single `run_cell_magic` line
         nocellmagics = self.commentout(self.cellmagiclines)
         return nocellmagics.commentout(nocellmagics.magiclines)
