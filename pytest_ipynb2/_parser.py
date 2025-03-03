@@ -9,7 +9,7 @@ import nbformat
 from IPython.core.inputtransformer2 import TransformerManager
 
 if TYPE_CHECKING:
-    from collections.abc import Generator
+    from collections.abc import Generator, Sequence
     from contextlib import suppress
     from pathlib import Path
     from typing import SupportsIndex
@@ -17,6 +17,37 @@ if TYPE_CHECKING:
     with suppress(ImportError):  # not type-checking on python < 3.11
         from typing import Self
 
+class Source:
+    sequence: Sequence[str]
+    string: str
+
+    def __init__(self, contents: Sequence[str] | str):
+        if isinstance(contents, str):
+            self.string = contents
+        else:
+            self.sequence = contents
+    
+    @property
+    def string(self):
+        return self._string
+    
+    @string.setter
+    def string(self, contents: str):
+        self._string = contents
+        self._sequence = contents.splitlines()
+
+    @property
+    def sequence(self):
+        return self._sequence
+    
+    @sequence.setter
+    def sequence(self, contents: Sequence[str]):
+        self._sequence = contents
+        self._string = "\n".join(contents)
+
+    def muggle_cellmagics(self) -> Self:
+        newcontents = [f"# {line}" if line.strip().startswith(r"%%") else line for line in self.sequence]
+        return type(self)(newcontents)
 
 class SourceList(list):
     """
@@ -102,17 +133,16 @@ class SourceList(list):
 
         def _muggle(source: str) -> str:
             if source is not None:
-                lines = source.splitlines()
-                lines = [commentout(line) if _iscellmagic(line) else line for line in lines]
-                source = joinlines(lines)
+                assource = Source(source)
+                nocellmagics = assource.muggle_cellmagics()
                 tm = TransformerManager()
-                transformed = tm.transform_cell(source)
+                transformed = tm.transform_cell(nocellmagics.string)
                 finder = MagicFinder()
                 tree = ast.parse(transformed)
                 finder.visit(tree)
                 linestomuggle = finder.magiclines
                 muggled = [
-                    f"# {line}" if lineno in linestomuggle else line for lineno, line in enumerate(source.splitlines(), start=1)
+                    f"# {line}" if lineno in linestomuggle else line for lineno, line in enumerate(nocellmagics.sequence, start=1)
                 ]
                 source = joinlines(muggled)
             return source
