@@ -120,7 +120,7 @@ class CellPath(Path):
             if CellPath.is_cellpath(filename):
                 notebook = CellPath.get_notebookpath(filename)
                 cellid = CellPath.get_cellid(filename)
-                return _ParsedNotebook(notebook).testcells[cellid].splitlines()
+                return list(_ParsedNotebook(notebook).muggled_testcells[cellid])
             return _linecache_getlines_std(filename=filename, module_globals=module_globals)
 
         linecache.getlines = _linecache_getlines_ipynb2
@@ -201,7 +201,7 @@ class Notebook(pytest.File):
     def collect(self) -> Generator[Cell, None, None]:
         """Yield `Cell`s for all cells which contain tests."""
         parsed = _ParsedNotebook(self.path)
-        for testcellid in parsed.testcells.ids():
+        for testcellid in parsed.muggled_testcells.ids():
             name = f"{CELL_PREFIX}{testcellid}"
             nodeid = f"{self.nodeid}::{name}"
             cell = Cell.from_parent(
@@ -240,8 +240,8 @@ class Cell(IpynbItemMixin, pytest.Module):
         notebook = self.stash[ipynb2_notebook]
         cellid = self.stash[ipynb2_cellid]
 
-        cellsabove = notebook.codecells[:cellid]
-        testcell_source = notebook.testcells[cellid]
+        cellsabove = [str(cellsource) for cellsource in notebook.muggled_codecells[:cellid]]
+        testcell_source = str(notebook.muggled_testcells[cellid])
 
         cell_filename = str(self.path)
 

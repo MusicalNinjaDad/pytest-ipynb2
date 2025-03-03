@@ -37,7 +37,7 @@ tests = [
         {
             "generated.ipynb": [
                 add_ipytest_magic(
-                    "\n".join(  # noqa: FLY002
+                    "\n".join(
                         [
                             "def test_pass():",
                             "    assert True",
@@ -59,7 +59,7 @@ tests = [
         ),
         {
             "generated.ipynb": [
-                "\n".join(  # noqa: FLY002
+                "\n".join(
                     [
                         "import ipytest",
                         "ipytest.autoconfig()",
@@ -67,7 +67,7 @@ tests = [
                     ],
                 ),
                 add_ipytest_magic(
-                    "\n".join(  # noqa: FLY002
+                    "\n".join(
                         [
                             "def test_pass():",
                             "    assert True",
