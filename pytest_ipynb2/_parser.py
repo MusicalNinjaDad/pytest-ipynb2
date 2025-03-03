@@ -20,8 +20,11 @@ if TYPE_CHECKING:
 
 
 class MagicFinder(ast.NodeVisitor):
+    """Identifies lines which use ipython magics or call ipytest."""
+
     def __init__(self) -> None:
-        self.magiclines = set()
+        self.magiclines: set[int] = set()
+        """Linenumbers (starting at 1) of lines containing magics/ipytest."""
         self.magicnames = {"get_ipython", "ipytest"}
         super().__init__()
 
@@ -53,6 +56,14 @@ class MagicFinder(ast.NodeVisitor):
 
 
 class CellSource:
+    """
+    Contains source code of a ipynb cell.
+    
+    - Initialisable either from a multiline string, or a sequence of strings (one per line)
+    - String representation is multiline string
+    - Iterates by line
+    """
+
     def __init__(self, contents: Sequence[str] | str):
         if isinstance(contents, str):
             self._string = contents
@@ -72,10 +83,12 @@ class CellSource:
         return iter(self._string.splitlines())
 
     def muggle_cellmagics(self) -> Self:
+        """Return a new CellSource with any lines containing cellmagics commented out."""
         newcontents = [f"# {line}" if line.strip().startswith(r"%%") else line for line in self]
         return type(self)(newcontents)
 
     def find_magiclines(self) -> set[int]:
+        """Return a list of all lines (starting at 1), the `MagicFinder` identifies."""
         transformer = IPython.core.inputtransformer2.TransformerManager()
         finder = MagicFinder()
         transformed = transformer.transform_cell(str(self))
@@ -85,6 +98,7 @@ class CellSource:
 
     @cached_property
     def muggled(self) -> Self:
+        """A version of this `Source` with magic (and ipytest) lines commented out."""
         nocellmagics = self.muggle_cellmagics()
         # Need to do this first otherwise ipython transformer munges the whole cell into a single `run_cell_magic` line
         linestomuggle = nocellmagics.find_magiclines()
@@ -138,9 +152,10 @@ class Notebook:
     The relevant bits of an ipython Notebook.
 
     Attributes:
-        codecells (SourceList): The code cells *excluding* any identified as test cells.
-        testcells (SourceList): The code cells which are identified as containing tests, based
-            upon the presence of the `%%ipytest`magic.
+        muggled_codecells (SourceList): The code cells *excluding* any identified as test cells.
+            With magic & ipytest lines commented out.
+        muggled_testcells (SourceList): The code cells which are identified as containing tests,
+            based upon the presence of the `%%ipytest` magic. With magic & ipytest lines commented out.
     """
 
     def __init__(self, filepath: Path) -> None:
