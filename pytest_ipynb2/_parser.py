@@ -82,6 +82,13 @@ class SourceList(list):
                 if getattr(node.value, "id", None) == "ipytest":
                     self.magiclines.add(node.lineno)
                 self.generic_visit(node)
+            
+            def visit_Import(self, node: ast.Import):
+                for mod in node.names:
+                    if mod.name == "ipytest":
+                        self.magiclines.add(node.lineno)
+                        break
+                self.generic_visit(node)
 
         def _muggle(source: str) -> str:
             if source is not None:

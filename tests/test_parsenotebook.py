@@ -159,6 +159,15 @@ def test_codecells_partial_slice(testnotebook: Notebook):
             ],
             id="ipytest autoconfig",
         ),
+        pytest.param(
+            [
+                "import ipytest",
+            ],
+            [
+                "# import ipytest",
+            ],
+            id="import ipytest",
+        ),
     ],
 )
 def test_muggle(source: list[str], expected: list[str]):
