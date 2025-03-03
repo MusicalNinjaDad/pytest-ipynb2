@@ -3,14 +3,13 @@
 from __future__ import annotations
 
 import ast
-import re
-from typing import TYPE_CHECKING, Iterator, Protocol, overload
+from typing import TYPE_CHECKING, Protocol, overload
 
 import nbformat
 from IPython.core.inputtransformer2 import TransformerManager
 
 if TYPE_CHECKING:
-    from collections.abc import Generator, Sequence
+    from collections.abc import Generator, Iterator, Sequence
     from contextlib import suppress
     from pathlib import Path
     from typing import SupportsIndex
@@ -18,14 +17,47 @@ if TYPE_CHECKING:
     with suppress(ImportError):  # not type-checking on python < 3.11
         from typing import Self
 
-class Source:
 
+class MagicFinder(ast.NodeVisitor):
+    def __init__(self):
+        self.magiclines = set()
+        self.magicnames = {"get_ipython", "ipytest"}
+        super().__init__()
+
+    def visit_Call(self, node: ast.Call):
+        if getattr(node.func, "id", None) in self.magicnames:
+            self.magiclines.add(node.lineno)
+        self.generic_visit(node)
+
+    def visit_Attribute(self, node: ast.Attribute):
+        if getattr(node.value, "id", None) in self.magicnames:
+            self.magiclines.add(node.lineno)
+        self.generic_visit(node)
+
+    def visit_Import(self, node: ast.Import):
+        for mod in node.names:
+            if mod.name == "ipytest":
+                self.magiclines.add(node.lineno)
+                if mod.asname is not None:
+                    self.magicnames.add(mod.asname)
+                break
+        self.generic_visit(node)
+
+    def visit_ImportFrom(self, node: ast.ImportFrom):
+        if node.module in self.magicnames:
+            self.magiclines.add(node.lineno)
+            for attr in node.names:
+                self.magicnames.add(attr.asname if attr.asname is not None else attr.name)
+        self.generic_visit(node)
+
+
+class Source:
     def __init__(self, contents: Sequence[str] | str):
         if isinstance(contents, str):
             self._string = contents
         else:
             self._sequence = contents
-    
+
     def __str__(self) -> str:
         return getattr(self, "_string", "\n".join(self._sequence))
 
@@ -35,6 +67,7 @@ class Source:
     def muggle_cellmagics(self) -> Self:
         newcontents = [f"# {line}" if line.strip().startswith(r"%%") else line for line in self]
         return type(self)(newcontents)
+
 
 class SourceList(list):
     """
@@ -82,41 +115,9 @@ class SourceList(list):
 
         def joinlines(lines: list[str]) -> str:
             return "\n".join(lines)
-        
+
         def commentout(line: str) -> str:
             return f"# {line}"
-        
-        class MagicFinder(ast.NodeVisitor):
-            def __init__(self):
-                self.magiclines = set()
-                self.magicnames = {"get_ipython", "ipytest"}
-                super().__init__()
-
-            def visit_Call(self, node: ast.Call):
-                if getattr(node.func, "id", None) in self.magicnames:
-                    self.magiclines.add(node.lineno)
-                self.generic_visit(node)
-            
-            def visit_Attribute(self, node: ast.Attribute):
-                if getattr(node.value, "id", None) in self.magicnames:
-                    self.magiclines.add(node.lineno)
-                self.generic_visit(node)
-            
-            def visit_Import(self, node: ast.Import):
-                for mod in node.names:
-                    if mod.name == "ipytest":
-                        self.magiclines.add(node.lineno)
-                        if mod.asname is not None:
-                            self.magicnames.add(mod.asname)
-                        break
-                self.generic_visit(node)
-
-            def visit_ImportFrom(self, node: ast.ImportFrom):
-                if node.module in self.magicnames:
-                    self.magiclines.add(node.lineno)
-                    for attr in node.names:
-                        self.magicnames.add(attr.asname if attr.asname is not None else attr.name)
-                self.generic_visit(node)
 
         def _muggle(source: str) -> str:
             if source is not None:
@@ -129,7 +130,8 @@ class SourceList(list):
                 finder.visit(tree)
                 linestomuggle = finder.magiclines
                 muggled = [
-                    f"# {line}" if lineno in linestomuggle else line for lineno, line in enumerate(nocellmagics, start=1)
+                    f"# {line}" if lineno in linestomuggle else line
+                    for lineno, line in enumerate(nocellmagics, start=1)
                 ]
                 source = joinlines(muggled)
             return source
