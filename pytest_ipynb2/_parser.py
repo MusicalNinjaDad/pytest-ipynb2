@@ -153,7 +153,7 @@ class Notebook:
         cells: list[Cell] = contents.cells
 
         for cell in cells:
-            cell.source = cell.source.splitlines()  # type: ignore[attr-defined]  # fulfils protocol after splitlines
+            cell.source = CellSource(cell.source)  # type: ignore[attr-defined]  # fulfils protocol after this conversion
 
         def _istestcell(cell: Cell) -> bool:
             return cell.cell_type == "code" and any(line.strip().startswith(r"%%ipytest") for line in cell.source)
@@ -162,11 +162,11 @@ class Notebook:
             return cell.cell_type == "code"
 
         self.codecells = SourceList(
-            CellSource(cell.source).muggled if _iscodecell(cell) and not _istestcell(cell) else None for cell in cells
+            cell.source.muggled if _iscodecell(cell) and not _istestcell(cell) else None for cell in cells
         )
-        self.testcells = SourceList(CellSource(cell.source).muggled if _istestcell(cell) else None for cell in cells)
+        self.testcells = SourceList(cell.source.muggled if _istestcell(cell) else None for cell in cells)
 
 
 class Cell(Protocol):
-    source: list[str]
+    source: CellSource
     cell_type: str
