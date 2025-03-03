@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Protocol, overload
 
 import IPython.core.inputtransformer2
 import nbformat
+from urllib3 import Retry
 
 if TYPE_CHECKING:
     from collections.abc import Generator, Iterator, Sequence
@@ -62,6 +63,15 @@ class Source:
     def __str__(self) -> str:
         return self._string
 
+    def __eq__(self, other: object) -> bool:
+        try:
+            return self._string == other._string
+        except AttributeError:
+            return False
+
+    def __hash__(self) -> int:
+        return hash(self._string)
+
     def __iter__(self) -> Iterator[str]:
         return iter(self._string.splitlines())
 
@@ -76,7 +86,16 @@ class Source:
         tree = ast.parse(str(transformed))
         finder.visit(tree)
         return finder.magiclines
-
+    
+    @cached_property
+    def muggled(self) -> Self:
+        nocellmagics = self.muggle_cellmagics()
+        linestomuggle = nocellmagics.find_magiclines()
+        muggledlines = [
+                    f"# {line}" if lineno in linestomuggle else line
+                    for lineno, line in enumerate(nocellmagics, start=1)
+                ]
+        return type(self)(muggledlines)
 
 class SourceList(list):
     """
@@ -123,10 +142,9 @@ class SourceList(list):
         def joinlines(lines: list[str]) -> str:
             return "\n".join(lines)
 
-        def _muggle(source: str) -> str:
+        def _muggle(source: Source) -> str:
             if source is not None:
-                assource = Source(source)
-                nocellmagics = assource.muggle_cellmagics()
+                nocellmagics = source.muggle_cellmagics()
                 linestomuggle = nocellmagics.find_magiclines()
                 muggled = [
                     f"# {line}" if lineno in linestomuggle else line
@@ -168,9 +186,9 @@ class Notebook:
             return cell.cell_type == "code"
 
         self.codecells = SourceList(
-            "\n".join(cell.source) if _iscodecell(cell) and not _istestcell(cell) else None for cell in cells
-        ).muggled
-        self.testcells = SourceList("\n".join(cell.source) if _istestcell(cell) else None for cell in cells).muggled
+            Source(cell.source).muggled if _iscodecell(cell) and not _istestcell(cell) else None for cell in cells
+        )
+        self.testcells = SourceList(Source(cell.source).muggled if _istestcell(cell) else None for cell in cells)
 
 
 class Cell(Protocol):
