@@ -240,15 +240,15 @@ class Cell(IpynbItemMixin, pytest.Module):
         notebook = self.stash[ipynb2_notebook]
         cellid = self.stash[ipynb2_cellid]
 
-        cellsabove = notebook.codecells[:cellid]
-        testcell_source = notebook.testcells[cellid]
+        cellsabove = [str(cellsource) for cellsource in notebook.codecells[:cellid]]
+        testcell_source = str(notebook.testcells[cellid])
 
         cell_filename = str(self.path)
 
-        testcell_ast = ast.parse(str(testcell_source), filename=cell_filename)
+        testcell_ast = ast.parse(testcell_source, filename=cell_filename)
         _pytest.assertion.rewrite.rewrite_asserts(
             mod=testcell_ast,
-            source=bytes(str(testcell_source), encoding="utf-8"),
+            source=bytes(testcell_source, encoding="utf-8"),
             module_path=str(self.path),
             config=self.config,
         )
@@ -258,7 +258,7 @@ class Cell(IpynbItemMixin, pytest.Module):
         dummy_spec = importlib.util.spec_from_loader(f"{self.name}", loader=None)
         dummy_module = importlib.util.module_from_spec(dummy_spec)
         for cell in cellsabove:
-            exec(str(cell), dummy_module.__dict__)  # noqa: S102
+            exec(cell, dummy_module.__dict__)  # noqa: S102
         exec(testcell, dummy_module.__dict__)  # noqa: S102
         return dummy_module
 
