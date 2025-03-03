@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import ast
+from functools import cached_property
 from typing import TYPE_CHECKING, Protocol, overload
 
 import IPython.core.inputtransformer2
@@ -79,7 +80,7 @@ class Source:
 
 class SourceList(list):
     """
-    A `list[str]` with non-continuous indices for storing the contents of cells.
+    A `list[Source]` with non-continuous indices for storing the contents of cells.
 
     - use a full slice `sourcelist[:]`, not list(sourcelist) to get contents.
     - supports `.ids()` analog to a mapping.keys(), yielding only cell-ids with source.
@@ -115,7 +116,8 @@ class SourceList(list):
             raise IndexError(msg)
         return source
 
-    def muggle(self) -> Self:
+    @cached_property
+    def muggled(self) -> Self:
         """Comment out any ipython magics."""
 
         def joinlines(lines: list[str]) -> str:
@@ -167,8 +169,8 @@ class Notebook:
 
         self.codecells = SourceList(
             "\n".join(cell.source) if _iscodecell(cell) and not _istestcell(cell) else None for cell in cells
-        ).muggle()
-        self.testcells = SourceList("\n".join(cell.source) if _istestcell(cell) else None for cell in cells).muggle()
+        ).muggled
+        self.testcells = SourceList("\n".join(cell.source) if _istestcell(cell) else None for cell in cells).muggled
 
 
 class Cell(Protocol):

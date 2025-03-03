@@ -210,5 +210,5 @@ def test_codecells_partial_slice(testnotebook: Notebook):
     ],
 )
 def test_muggle(source: list[str], expected: list[str]):
-    muggled = SourceList(["\n".join(source)]).muggle()
+    muggled = SourceList(["\n".join(source)]).muggled
     assert muggled == ["\n".join(expected)]
