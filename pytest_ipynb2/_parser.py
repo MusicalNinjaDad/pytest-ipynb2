@@ -66,7 +66,7 @@ class CellSource:
         return str(self) == str(other)
 
     def __hash__(self) -> int:
-        return hash(self._string)
+        return hash(self._string)  # pragma: no cover
 
     def __iter__(self) -> Iterator[str]:
         return iter(self._string.splitlines())
@@ -86,6 +86,7 @@ class CellSource:
     @cached_property
     def muggled(self) -> Self:
         nocellmagics = self.muggle_cellmagics()
+        # Need to do this first otherwise ipython transformer munges the whole cell into a single `run_cell_magic` line
         linestomuggle = nocellmagics.find_magiclines()
         muggledlines = [
             f"# {line}" if lineno in linestomuggle else line for lineno, line in enumerate(nocellmagics, start=1)

@@ -207,6 +207,19 @@ def test_codecells_partial_slice(testnotebook: Notebook):
             ],
             id="from ipytest import as",
         ),
+        pytest.param(
+            [
+                "from datetime import datetime",
+                "",
+                "now = datetime.now()",
+            ],
+            [
+                "from datetime import datetime",
+                "",
+                "now = datetime.now()",
+            ],
+            id="import from non-magic module",
+        ),
     ],
 )
 def test_muggle(source: list[str], expected: list[str]):
