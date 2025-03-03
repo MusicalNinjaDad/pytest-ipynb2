@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import ast
 from typing import TYPE_CHECKING, Protocol, overload
 
 import nbformat
+from IPython.core.inputtransformer2 import TransformerManager
 
 if TYPE_CHECKING:
     from collections.abc import Generator
@@ -58,14 +60,34 @@ class SourceList(list):
         """Comment out any ipython magics."""
 
         def _ismagic(line: str) -> bool:
-            return (line.strip().startswith("%") or line.strip().startswith("ipytest"))
+            try:
+                ast.parse(line)
+            except SyntaxError:
+                return True
+            else:
+                return line.strip().startswith("ipytest")
+
+        def joinlines(lines: list[str]) -> str:
+            return "\n".join(lines)
+        
+        def commentout(line: str) -> str:
+            return f"# {line}"
 
         def _muggle(source: str) -> str:
             if source is None:
                 return None
+            lines = source.splitlines()
+            lines = [commentout(line) if line.strip().startswith("%") else line for line in lines]
+            source = joinlines(lines)
+            tm = TransformerManager()
+            lines = tm.transform_cell(source).splitlines()
+            linestomuggle = {
+                lineno
+                for lineno, line in enumerate(lines)
+                if "get_ipython()" in line or line.strip().startswith("ipytest")
+            }
             muggled = [
-                f"# {line}" if _ismagic(line) else line
-                for line in source.splitlines()
+                f"# {line}" if lineno in linestomuggle else line for lineno, line in enumerate(source.splitlines())
             ]
             return "\n".join(muggled)
 
