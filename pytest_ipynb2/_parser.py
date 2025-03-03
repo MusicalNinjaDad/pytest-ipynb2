@@ -68,10 +68,13 @@ class Source:
         newcontents = [f"# {line}" if line.strip().startswith(r"%%") else line for line in self]
         return type(self)(newcontents)
     
-    def ipython_transform(self) -> Self:
-        tm = IPython.core.inputtransformer2.TransformerManager()
-        newcontents = tm.transform_cell(str(self))
-        return type(self)(newcontents)
+    def find_magiclines(self) -> set[int]:
+        transformer = IPython.core.inputtransformer2.TransformerManager()
+        finder = MagicFinder()
+        transformed = transformer.transform_cell(str(self))
+        tree = ast.parse(str(transformed))
+        finder.visit(tree)
+        return finder.magiclines
 
 
 class SourceList(list):
@@ -122,11 +125,7 @@ class SourceList(list):
             if source is not None:
                 assource = Source(source)
                 nocellmagics = assource.muggle_cellmagics()
-                transformed = nocellmagics.ipython_transform()
-                finder = MagicFinder()
-                tree = ast.parse(str(transformed))
-                finder.visit(tree)
-                linestomuggle = finder.magiclines
+                linestomuggle = nocellmagics.find_magiclines()
                 muggled = [
                     f"# {line}" if lineno in linestomuggle else line
                     for lineno, line in enumerate(nocellmagics, start=1)
