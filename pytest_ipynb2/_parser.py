@@ -56,13 +56,13 @@ class Source:
         if isinstance(contents, str):
             self._string = contents
         else:
-            self._sequence = contents
+            self._string = "\n".join(contents)
 
     def __str__(self) -> str:
-        return getattr(self, "_string", "\n".join(self._sequence))
+        return self._string
 
     def __iter__(self) -> Iterator[str]:
-        return iter(getattr(self, "_sequence", getattr(self, "_string", "").splitlines()))
+        return iter(self._string.splitlines())
 
     def muggle_cellmagics(self) -> Self:
         newcontents = [f"# {line}" if line.strip().startswith(r"%%") else line for line in self]
