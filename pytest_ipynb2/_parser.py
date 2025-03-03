@@ -5,8 +5,8 @@ from __future__ import annotations
 import ast
 from typing import TYPE_CHECKING, Protocol, overload
 
+import IPython.core.inputtransformer2
 import nbformat
-from IPython.core.inputtransformer2 import TransformerManager
 
 if TYPE_CHECKING:
     from collections.abc import Generator, Iterator, Sequence
@@ -67,6 +67,11 @@ class Source:
     def muggle_cellmagics(self) -> Self:
         newcontents = [f"# {line}" if line.strip().startswith(r"%%") else line for line in self]
         return type(self)(newcontents)
+    
+    def ipython_transform(self) -> Self:
+        tm = IPython.core.inputtransformer2.TransformerManager()
+        newcontents = tm.transform_cell(str(self))
+        return type(self)(newcontents)
 
 
 class SourceList(list):
@@ -123,10 +128,9 @@ class SourceList(list):
             if source is not None:
                 assource = Source(source)
                 nocellmagics = assource.muggle_cellmagics()
-                tm = TransformerManager()
-                transformed = tm.transform_cell(str(nocellmagics))
+                transformed = nocellmagics.ipython_transform()
                 finder = MagicFinder()
-                tree = ast.parse(transformed)
+                tree = ast.parse(str(transformed))
                 finder.visit(tree)
                 linestomuggle = finder.magiclines
                 muggled = [
