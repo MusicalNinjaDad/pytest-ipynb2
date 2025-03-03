@@ -194,6 +194,19 @@ def test_codecells_partial_slice(testnotebook: Notebook):
             ],
             id="from ipytest import",
         ),
+        pytest.param(
+            [
+                "from ipytest import autoconfig as aptac",
+                "",
+                "aptac()",
+            ],
+            [
+                "# from ipytest import autoconfig as aptac",
+                "",
+                "# aptac()",
+            ],
+            id="from ipytest import as",
+        ),
     ],
 )
 def test_muggle(source: list[str], expected: list[str]):
