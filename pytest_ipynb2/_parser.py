@@ -93,7 +93,7 @@ class Source:
                 ]
         return type(self)(muggledlines)
 
-class SourceList(list):
+class SourceList(list[Source]):
     """
     A `list[Source]` with non-continuous indices for storing the contents of cells.
 
@@ -108,10 +108,10 @@ class SourceList(list):
                 yield key
 
     @overload
-    def __getitem__(self, index: SupportsIndex) -> str: ...
+    def __getitem__(self, index: SupportsIndex) -> Source: ...
 
     @overload
-    def __getitem__(self, index: slice) -> list[str]: ...
+    def __getitem__(self, index: slice) -> list[Source]: ...
 
     def __getitem__(self, index):
         """

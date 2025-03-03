@@ -120,7 +120,7 @@ class CellPath(Path):
             if CellPath.is_cellpath(filename):
                 notebook = CellPath.get_notebookpath(filename)
                 cellid = CellPath.get_cellid(filename)
-                return _ParsedNotebook(notebook).testcells[cellid].splitlines()
+                return list(_ParsedNotebook(notebook).testcells[cellid])
             return _linecache_getlines_std(filename=filename, module_globals=module_globals)
 
         linecache.getlines = _linecache_getlines_ipynb2
@@ -245,10 +245,10 @@ class Cell(IpynbItemMixin, pytest.Module):
 
         cell_filename = str(self.path)
 
-        testcell_ast = ast.parse(testcell_source, filename=cell_filename)
+        testcell_ast = ast.parse(str(testcell_source), filename=cell_filename)
         _pytest.assertion.rewrite.rewrite_asserts(
             mod=testcell_ast,
-            source=bytes(testcell_source, encoding="utf-8"),
+            source=bytes(str(testcell_source), encoding="utf-8"),
             module_path=str(self.path),
             config=self.config,
         )
@@ -258,7 +258,7 @@ class Cell(IpynbItemMixin, pytest.Module):
         dummy_spec = importlib.util.spec_from_loader(f"{self.name}", loader=None)
         dummy_module = importlib.util.module_from_spec(dummy_spec)
         for cell in cellsabove:
-            exec(cell, dummy_module.__dict__)  # noqa: S102
+            exec(str(cell), dummy_module.__dict__)  # noqa: S102
         exec(testcell, dummy_module.__dict__)  # noqa: S102
         return dummy_module
 
