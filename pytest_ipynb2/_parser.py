@@ -67,6 +67,21 @@ class SourceList(list):
         
         def commentout(line: str) -> str:
             return f"# {line}"
+        
+        class MagicFinder(ast.NodeVisitor):
+            def __init__(self):
+                self.magiclines = set()
+                super().__init__()
+
+            def visit_Call(self, node: ast.Call):
+                if getattr(node.func, "id", None) == "get_ipython":
+                    self.magiclines.add(node.lineno)
+                self.generic_visit(node)
+            
+            def visit_Attribute(self, node: ast.Attribute):
+                if getattr(node.value, "id", None) == "ipytest":
+                    self.magiclines.add(node.lineno)
+                self.generic_visit(node)
 
         def _muggle(source: str) -> str:
             if source is not None:
@@ -74,14 +89,13 @@ class SourceList(list):
                 lines = [commentout(line) if _iscellmagic(line) else line for line in lines]
                 source = joinlines(lines)
                 tm = TransformerManager()
-                lines = tm.transform_cell(source).splitlines()
-                linestomuggle = {
-                    lineno
-                    for lineno, line in enumerate(lines)
-                    if "get_ipython()" in line
-                }
+                transformed = tm.transform_cell(source)
+                finder = MagicFinder()
+                tree = ast.parse(transformed)
+                finder.visit(tree)
+                linestomuggle = finder.magiclines
                 muggled = [
-                    f"# {line}" if lineno in linestomuggle else line for lineno, line in enumerate(source.splitlines())
+                    f"# {line}" if lineno in linestomuggle else line for lineno, line in enumerate(source.splitlines(), start=1)
                 ]
                 source = joinlines(muggled)
             return source

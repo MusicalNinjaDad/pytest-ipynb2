@@ -146,10 +146,9 @@ def test_codecells_partial_slice(testnotebook: Notebook):
                 "result = ipytest.exitcode",
             ],
             [
-                "#result = ipytest.exitcode",
+                "# result = ipytest.exitcode",
             ],
             id="ipytest in expression",
-            marks = pytest.mark.xfail(reason="Not Implemented"),
         ),
         pytest.param(
             [
@@ -159,7 +158,6 @@ def test_codecells_partial_slice(testnotebook: Notebook):
                 "# ipytest.autoconfig()",
             ],
             id="ipytest autoconfig",
-            marks = pytest.mark.xfail(reason="Not Implemented"),
         ),
     ],
 )
