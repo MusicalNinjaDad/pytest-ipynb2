@@ -78,7 +78,7 @@ class SourceList(list):
                 linestomuggle = {
                     lineno
                     for lineno, line in enumerate(lines)
-                    if "get_ipython()" in line or line.strip().startswith("ipytest")
+                    if "get_ipython()" in line
                 }
                 muggled = [
                     f"# {line}" if lineno in linestomuggle else line for lineno, line in enumerate(source.splitlines())

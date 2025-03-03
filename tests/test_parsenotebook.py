@@ -115,7 +115,7 @@ def test_codecells_partial_slice(testnotebook: Notebook):
                 "",
                 "x=2",
             ],
-            id="ipytest at start",
+            id="ipytest cellmagic at start",
         ),
         pytest.param(
             [
@@ -130,7 +130,7 @@ def test_codecells_partial_slice(testnotebook: Notebook):
                 "",
                 "x=2",
             ],
-            id="magic call not at start",
+            id="line magic call not at start",
         ),
         pytest.param(
             [
@@ -140,6 +140,26 @@ def test_codecells_partial_slice(testnotebook: Notebook):
                 r"# env = %env",
             ],
             id="magic in expression",
+        ),
+        pytest.param(
+            [
+                "result = ipytest.exitcode",
+            ],
+            [
+                "#result = ipytest.exitcode",
+            ],
+            id="ipytest in expression",
+            marks = pytest.mark.xfail(reason="Not Implemented"),
+        ),
+        pytest.param(
+            [
+                "ipytest.autoconfig()",
+            ],
+            [
+                "# ipytest.autoconfig()",
+            ],
+            id="ipytest autoconfig",
+            marks = pytest.mark.xfail(reason="Not Implemented"),
         ),
     ],
 )
