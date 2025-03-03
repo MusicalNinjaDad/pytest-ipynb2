@@ -55,6 +55,4 @@ For more details see the [docs](https://musicalninjadad.github.io/pytest-ipynb2)
 This is an early version. The following things are still on my to-do list:
 
 - Handling tests grouped into classes [#22](https://github.com/MusicalNinjaDad/pytest-ipynb2/issues/22) (might work - I've not checked yet)
-- Assertion re-writing. Failed tests don't yet give the expected quality of pytest output about the failure [#20](https://github.com/MusicalNinjaDad/pytest-ipynb2/issues/20) (Workaround - re-run the test using ipytest inside the notebook)
 - v1.0.0 will include dedicated commandline options rather than requiring you to specify the plugin [#12](https://github.com/MusicalNinjaDad/pytest-ipynb2/issues/12)
-- This won't play nicely with other magics or direct calls to ipytest functions yet [#23](https://github.com/MusicalNinjaDad/pytest-ipynb2/issues/23)

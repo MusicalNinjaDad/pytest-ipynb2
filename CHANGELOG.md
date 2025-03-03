@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Handle notebooks not in test rootdir [#45][pr-45]
+- Improved handling of lines using ipython magics and calls to ipytest **PR-TBD**
 
 [pr-45]: https://github.com/MusicalNinjaDad/pytest-ipynb2/pull/45
 
