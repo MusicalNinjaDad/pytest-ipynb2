@@ -8,7 +8,6 @@ from typing import TYPE_CHECKING, Protocol, overload
 
 import IPython.core.inputtransformer2
 import nbformat
-from urllib3 import Retry
 
 if TYPE_CHECKING:
     from collections.abc import Generator, Iterator, Sequence
