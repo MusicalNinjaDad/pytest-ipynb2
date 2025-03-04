@@ -193,6 +193,10 @@ class IpynbItemMixin:
         # results in `_bestrelpathcache[node_path]` very early in the test process.
         # If we ever change this provide the full CellPath as reportinfo[0] we would then need to patch
         # `_pytest.nodes.absolutepath` in `CellPath.patch_pytest_pathlib`
+        #
+        # Returning just the notebook path for now because `TerminalReporter._locationline` adds a `<-` section
+        # if `nodeid.split("::")[0] != location[0]`. This sadly means than verbosity<2 tests runs are grouped by
+        # notebook rather than by cell.
         return self.path.notebook, 0, f"{self.path.cell}::{self.name}"
 
 
