@@ -96,7 +96,7 @@ parametrized = pytest.mark.parametrize(
             ExpectedResults(
                 outcomes={"failed": 1},
                 logreport=[("failing.ipynb", "F", 100)],
-                summary=[("FAILED", "failing.ipynb::Cell0::test_fails", None, "assert 1 == 2")],
+                summary=[("FAILED", "failing.ipynb[Cell0]::test_fails", None, "assert 1 == 2")],
                 failures=[
                     FailureDetails(
                         testcase="Cell0::test_fails",
@@ -106,7 +106,7 @@ parametrized = pytest.mark.parametrize(
                             ">       assert x == 2",
                             "E       assert 1 == 2",
                         ],
-                        filename="failing.ipynb::Cell0",
+                        filename="failing.ipynb[Cell0]",
                         exceptiontype=AssertionError,
                         location="5",
                     ),
@@ -133,7 +133,7 @@ parametrized = pytest.mark.parametrize(
             ExpectedResults(
                 outcomes={"passed": 1, "xfailed": 1},
                 logreport=[("marks.ipynb", ".x", 100)],
-                summary=[("XFAIL", "marks.ipynb::Cell0::test_params[fail]", None, "xfailed")],
+                summary=[("XFAIL", "marks.ipynb[Cell0]::test_params[fail]", None, "xfailed")],
             ),
             id="Test with parameters and marks",
         ),
@@ -257,11 +257,11 @@ parametrized = pytest.mark.parametrize(
             ExpectedResults(
                 outcomes={"passed": 2, "failed": 1},
                 logreport=[
-                    ("two_cells.ipynb::Cell0::test_pass", "PASSED", 33),
-                    ("two_cells.ipynb::Cell0::test_fails", "FAILED", 66),
-                    ("two_cells.ipynb::Cell1::test_pass", "PASSED", 100),
+                    ("two_cells.ipynb[Cell0]::test_pass", "PASSED", 33),
+                    ("two_cells.ipynb[Cell0]::test_fails", "FAILED", 66),
+                    ("two_cells.ipynb[Cell1]::test_pass", "PASSED", 100),
                 ],
-                summary=[("FAILED", "two_cells.ipynb::Cell0::test_fails", None, "assert 1 == 2")],
+                summary=[("FAILED", "two_cells.ipynb[Cell0]::test_fails", None, "assert 1 == 2")],
             ),
             id="Verbose two notebooks",
         ),
@@ -313,11 +313,11 @@ parametrized = pytest.mark.parametrize(
             ExpectedResults(
                 outcomes={"passed": 2, "failed": 1},
                 logreport=[
-                    ("notebooks/two_cells.ipynb::Cell0::test_pass", "PASSED", 33),
-                    ("notebooks/two_cells.ipynb::Cell0::test_fails", "FAILED", 66),
-                    ("notebooks/two_cells.ipynb::Cell1::test_pass", "PASSED", 100),
+                    ("notebooks/two_cells.ipynb[Cell0]::test_pass", "PASSED", 33),
+                    ("notebooks/two_cells.ipynb[Cell0]::test_fails", "FAILED", 66),
+                    ("notebooks/two_cells.ipynb[Cell1]::test_pass", "PASSED", 100),
                 ],
-                summary=[("FAILED", "notebooks/two_cells.ipynb::Cell0::test_fails", None, "assert 1 == 2")],
+                summary=[("FAILED", "notebooks/two_cells.ipynb[Cell0]::test_fails", None, "assert 1 == 2")],
             ),
             id="Subdirectory verbose",
         ),
