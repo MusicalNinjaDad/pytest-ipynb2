@@ -51,7 +51,7 @@ class CellPath(Path):
     """Provide handling of Cells specified as file::Celln."""
 
     def __str__(self) -> str:
-        """Wrap path in <> so stdlib stuff notices it's special."""
+        """Wrap path in <> so `inspect.getsource` notices it's special."""
         return f"<{super().__str__()}>"
 
     def __fspath__(self) -> str:
