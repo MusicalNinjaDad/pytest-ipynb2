@@ -224,7 +224,7 @@ parametrized = pytest.mark.parametrize(
                 logreport=[
                     ("globals.ipynb[Cell2]", ".", 50),
                     ("globals.ipynb[Cell4]", "F", 100),
-                    ],
+                ],
             ),
             id="cell execution order",
         ),
