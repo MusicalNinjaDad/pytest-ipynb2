@@ -173,10 +173,12 @@ class CellPath(Path):
 
         # 1. `code.Code.path` calls `absolutepath(self.raw.co_filename)` which is the info primarily used in
         #    `TracebackEntry` and therefore relevant for failure reporting.
-        original_functions[(_pytest._code.code, "absolutepath")] = _pytest._code.code.absolutepath = _absolutepath  # noqa: SLF001
+        original_functions[(_pytest._code.code, "absolutepath")] = _pytest_absolutepath  # noqa: SLF001
+        _pytest._code.code.absolutepath = _absolutepath  # noqa: SLF001
         # 2. `nodes.Item.location` calls `absolutepath()` and then `main._node_location_to_relpath` which caches the
         #    results of the `absolutepath()` call in `_bestrelpathcache[node_path]` very early in the test process.
-        original_functions[(_pytest.nodes, "absolutepath")] = _pytest.nodes.absolutepath = _absolutepath
+        original_functions[(_pytest.nodes, "absolutepath")] = _pytest_absolutepath
+        _pytest.nodes.absolutepath = _absolutepath
 
         return original_functions
 
