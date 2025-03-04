@@ -19,6 +19,7 @@ def test_runnotebook(example_dir: ExampleDir):
     result = example_dir.pytester.runpytest("notebook_2tests.ipynb")
     result.assert_outcomes(passed=3)
 
+
 @pytest.mark.parametrize(
     "example_dir",
     [
@@ -30,5 +31,5 @@ def test_runnotebook(example_dir: ExampleDir):
 )
 def test_cell(example_dir: ExampleDir):
     # Loading in conftest.py is too late to allow for passing Cell-Nodes at commandline(!)
-    result = example_dir.pytester.runpytest("-p","pytest_ipynb2.plugin","notebook_2tests.ipynb::Cell4")
+    result = example_dir.pytester.runpytest("-p", "pytest_ipynb2.plugin", "notebook_2tests.ipynb::Cell4")
     result.assert_outcomes(passed=2)
