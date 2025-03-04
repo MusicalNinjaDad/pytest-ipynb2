@@ -48,7 +48,7 @@ CELL_PREFIX: Final[str] = "Cell"
 
 
 class CellPath(Path):
-    """Provide handling of Cells specified as file::Celln."""
+    """Provide handling of Cells specified as `path/to/file[Celln]`."""
 
     def __str__(self) -> str:
         """Wrap path in <> so `inspect.getsource` notices it's special."""
@@ -95,18 +95,23 @@ class CellPath(Path):
     @staticmethod
     def is_cellpath(path: str) -> bool:
         """Determine whether a str is a valid representation of our pseudo-path."""
-        return path.startswith("<") and path.endswith(">") and path.split("::")[0].endswith(".ipynb")
+        return (
+            path.startswith("<")
+            and path.endswith(">")
+            and path.split(".")[-1].startswith("ipynb")
+            and path.split(f"[{CELL_PREFIX}")[-1].removesuffix("]>").isdigit()
+        )
 
     @staticmethod
     def get_notebookpath(path: str) -> Path:
         """Return the real path of the notebook."""
-        notebookpath = path.removeprefix("<").split("::")[0]
+        notebookpath = path.removeprefix("<").split(f"[{CELL_PREFIX}")[0]
         return Path(notebookpath)
 
     @staticmethod
     def get_cellid(path: str) -> int:
         """Return the Cell id from the pseudo-path."""
-        cellid = path.removesuffix(">").split("::")[1].removeprefix(CELL_PREFIX)
+        cellid = path.split(f"[{CELL_PREFIX}")[-1].removesuffix("]>")
         return int(cellid)
 
     @staticmethod
@@ -203,12 +208,12 @@ class Notebook(pytest.File):
         parsed = _ParsedNotebook(self.path)
         for testcellid in parsed.muggled_testcells.ids():
             name = f"{CELL_PREFIX}{testcellid}"
-            nodeid = f"{self.nodeid}::{name}"
+            nodeid = f"{self.nodeid}[{name}]"
             cell = Cell.from_parent(
                 parent=self,
                 name=name,
                 nodeid=nodeid,
-                path=CellPath(f"{self.path}::{name}"),
+                path=CellPath(f"{self.path}[{name}]"),
             )
             cell.stash[ipynb2_notebook] = parsed
             cell.stash[ipynb2_cellid] = testcellid
