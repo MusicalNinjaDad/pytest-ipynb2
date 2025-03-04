@@ -48,7 +48,7 @@ CELL_PREFIX: Final[str] = "Cell"
 
 
 class CellPath(Path):
-    """Provide handling of Cells specified as `path/to/file[Celln]`."""
+    """Provide handling of Cells specified as `path/to/file::Celln`."""
 
     def __str__(self) -> str:
         """Wrap path in <> so `inspect.getsource` notices it's special."""
@@ -95,23 +95,18 @@ class CellPath(Path):
     @staticmethod
     def is_cellpath(path: str) -> bool:
         """Determine whether a str is a valid representation of our pseudo-path."""
-        return (
-            path.startswith("<")
-            and path.endswith(">")
-            and path.split(".")[-1].startswith("ipynb")
-            and path.split(f"[{CELL_PREFIX}")[-1].removesuffix("]>").isdigit()
-        )
+        return path.startswith("<") and path.endswith(">") and path.split("::")[0].endswith(".ipynb")
 
     @staticmethod
     def get_notebookpath(path: str) -> Path:
         """Return the real path of the notebook."""
-        notebookpath = path.removeprefix("<").split(f"[{CELL_PREFIX}")[0]
+        notebookpath = path.removeprefix("<").split("::")[0]
         return Path(notebookpath)
 
     @staticmethod
     def get_cellid(path: str) -> int:
         """Return the Cell id from the pseudo-path."""
-        cellid = path.split(f"[{CELL_PREFIX}")[-1].removesuffix("]>")
+        cellid = path.removesuffix(">").split("::")[1].removeprefix(CELL_PREFIX)
         return int(cellid)
 
     @staticmethod
@@ -171,15 +166,10 @@ class CellPath(Path):
             return _pytest_absolutepath(path)
             # pytype: enable=attribute-error
 
-        # 1. `code.Code.path` calls `absolutepath(self.raw.co_filename)` which is the info primarily used in
-        #    `TracebackEntry` and therefore relevant for failure reporting.
+        # `code.Code.path` calls `absolutepath(self.raw.co_filename)` which is the info primarily used in
+        # `TracebackEntry` and therefore relevant for failure reporting.
         original_functions[(_pytest._code.code, "absolutepath")] = _pytest_absolutepath  # noqa: SLF001
         _pytest._code.code.absolutepath = _absolutepath  # noqa: SLF001
-        # 2. `nodes.Item.location` calls `absolutepath()` and then `main._node_location_to_relpath` which caches the
-        #    results of the `absolutepath()` call in `_bestrelpathcache[node_path]` very early in the test process.
-        original_functions[(_pytest.nodes, "absolutepath")] = _pytest_absolutepath
-        _pytest.nodes.absolutepath = _absolutepath
-
         return original_functions
 
 
@@ -199,7 +189,11 @@ class IpynbItemMixin:
             ___ reportinfo[2] ___
             ```
         """
-        return self.path, 0, f"{self.path.cell}::{self.name}"
+        # `nodes.Item.location` calls `absolutepath()` and then `main._node_location_to_relpath` which caches the
+        # results in `_bestrelpathcache[node_path]` very early in the test process.
+        # If we ever change this provide the full CellPath as reportinfo[0] we would then need to patch
+        # `_pytest.nodes.absolutepath` in `CellPath.patch_pytest_pathlib`
+        return self.path.notebook, 0, f"{self.path.cell}::{self.name}"
 
 
 class Notebook(pytest.File):
@@ -210,12 +204,12 @@ class Notebook(pytest.File):
         parsed = _ParsedNotebook(self.path)
         for testcellid in parsed.muggled_testcells.ids():
             name = f"{CELL_PREFIX}{testcellid}"
-            nodeid = f"{self.nodeid}[{name}]"
+            nodeid = f"{self.nodeid}::{name}"
             cell = Cell.from_parent(
                 parent=self,
                 name=name,
                 nodeid=nodeid,
-                path=CellPath(f"{self.path}[{name}]"),
+                path=CellPath(f"{self.path}::{name}"),
             )
             cell.stash[ipynb2_notebook] = parsed
             cell.stash[ipynb2_cellid] = testcellid
