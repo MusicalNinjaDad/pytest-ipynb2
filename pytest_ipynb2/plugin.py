@@ -157,7 +157,7 @@ class CellPath(Path):
         # The original function is defined in _pytest.pathlib but
         # both `code` and `nodes` import it as  `from .pathlib import absolutepath`
         # so we need to patch in both these namespaces...
-        original_functions[(_pytest.pathlib, "absolutepath")] = _pytest_absolutepath = _pytest.pathlib.absolutepath
+        _pytest_absolutepath = _pytest.pathlib.absolutepath
 
         def _absolutepath(path: str | os.PathLike[str] | Path) -> Path:
             """Return accurate absolute path for string representations of CellPath."""
@@ -171,9 +171,13 @@ class CellPath(Path):
             return _pytest_absolutepath(path)
             # pytype: enable=attribute-error
 
-        # `code.Code.path` calls `absolutepath(self.raw.co_filename)` which is the info primarily used in
-        # `TracebackEntry` and therefore relevant for failure reporting.
-        _pytest._code.code.absolutepath = _absolutepath  # noqa: SLF001
+        # 1. `code.Code.path` calls `absolutepath(self.raw.co_filename)` which is the info primarily used in
+        #    `TracebackEntry` and therefore relevant for failure reporting.
+        original_functions[(_pytest._code.code, "absolutepath")] = _pytest._code.code.absolutepath = _absolutepath  # noqa: SLF001
+        # 2. `nodes.Item.location` calls `absolutepath()` and then `main._node_location_to_relpath` which caches the
+        #    results of the `absolutepath()` call in `_bestrelpathcache[node_path]` very early in the test process.
+        original_functions[(_pytest.nodes, "absolutepath")] = _pytest.nodes.absolutepath = _absolutepath
+
         return original_functions
 
 
@@ -193,10 +197,6 @@ class IpynbItemMixin:
             ___ reportinfo[2] ___
             ```
         """
-        # `nodes.Item.location` calls `absolutepath()` and then `main._node_location_to_relpath` which caches the
-        # results in `_bestrelpathcache[node_path]` very early in the test process.
-        # If we ever change this provide the full CellPath as reportinfo[0] we would then need to patch
-        # `_pytest.nodes.absolutepath` in `CellPath.patch_pytest_pathlib`
         return self.path, 0, f"{self.path.cell}::{self.name}"
 
 
