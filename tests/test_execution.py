@@ -82,7 +82,7 @@ parametrized = pytest.mark.parametrize(
             ),
             ExpectedResults(
                 outcomes={"passed": 1},
-                logreport=[("passing.ipynb", ".", 100)],
+                logreport=[("passing.ipynb[Cell0]", ".", 100)],
                 summary=None,
                 failures=None,
             ),
@@ -95,7 +95,7 @@ parametrized = pytest.mark.parametrize(
             ),
             ExpectedResults(
                 outcomes={"failed": 1},
-                logreport=[("failing.ipynb", "F", 100)],
+                logreport=[("failing.ipynb[Cell0]", "F", 100)],
                 summary=[("FAILED", "failing.ipynb[Cell0]::test_fails", None, "assert 1 == 2")],
                 failures=[
                     FailureDetails(
@@ -132,7 +132,7 @@ parametrized = pytest.mark.parametrize(
             ),
             ExpectedResults(
                 outcomes={"passed": 1, "xfailed": 1},
-                logreport=[("marks.ipynb", ".x", 100)],
+                logreport=[("marks.ipynb[Cell0]", ".x", 100)],
                 summary=[("XFAIL", "marks.ipynb[Cell0]::test_params[fail]", None, "xfailed")],
             ),
             id="Test with parameters and marks",
@@ -149,7 +149,7 @@ parametrized = pytest.mark.parametrize(
             ),
             ExpectedResults(
                 outcomes={"passed": 1},
-                logreport=[("autoconfig.ipynb", ".", 100)],
+                logreport=[("autoconfig.ipynb[Cell1]", ".", 100)],
             ),
             id="Notebook calls autoconfig",
         ),
@@ -202,7 +202,7 @@ parametrized = pytest.mark.parametrize(
             ),
             ExpectedResults(
                 outcomes={"passed": 4},
-                logreport=[("notebook.ipynb", "..", 50), ("test_module.py", "..", 100)],
+                logreport=[("notebook.ipynb[Cell4]", "..", 50), ("test_module.py", "..", 100)],
             ),
             id="mixed file types",
         ),
@@ -221,7 +221,10 @@ parametrized = pytest.mark.parametrize(
             ),
             ExpectedResults(
                 outcomes={"passed": 1, "failed": 1},
-                logreport=[("globals.ipynb", ".F", 100)],
+                logreport=[
+                    ("globals.ipynb[Cell2]", ".", 50),
+                    ("globals.ipynb[Cell4]", "F", 100),
+                    ],
             ),
             id="cell execution order",
         ),

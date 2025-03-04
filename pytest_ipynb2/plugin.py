@@ -197,7 +197,7 @@ class IpynbItemMixin:
         # results in `_bestrelpathcache[node_path]` very early in the test process.
         # If we ever change this provide the full CellPath as reportinfo[0] we would then need to patch
         # `_pytest.nodes.absolutepath` in `CellPath.patch_pytest_pathlib`
-        return self.path.notebook, 0, f"{self.path.cell}::{self.name}"
+        return self.path, 0, f"{self.path.cell}::{self.name}"
 
 
 class Notebook(pytest.File):
