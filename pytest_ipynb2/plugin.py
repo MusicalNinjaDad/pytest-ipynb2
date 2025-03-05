@@ -176,8 +176,7 @@ class CellPath(Path):
 class IpynbItemMixin:
     """Provides various overrides to handle our pseudo-path."""
 
-    path: Path
-    nodeid: str
+    path: CellPath
     name: str
 
     def reportinfo(self) -> tuple[Path, int, str]:
@@ -198,7 +197,7 @@ class IpynbItemMixin:
         # Returning just the notebook path for now because `TerminalReporter._locationline` adds a `<-` section
         # if `nodeid.split("::")[0] != location[0]`. This sadly means than verbosity<2 tests runs are grouped by
         # notebook rather than by cell.
-        return self.path, 0, f"{'::'.join(self.nodeid.split('::')[1:])}"
+        return self.path.notebook, 0, f"{self.path.cell}::{self.name}"
 
 
 class Notebook(pytest.File):
@@ -214,7 +213,7 @@ class Notebook(pytest.File):
                 parent=self,
                 name=name,
                 nodeid=nodeid,
-                path=self.path,
+                path=CellPath(f"{self.path}::{name}"),
             )
             cell.stash[ipynb2_notebook] = parsed
             cell.stash[ipynb2_cellid] = testcellid
@@ -249,7 +248,7 @@ class Cell(IpynbItemMixin, pytest.Module):
         cellsabove = [str(cellsource) for cellsource in notebook.muggled_codecells[:cellid]]
         testcell_source = str(notebook.muggled_testcells[cellid])
 
-        cell_filename = f"{self.path}::{CELL_PREFIX}{cellid}"
+        cell_filename = str(self.path)
 
         testcell_ast = ast.parse(testcell_source, filename=cell_filename)
         _pytest.assertion.rewrite.rewrite_asserts(
