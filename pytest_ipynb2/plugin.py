@@ -117,7 +117,9 @@ class CellPath(Path):
     @classmethod
     def to_nodeid(cls, path: str) -> str:
         """Convert a pseudo-path to an equivalent nodeid."""
-        return f"{cls.get_notebookpath(path)}::{CELL_PREFIX}{cls.get_cellid(path)}"
+        nodeparts = path.split("::")
+        cellpath = nodeparts.pop(0)
+        return "::".join((str(cls.get_notebookpath(cellpath)),f"{CELL_PREFIX}{cls.get_cellid(cellpath)}", *nodeparts))
 
     @staticmethod
     def patch_linecache() -> dict[tuple[ModuleType, str], FunctionType]:
@@ -315,6 +317,6 @@ def pytest_collect_file(file_path: Path, parent: pytest.Collector) -> Notebook |
 def pytest_load_initial_conftests(early_config, parser, args: list[str]) -> Generator[None, None, None]:  # noqa: ANN001, ARG001
     """Convert any CellPaths passed as commandline args to nodeids."""
     for idx, arg in enumerate(args):
-        if CellPath.is_cellpath(arg):
+        if CellPath.is_cellpath(arg.split("::")[0]):
             args[idx] = CellPath.to_nodeid(arg)
     yield
