@@ -179,7 +179,6 @@ class IpynbItemMixin:
     path: Path
     nodeid: str
     name: str
-    stash: pytest.Stash
 
     def reportinfo(self) -> tuple[Path, int, str]:
         """
@@ -200,14 +199,6 @@ class IpynbItemMixin:
         # if `nodeid.split("::")[0] != location[0]`. This sadly means than verbosity<2 tests runs are grouped by
         # notebook rather than by cell.
         return self.path, 0, f"{'::'.join(self.nodeid.split('::')[1:])}"
-    
-    def _traceback_filter(self, excinfo: pytest.ExceptionInfo[BaseException]) -> _pytest._code.Traceback:
-        _path = self.path
-        if cellid := self.stash.get(ipynb2_cellid, None):
-            self.path = f"{_path}::{CELL_PREFIX}{cellid}"
-        tb = super()._traceback_filter(excinfo)
-        self.path = _path
-        return tb
 
 
 class Notebook(pytest.File):
