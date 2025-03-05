@@ -30,6 +30,6 @@ def test_runnotebook(example_dir: ExampleDir):
     indirect=True,
 )
 def test_cell(example_dir: ExampleDir):
-    # Loading in conftest.py is too late to allow for passing Cell-Nodes at commandline(!)
+    # TODO: #49 (can't rerun runpytest)
     result = example_dir.pytester.runpytest("-p", "pytest_ipynb2.plugin", "notebook_2tests.ipynb::Cell4")
     result.assert_outcomes(passed=2)
