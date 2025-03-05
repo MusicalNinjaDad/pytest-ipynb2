@@ -310,6 +310,10 @@ def pytest_collect_file(file_path: Path, parent: pytest.Collector) -> Notebook |
         return Notebook.from_parent(parent=parent, path=file_path, nodeid=nodeid)
     return None
 
-def pytest_load_initial_conftests(early_config, parser, args):
-    for arg in args:
-        warn(arg)
+@pytest.hookimpl(tryfirst=True)
+def pytest_load_initial_conftests(early_config: pytest.Config, parser, args: list[str]):
+    newargs = [CellPath.to_nodeid(arg) if CellPath.is_cellpath(arg) else arg for arg in args]
+    if newargs != args:
+        warn(f"Modified args from {args} to {newargs}", stacklevel=1)
+    early_config.args = newargs
+    
