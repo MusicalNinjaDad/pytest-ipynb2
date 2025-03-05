@@ -116,10 +116,17 @@ class CellPath(Path):
 
     @classmethod
     def to_nodeid(cls, path: str) -> str:
-        """Convert a pseudo-path to an equivalent nodeid."""
-        nodeparts = path.split("::")
-        cellpath = nodeparts.pop(0)
-        return "::".join((str(cls.get_notebookpath(cellpath)),f"{CELL_PREFIX}{cls.get_cellid(cellpath)}", *nodeparts))
+        """
+        Convert a pseudo-path to an equivalent nodeid.
+
+        Examples:
+            'notebook.ipynb[Cell0]::test_func' -> 'notebook.ipynb::Cell0::test_func'
+            'notebook.ipynb[Cell1]' -> 'notebook.ipynb::Cell1'
+        """
+        cellpath, *nodepath = path.split("::")
+        notebookpath = f"{cls.get_notebookpath(cellpath)}"
+        cell = f"{CELL_PREFIX}{cls.get_cellid(cellpath)}"
+        return "::".join((notebookpath, cell, *nodepath))
 
     @staticmethod
     def patch_linecache() -> dict[tuple[ModuleType, str], FunctionType]:
