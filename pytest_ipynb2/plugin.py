@@ -105,7 +105,7 @@ class CellPath(Path):
 
     @classmethod
     def get_notebookpath(cls, path: str) -> Path:
-        """Return the real path of the notebook."""
+        """Return the real path of the notebook based on a pseudo-path."""
         notebookpath = path.removeprefix("<").split(f"[{CELL_PREFIX}")[0]
         return Path(notebookpath)
 
@@ -117,6 +117,7 @@ class CellPath(Path):
     
     @classmethod
     def to_nodeid(cls, path: str) -> int:
+        """Convert a pseudo-path to an equivalent nodeid."""
         return f"{cls.get_notebookpath(path)}::{CELL_PREFIX}{cls.get_cellid(path)}"
 
     @staticmethod
