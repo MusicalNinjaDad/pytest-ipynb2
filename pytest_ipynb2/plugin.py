@@ -103,17 +103,21 @@ class CellPath(Path):
             and path.split(f"[{CELL_PREFIX}")[-1].removesuffix("]>").isdigit()
         )
 
-    @staticmethod
-    def get_notebookpath(path: str) -> Path:
+    @classmethod
+    def get_notebookpath(cls, path: str) -> Path:
         """Return the real path of the notebook."""
         notebookpath = path.removeprefix("<").split(f"[{CELL_PREFIX}")[0]
         return Path(notebookpath)
 
-    @staticmethod
-    def get_cellid(path: str) -> int:
+    @classmethod
+    def get_cellid(cls, path: str) -> int:
         """Return the Cell id from the pseudo-path."""
         cellid = path.split(f"[{CELL_PREFIX}")[-1].removesuffix("]>")
         return int(cellid)
+    
+    @classmethod
+    def to_nodeid(cls, path: str) -> int:
+        return f"{cls.get_notebookpath(path)}::{CELL_PREFIX}{cls.get_cellid(path)}"
 
     @staticmethod
     def patch_linecache() -> dict[tuple[ModuleType, str], FunctionType]:
