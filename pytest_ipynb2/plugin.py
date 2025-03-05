@@ -310,10 +310,13 @@ def pytest_collect_file(file_path: Path, parent: pytest.Collector) -> Notebook |
         return Notebook.from_parent(parent=parent, path=file_path, nodeid=nodeid)
     return None
 
-@pytest.hookimpl(tryfirst=True)
-def pytest_load_initial_conftests(early_config: pytest.Config, parser, args: list[str]):
-    newargs = [CellPath.to_nodeid(arg) if CellPath.is_cellpath(arg) else arg for arg in args]
-    if newargs != args:
-        warn(f"Modified args from {args} to {newargs}", stacklevel=1)
-    early_config.args = newargs
+@pytest.hookimpl(tryfirst=True, hookwrapper=True)
+def pytest_load_initial_conftests(early_config, parser, args: list[str]) -> Generator[None, None, None]: # noqa: ANN001, ARG001
+    """Convert any CellPaths passed as commandline args to nodeids."""
+    warn(f"args were {args}", stacklevel=1)
+    for idx, arg in enumerate(args):
+        if CellPath.is_cellpath(arg):
+            args[idx] = CellPath.to_nodeid(arg)
+    warn(f"args are now {args}", stacklevel=1)
+    yield
     
