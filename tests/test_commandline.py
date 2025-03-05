@@ -10,7 +10,6 @@ from pytest_ipynb2._pytester_helpers import ExampleDir, ExampleDirSpec
     [
         ExampleDirSpec(
             files=[Path("tests/assets/notebook_2tests.ipynb").absolute()],
-            conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
         ),
     ],
     indirect=True,

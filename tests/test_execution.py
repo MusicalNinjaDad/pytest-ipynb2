@@ -45,7 +45,6 @@ parametrized = pytest.mark.parametrize(
         pytest.param(
             ExampleDirSpec(
                 files=[Path("tests/assets/notebook.ipynb").absolute()],
-                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
             ),
             ExpectedResults(
                 outcomes={"passed": 2},
@@ -55,7 +54,6 @@ parametrized = pytest.mark.parametrize(
         pytest.param(
             ExampleDirSpec(
                 files=[Path("tests/assets/notebook_2tests.ipynb").absolute()],
-                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
             ),
             ExpectedResults(
                 outcomes={"passed": 3},
@@ -68,7 +66,6 @@ parametrized = pytest.mark.parametrize(
                     Path("tests/assets/notebook_2tests.ipynb").absolute(),
                     Path("tests/assets/notebook.ipynb").absolute(),
                 ],
-                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
             ),
             ExpectedResults(
                 outcomes={"passed": 5},
@@ -77,7 +74,6 @@ parametrized = pytest.mark.parametrize(
         ),
         pytest.param(
             ExampleDirSpec(
-                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
                 notebooks={"passing": [add_ipytest_magic(Path("tests/assets/test_passing.py").read_text())]},
             ),
             ExpectedResults(
@@ -90,7 +86,6 @@ parametrized = pytest.mark.parametrize(
         ),
         pytest.param(
             ExampleDirSpec(
-                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
                 notebooks={"failing": [add_ipytest_magic(Path("tests/assets/test_failing.py").read_text())]},
             ),
             ExpectedResults(
@@ -116,7 +111,6 @@ parametrized = pytest.mark.parametrize(
         ),
         pytest.param(
             ExampleDirSpec(
-                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
                 notebooks={"fixture": [add_ipytest_magic(Path("tests/assets/test_fixture.py").read_text())]},
             ),
             ExpectedResults(
@@ -126,7 +120,6 @@ parametrized = pytest.mark.parametrize(
         ),
         pytest.param(
             ExampleDirSpec(
-                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
                 notebooks={"marks": [add_ipytest_magic(Path("tests/assets/test_param.py").read_text())]},
                 ini="addopts = -rx",
             ),
@@ -139,7 +132,6 @@ parametrized = pytest.mark.parametrize(
         ),
         pytest.param(
             ExampleDirSpec(
-                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
                 notebooks={
                     "autoconfig": [
                         add_ipytest_magic(Path("tests/assets/import_ipytest.py").read_text()),
@@ -155,7 +147,6 @@ parametrized = pytest.mark.parametrize(
         ),
         pytest.param(
             ExampleDirSpec(
-                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
                 notebooks={
                     "notests": [Path("tests/assets/test_module.py").read_text()],
                 },
@@ -167,7 +158,6 @@ parametrized = pytest.mark.parametrize(
         ),
         pytest.param(
             ExampleDirSpec(
-                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
                 notebooks={
                     "nocells": [],
                 },
@@ -179,7 +169,6 @@ parametrized = pytest.mark.parametrize(
         ),
         pytest.param(
             ExampleDirSpec(
-                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
                 notebooks={
                     "comments": [
                         f"# A test cell\n{add_ipytest_magic(Path('tests/assets/test_passing.py').read_text())}",
@@ -194,7 +183,6 @@ parametrized = pytest.mark.parametrize(
         ),
         pytest.param(
             ExampleDirSpec(
-                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
                 files=[
                     Path("tests/assets/test_module.py"),
                     Path("tests/assets/notebook.ipynb"),
@@ -208,7 +196,6 @@ parametrized = pytest.mark.parametrize(
         ),
         pytest.param(
             ExampleDirSpec(
-                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
                 notebooks={
                     "globals": [
                         "x = 2",
@@ -230,7 +217,6 @@ parametrized = pytest.mark.parametrize(
         ),
         pytest.param(
             ExampleDirSpec(
-                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
                 files=[Path("tests/assets/test_module.py")],
             ),
             ExpectedResults(
@@ -241,7 +227,6 @@ parametrized = pytest.mark.parametrize(
         ),
         pytest.param(
             ExampleDirSpec(
-                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
                 ini="addopts = -vv",
                 notebooks={
                     "two_cells": [
@@ -270,7 +255,6 @@ parametrized = pytest.mark.parametrize(
         ),
         pytest.param(
             ExampleDirSpec(
-                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
                 files=[Path("tests/assets/test_failing.py")],
             ),
             ExpectedResults(
@@ -297,7 +281,6 @@ parametrized = pytest.mark.parametrize(
         pytest.param(
             ExampleDirSpec(
                 path=Path("notebooks"),
-                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
                 ini="addopts = -vv",
                 notebooks={
                     "two_cells": [
