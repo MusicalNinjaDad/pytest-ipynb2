@@ -19,6 +19,7 @@ from functools import cached_property
 from pathlib import Path
 from types import FunctionType, ModuleType
 from typing import TYPE_CHECKING, Any, Final
+from warnings import warn
 
 import _pytest._code
 import _pytest.assertion
@@ -304,3 +305,7 @@ def pytest_collect_file(file_path: Path, parent: pytest.Collector) -> Notebook |
         nodeid = os.fspath(file_path.relative_to(parent.config.rootpath))
         return Notebook.from_parent(parent=parent, path=file_path, nodeid=nodeid)
     return None
+
+def pytest_load_initial_conftests(early_config, parser, args):
+    for arg in args:
+        warn(arg)

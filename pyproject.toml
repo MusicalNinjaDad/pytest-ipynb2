@@ -32,6 +32,9 @@
 [tool.setuptools.dynamic]
     version = { file = "__pyversion__" }
 
+[project.entry-points.pytest11]
+    pytest-ipynb2 = "pytest_ipynb2.plugin"
+
 # ===========================
 #       Build, package
 # ===========================
