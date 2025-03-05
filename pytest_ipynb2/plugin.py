@@ -19,7 +19,6 @@ from functools import cached_property
 from pathlib import Path
 from types import FunctionType, ModuleType
 from typing import TYPE_CHECKING, Any, Final
-from warnings import warn
 
 import _pytest._code
 import _pytest.assertion
@@ -114,9 +113,9 @@ class CellPath(Path):
         """Return the Cell id from the pseudo-path."""
         cellid = path.split(f"[{CELL_PREFIX}")[-1].removesuffix("]>")
         return int(cellid)
-    
+
     @classmethod
-    def to_nodeid(cls, path: str) -> int:
+    def to_nodeid(cls, path: str) -> str:
         """Convert a pseudo-path to an equivalent nodeid."""
         return f"{cls.get_notebookpath(path)}::{CELL_PREFIX}{cls.get_cellid(path)}"
 
@@ -311,13 +310,11 @@ def pytest_collect_file(file_path: Path, parent: pytest.Collector) -> Notebook |
         return Notebook.from_parent(parent=parent, path=file_path, nodeid=nodeid)
     return None
 
+
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
-def pytest_load_initial_conftests(early_config, parser, args: list[str]) -> Generator[None, None, None]: # noqa: ANN001, ARG001
+def pytest_load_initial_conftests(early_config, parser, args: list[str]) -> Generator[None, None, None]:  # noqa: ANN001, ARG001
     """Convert any CellPaths passed as commandline args to nodeids."""
-    warn(f"args were {args}", stacklevel=1)
     for idx, arg in enumerate(args):
         if CellPath.is_cellpath(arg):
             args[idx] = CellPath.to_nodeid(arg)
-    warn(f"args are now {args}", stacklevel=1)
     yield
-    
