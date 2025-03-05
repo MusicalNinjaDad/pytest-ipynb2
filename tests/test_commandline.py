@@ -34,6 +34,7 @@ def test_cell(example_dir: ExampleDir):
     result = example_dir.runresult
     result.assert_outcomes(passed=2)
 
+
 @pytest.mark.parametrize(
     "example_dir",
     [
