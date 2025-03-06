@@ -1,9 +1,11 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
+import logging
 import os
 import pathlib
 import sys
 import sysconfig
+from pathlib import Path
 
 import pytest
 
@@ -17,9 +19,28 @@ script_dir = pathlib.Path(__file__).parent.parent
 sys.path.append(os.fspath(script_dir))
 sys.path.append(os.fspath(script_dir / "lib" / "python"))
 
+# Setup logging at module level
+WORKSPACE_DIR = Path(os.getenv("WORKSPACE_DIR", Path.home()))
+log_dir = WORKSPACE_DIR / ".logs"
+log_dir.mkdir(parents=True, exist_ok=True)
+log = logging.getLogger("vscode_pytest")
+
+handler_file = logging.FileHandler(log_dir / "vscode_pytest_adapter.log")
+handler_stream = logging.StreamHandler()
+
+formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+handler_file.setFormatter(formatter)
+handler_stream.setFormatter(formatter)
+
+log.addHandler(handler_file)
+log.addHandler(handler_stream)
+log.setLevel(logging.DEBUG)
+
 
 def run_pytest(args):
+    log.debug("==run_pytest called with args: %s==", str(args))
     arg_array = ["-p", "vscode_pytest", *args]
+    log.debug("Running pytest.main with args: %s", str(arg_array))
     pytest.main(arg_array)
 
 
@@ -29,6 +50,7 @@ def run_pytest(args):
 
 if __name__ == "__main__":
     # Add the root directory to the path so that we can import the plugin.
+    log.debug("==%s called with args: %s==", __file__, str(sys.argv))
     directory_path = pathlib.Path(__file__).parent.parent
     sys.path.append(os.fspath(directory_path))
     sys.path.insert(0, os.getcwd())  # noqa: PTH109
@@ -50,16 +72,19 @@ if __name__ == "__main__":
             args = [*args, "--cov=."]
 
     run_test_ids_pipe = os.environ.get("RUN_TEST_IDS_PIPE")
+    log.debug("RUN_TEST_IDS_PIPE: %s", run_test_ids_pipe)
     if run_test_ids_pipe:
         try:
             # Read the test ids from the file, delete file, and run pytest.
             ids_path = pathlib.Path(run_test_ids_pipe)
             ids = ids_path.read_text(encoding="utf-8").splitlines()
+            log.debug("Test ids: %s", str(ids))
             try:
                 ids_path.unlink()
             except Exception as e:
                 print("Error[vscode-pytest]: unable to delete temp file" + str(e))
             arg_array = ["-p", "vscode_pytest", *args, *ids]
+            log.debug("Running pytest.main with args: %s", str(arg_array))
             print("Running pytest with args: " + str(arg_array))
             pytest.main(arg_array)
         except Exception as e:
@@ -67,4 +92,5 @@ if __name__ == "__main__":
             run_pytest(args)
     else:
         print("Error[vscode-pytest]: RUN_TEST_IDS_PIPE env var is not set.")
+        log.debug("RUN_TEST_IDS_PIPE env var is not set.")
         run_pytest(args)
