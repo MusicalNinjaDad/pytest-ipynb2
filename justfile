@@ -78,3 +78,9 @@ show-cov:
 # serve python docs on localhost:3000
 docs:
   uv run mkdocs serve
+
+# use our versions of vscode extensions 
+symlink-vscode:
+  rm -rf ~/.vscode-server/extensions/ms-python.python-2025.2.0-linux-x64
+  ln -s /workspaces/pytest-ipynb2/.vscode-server/extensions/ms-python.python-2025.2.0-linux-x64 \
+      ~/.vscode-server/extensions/ms-python.python-2025.2.0-linux-x64
