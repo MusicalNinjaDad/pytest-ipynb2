@@ -1,0 +1,166 @@
+vscode run all tests on python 3.13
+
+Running pytest with args: ['-p', 'vscode_pytest', '-vv', '--rootdir=/workspaces/pytest-ipynb2', '</workspaces/pytest-ipynb2/tests/notebook_2tests.ipynb[Cell4]>::test_adder', '</workspaces/pytest-ipynb2/tests/notebook_2tests.ipynb[Cell4]>::test_globals', '</workspaces/pytest-ipynb2/tests/notebook_2tests.ipynb[Cell6]>::test_another_function', '</workspaces/pytest-ipynb2/tests/notebook_2tests.ipynb[Cell6]>::test_failure', '/workspaces/pytest-ipynb2/tests/test_collection.py::test_cell_collected[Simple Notebook]', '/workspaces/pytest-ipynb2/tests/test_collection.py::test_cell_collected[Notebook 2 tests]', '/workspaces/pytest-ipynb2/tests/test_collection.py::test_cell_collected[Both notebooks - unsorted]', '/workspaces/pytest-ipynb2/tests/test_collection.py::test_notebook_collection[Simple Notebook]', '/workspaces/pytest-ipynb2/tests/test_collection.py::test_cell_collection[Simple Notebook]', '/workspaces/pytest-ipynb2/tests/test_collection.py::test_functions[Simple Notebook]', '/workspaces/pytest-ipynb2/tests/test_collection.py::test_cellmodule_contents[Simple Notebook]', '/workspaces/pytest-ipynb2/tests/test_collectiontree.py::test_repr', '/workspaces/pytest-ipynb2/tests/test_collectiontree.py::test_eq', '/workspaces/pytest-ipynb2/tests/test_collectiontree.py::test_from_dict_single_root', '/workspaces/pytest-ipynb2/tests/test_collectiontree.py::test_from_items[One module]', '/workspaces/pytest-ipynb2/tests/test_collectiontree.py::test_from_items[Two modules]', '/workspaces/pytest-ipynb2/tests/test_collectiontree.py::test_no_items', '/workspaces/pytest-ipynb2/tests/test_commandline.py::test_runnotebook[example_dir0]', '/workspaces/pytest-ipynb2/tests/test_commandline.py::test_cell[example_dir0]', '/workspaces/pytest-ipynb2/tests/test_commandline.py::test_func[example_dir0]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_outcomes[Copied notebook]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_outcomes[Copied notebook with 2 test cells]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_outcomes[Two copied notebooks - unsorted]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_outcomes[Single Cell]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_outcomes[Failing Test]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_outcomes[Test with fixture]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_outcomes[Test with parameters and marks]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_outcomes[Notebook calls autoconfig]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_outcomes[No ipytest cells]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_outcomes[Empty notebook]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_outcomes[ipytest not first line]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_outcomes[mixed file types]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_outcomes[cell execution order]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_outcomes[output python module]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_outcomes[Verbose two notebooks]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_outcomes[failing python module]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_outcomes[Subdirectory verbose]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_logreport[Copied notebook]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_logreport[Copied notebook with 2 test cells]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_logreport[Two copied notebooks - unsorted]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_logreport[Single Cell]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_logreport[Failing Test]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_logreport[Test with fixture]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_logreport[Test with parameters and marks]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_logreport[Notebook calls autoconfig]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_logreport[No ipytest cells]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_logreport[Empty notebook]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_logreport[ipytest not first line]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_logreport[mixed file types]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_logreport[cell execution order]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_logreport[output python module]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_logreport[Verbose two notebooks]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_logreport[failing python module]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_logreport[Subdirectory verbose]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_summary[Copied notebook]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_summary[Copied notebook with 2 test cells]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_summary[Two copied notebooks - unsorted]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_summary[Single Cell]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_summary[Failing Test]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_summary[Test with fixture]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_summary[Test with parameters and marks]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_summary[Notebook calls autoconfig]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_summary[No ipytest cells]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_summary[Empty notebook]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_summary[ipytest not first line]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_summary[mixed file types]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_summary[cell execution order]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_summary[output python module]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_summary[Verbose two notebooks]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_summary[failing python module]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_summary[Subdirectory verbose]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_failures[Copied notebook]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_failures[Copied notebook with 2 test cells]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_failures[Two copied notebooks - unsorted]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_failures[Single Cell]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_failures[Failing Test]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_failures[Test with fixture]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_failures[Test with parameters and marks]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_failures[Notebook calls autoconfig]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_failures[No ipytest cells]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_failures[Empty notebook]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_failures[ipytest not first line]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_failures[mixed file types]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_failures[cell execution order]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_failures[output python module]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_failures[Verbose two notebooks]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_failures[failing python module]', '/workspaces/pytest-ipynb2/tests/test_execution.py::test_failures[Subdirectory verbose]', '/workspaces/pytest-ipynb2/tests/test_fixtures.py::test_path[One File]', '/workspaces/pytest-ipynb2/tests/test_fixtures.py::test_path[Two files]', '/workspaces/pytest-ipynb2/tests/test_fixtures.py::test_path[Copied Notebook]', '/workspaces/pytest-ipynb2/tests/test_fixtures.py::test_path[Generated Notebook]', '/workspaces/pytest-ipynb2/tests/test_fixtures.py::test_path[Generated Notebook 2 cells]', '/workspaces/pytest-ipynb2/tests/test_fixtures.py::test_filesexist[One File]', '/workspaces/pytest-ipynb2/tests/test_fixtures.py::test_filesexist[Two files]', '/workspaces/pytest-ipynb2/tests/test_fixtures.py::test_filesexist[Copied Notebook]', '/workspaces/pytest-ipynb2/tests/test_fixtures.py::test_filesexist[Generated Notebook]', '/workspaces/pytest-ipynb2/tests/test_fixtures.py::test_filesexist[Generated Notebook 2 cells]', '/workspaces/pytest-ipynb2/tests/test_fixtures.py::test_filecontents[One File]', '/workspaces/pytest-ipynb2/tests/test_fixtures.py::test_filecontents[Two files]', '/workspaces/pytest-ipynb2/tests/test_fixtures.py::test_filecontents[Copied Notebook]', '/workspaces/pytest-ipynb2/tests/test_fixtures.py::test_filecontents[Generated Notebook]', '/workspaces/pytest-ipynb2/tests/test_fixtures.py::test_filecontents[Generated Notebook 2 cells]', '/workspaces/pytest-ipynb2/tests/test_fixtures.py::test_hashable_spec', '/workspaces/pytest-ipynb2/tests/test_parsenotebook.py::test_codecells_indexes', '/workspaces/pytest-ipynb2/tests/test_parsenotebook.py::test_testcells_indexes', '/workspaces/pytest-ipynb2/tests/test_parsenotebook.py::test_testcell_contents', '/workspaces/pytest-ipynb2/tests/test_parsenotebook.py::test_codecells_index_a_testcell', '/workspaces/pytest-ipynb2/tests/test_parsenotebook.py::test_sources_testcells', '/workspaces/pytest-ipynb2/tests/test_parsenotebook.py::test_testcell_fullslice', '/workspaces/pytest-ipynb2/tests/test_parsenotebook.py::test_codecells_partial_slice', '/workspaces/pytest-ipynb2/tests/test_parsenotebook.py::test_muggle[ipytest cellmagic at start]', '/workspaces/pytest-ipynb2/tests/test_parsenotebook.py::test_muggle[line magic call not at start]', '/workspaces/pytest-ipynb2/tests/test_parsenotebook.py::test_muggle[magic in expression]', '/workspaces/pytest-ipynb2/tests/test_parsenotebook.py::test_muggle[ipytest in expression]', '/workspaces/pytest-ipynb2/tests/test_parsenotebook.py::test_muggle[ipytest autoconfig]', '/workspaces/pytest-ipynb2/tests/test_parsenotebook.py::test_muggle[import ipytest]', '/workspaces/pytest-ipynb2/tests/test_parsenotebook.py::test_muggle[import ipytest as ipt]', '/workspaces/pytest-ipynb2/tests/test_parsenotebook.py::test_muggle[from ipytest import]', '/workspaces/pytest-ipynb2/tests/test_parsenotebook.py::test_muggle[from ipytest import as]', '/workspaces/pytest-ipynb2/tests/test_parsenotebook.py::test_muggle[import from non-magic module]']
+============================= test session starts ==============================
+platform linux -- Python 3.13.1, pytest-8.3.4, pluggy-1.5.0 -- /workspaces/pytest-ipynb2/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /workspaces/pytest-ipynb2
+configfile: pyproject.toml
+plugins: ipynb2-0.5.0, doctest-mkdocstrings-0.1.1, anyio-4.8.0, cov-6.0.0
+collecting ... collected 121 items
+
+tests/notebook_2tests.ipynb[Cell4]::test_adder PASSED                    [  0%]
+tests/notebook_2tests.ipynb[Cell4]::test_globals PASSED                  [  1%]
+tests/notebook_2tests.ipynb[Cell6]::test_another_function PASSED         [  2%]
+tests/notebook_2tests.ipynb[Cell6]::test_failure FAILED                  [  3%]
+tests/test_collection.py::test_cell_collected[Simple Notebook] PASSED    [  4%]
+tests/test_collection.py::test_cell_collected[Notebook 2 tests] PASSED   [  4%]
+tests/test_collection.py::test_cell_collected[Both notebooks - unsorted] PASSED [  5%]
+tests/test_collection.py::test_notebook_collection[Simple Notebook] PASSED [  6%]
+tests/test_collection.py::test_cell_collection[Simple Notebook] PASSED   [  7%]
+tests/test_collection.py::test_functions[Simple Notebook] PASSED         [  8%]
+tests/test_collection.py::test_cellmodule_contents[Simple Notebook] PASSED [  9%]
+tests/test_collectiontree.py::test_repr PASSED                           [  9%]
+tests/test_collectiontree.py::test_eq PASSED                             [ 10%]
+tests/test_collectiontree.py::test_from_dict_single_root PASSED          [ 11%]
+tests/test_collectiontree.py::test_from_items[One module] PASSED         [ 12%]
+tests/test_collectiontree.py::test_from_items[Two modules] PASSED        [ 13%]
+tests/test_collectiontree.py::test_no_items PASSED                       [ 14%]
+tests/test_commandline.py::test_runnotebook[example_dir0] PASSED         [ 14%]
+tests/test_commandline.py::test_cell[example_dir0] PASSED                [ 15%]
+tests/test_commandline.py::test_func[example_dir0] PASSED                [ 16%]
+tests/test_execution.py::test_outcomes[Copied notebook] PASSED           [ 17%]
+tests/test_execution.py::test_outcomes[Copied notebook with 2 test cells] PASSED [ 18%]
+tests/test_execution.py::test_outcomes[Two copied notebooks - unsorted] PASSED [ 19%]
+tests/test_execution.py::test_outcomes[Single Cell] PASSED               [ 19%]
+tests/test_execution.py::test_outcomes[Failing Test] PASSED              [ 20%]
+tests/test_execution.py::test_outcomes[Test with fixture] PASSED         [ 21%]
+tests/test_execution.py::test_outcomes[Test with parameters and marks] PASSED [ 22%]
+tests/test_execution.py::test_outcomes[Notebook calls autoconfig] PASSED [ 23%]
+tests/test_execution.py::test_outcomes[No ipytest cells] SKIPPED (No
+expected results)                                                        [ 23%]
+tests/test_execution.py::test_outcomes[Empty notebook] SKIPPED (No
+expected results)                                                        [ 24%]
+tests/test_execution.py::test_outcomes[ipytest not first line] PASSED    [ 25%]
+tests/test_execution.py::test_outcomes[mixed file types] PASSED          [ 26%]
+tests/test_execution.py::test_outcomes[cell execution order] PASSED      [ 27%]
+tests/test_execution.py::test_outcomes[output python module] PASSED      [ 28%]
+tests/test_execution.py::test_outcomes[Verbose two notebooks] PASSED     [ 28%]
+tests/test_execution.py::test_outcomes[failing python module] PASSED     [ 29%]
+tests/test_execution.py::test_outcomes[Subdirectory verbose] PASSED      [ 30%]
+tests/test_execution.py::test_logreport[Copied notebook] SKIPPED (No
+expected results)                                                        [ 31%]
+tests/test_execution.py::test_logreport[Copied notebook with 2 test cells] SKIPPED [ 32%]
+tests/test_execution.py::test_logreport[Two copied notebooks - unsorted] SKIPPED [ 33%]
+tests/test_execution.py::test_logreport[Single Cell] PASSED              [ 33%]
+tests/test_execution.py::test_logreport[Failing Test] PASSED             [ 34%]
+tests/test_execution.py::test_logreport[Test with fixture] SKIPPED (No
+expected results)                                                        [ 35%]
+tests/test_execution.py::test_logreport[Test with parameters and marks] PASSED [ 36%]
+tests/test_execution.py::test_logreport[Notebook calls autoconfig] PASSED [ 37%]
+tests/test_execution.py::test_logreport[No ipytest cells] SKIPPED (No
+expected results)                                                        [ 38%]
+tests/test_execution.py::test_logreport[Empty notebook] SKIPPED (No
+expected results)                                                        [ 38%]
+tests/test_execution.py::test_logreport[ipytest not first line] SKIPPED  [ 39%]
+tests/test_execution.py::test_logreport[mixed file types] PASSED         [ 40%]
+tests/test_execution.py::test_logreport[cell execution order] PASSED     [ 41%]
+tests/test_execution.py::test_logreport[output python module] PASSED     [ 42%]
+tests/test_execution.py::test_logreport[Verbose two notebooks] PASSED    [ 42%]
+tests/test_execution.py::test_logreport[failing python module] PASSED    [ 43%]
+tests/test_execution.py::test_logreport[Subdirectory verbose] PASSED     [ 44%]
+tests/test_execution.py::test_summary[Copied notebook] SKIPPED (No
+expected results)                                                        [ 45%]
+tests/test_execution.py::test_summary[Copied notebook with 2 test cells] SKIPPED [ 46%]
+tests/test_execution.py::test_summary[Two copied notebooks - unsorted] SKIPPED [ 47%]
+tests/test_execution.py::test_summary[Single Cell] PASSED                [ 47%]
+tests/test_execution.py::test_summary[Failing Test] PASSED               [ 48%]
+tests/test_execution.py::test_summary[Test with fixture] SKIPPED (No
+expected results)                                                        [ 49%]
+tests/test_execution.py::test_summary[Test with parameters and marks] PASSED [ 50%]
+tests/test_execution.py::test_summary[Notebook calls autoconfig] SKIPPED [ 51%]
+tests/test_execution.py::test_summary[No ipytest cells] SKIPPED (No
+expected results)                                                        [ 52%]
+tests/test_execution.py::test_summary[Empty notebook] SKIPPED (No
+expected results)                                                        [ 52%]
+tests/test_execution.py::test_summary[ipytest not first line] SKIPPED    [ 53%]
+tests/test_execution.py::test_summary[mixed file types] SKIPPED (No
+expected results)                                                        [ 54%]
+tests/test_execution.py::test_summary[cell execution order] SKIPPED (No
+expected results)                                                        [ 55%]
+tests/test_execution.py::test_summary[output python module] SKIPPED (No
+expected results)                                                        [ 56%]
+tests/test_execution.py::test_summary[Verbose two notebooks] PASSED      [ 57%]
+tests/test_execution.py::test_summary[failing python module] PASSED      [ 57%]
+tests/test_execution.py::test_summary[Subdirectory verbose] PASSED       [ 58%]
+tests/test_execution.py::test_failures[Copied notebook] SKIPPED (No
+expected results)                                                        [ 59%]
+tests/test_execution.py::test_failures[Copied notebook with 2 test cells] SKIPPED [ 60%]
+tests/test_execution.py::test_failures[Two copied notebooks - unsorted] SKIPPED [ 61%]
+tests/test_execution.py::test_failures[Single Cell] PASSED               [ 61%]
+tests/test_execution.py::test_failures[Failing Test] PASSED              [ 62%]
+tests/test_execution.py::test_failures[Test with fixture] SKIPPED (No
+expected results)                                                        [ 63%]
+tests/test_execution.py::test_failures[Test with parameters and marks] SKIPPED [ 64%]
+tests/test_execution.py::test_failures[Notebook calls autoconfig] SKIPPED [ 65%]
+tests/test_execution.py::test_failures[No ipytest cells] SKIPPED (No
+expected results)                                                        [ 66%]
+tests/test_execution.py::test_failures[Empty notebook] SKIPPED (No
+expected results)                                                        [ 66%]
+tests/test_execution.py::test_failures[ipytest not first line] SKIPPED   [ 67%]
+tests/test_execution.py::test_failures[mixed file types] SKIPPED (No
+expected results)                                                        [ 68%]
+tests/test_execution.py::test_failures[cell execution order] SKIPPED (No
+expected results)                                                        [ 69%]
+tests/test_execution.py::test_failures[output python module] SKIPPED (No
+expected results)                                                        [ 70%]
+tests/test_execution.py::test_failures[Verbose two notebooks] SKIPPED    [ 71%]
+tests/test_execution.py::test_failures[failing python module] PASSED     [ 71%]
+tests/test_execution.py::test_failures[Subdirectory verbose] SKIPPED (No
+expected results)                                                        [ 72%]
+tests/test_fixtures.py::test_path[One File] PASSED                       [ 73%]
+tests/test_fixtures.py::test_path[Two files] PASSED                      [ 74%]
+tests/test_fixtures.py::test_path[Copied Notebook] PASSED                [ 75%]
+tests/test_fixtures.py::test_path[Generated Notebook] PASSED             [ 76%]
+tests/test_fixtures.py::test_path[Generated Notebook 2 cells] PASSED     [ 76%]
+tests/test_fixtures.py::test_filesexist[One File] PASSED                 [ 77%]
+tests/test_fixtures.py::test_filesexist[Two files] PASSED                [ 78%]
+tests/test_fixtures.py::test_filesexist[Copied Notebook] PASSED          [ 79%]
+tests/test_fixtures.py::test_filesexist[Generated Notebook] PASSED       [ 80%]
+tests/test_fixtures.py::test_filesexist[Generated Notebook 2 cells] PASSED [ 80%]
+tests/test_fixtures.py::test_filecontents[One File] PASSED               [ 81%]
+tests/test_fixtures.py::test_filecontents[Two files] PASSED              [ 82%]
+tests/test_fixtures.py::test_filecontents[Copied Notebook] PASSED        [ 83%]
+tests/test_fixtures.py::test_filecontents[Generated Notebook] PASSED     [ 84%]
+tests/test_fixtures.py::test_filecontents[Generated Notebook 2 cells] PASSED [ 85%]
+tests/test_fixtures.py::test_hashable_spec PASSED                        [ 85%]
+tests/test_parsenotebook.py::test_codecells_indexes PASSED               [ 86%]
+tests/test_parsenotebook.py::test_testcells_indexes PASSED               [ 87%]
+tests/test_parsenotebook.py::test_testcell_contents PASSED               [ 88%]
+tests/test_parsenotebook.py::test_codecells_index_a_testcell PASSED      [ 89%]
+tests/test_parsenotebook.py::test_sources_testcells PASSED               [ 90%]
+tests/test_parsenotebook.py::test_testcell_fullslice PASSED              [ 90%]
+tests/test_parsenotebook.py::test_codecells_partial_slice PASSED         [ 91%]
+tests/test_parsenotebook.py::test_muggle[ipytest cellmagic at start] PASSED [ 92%]
+tests/test_parsenotebook.py::test_muggle[line magic call not at start] PASSED [ 93%]
+tests/test_parsenotebook.py::test_muggle[magic in expression] PASSED     [ 94%]
+tests/test_parsenotebook.py::test_muggle[ipytest in expression] PASSED   [ 95%]
+tests/test_parsenotebook.py::test_muggle[ipytest autoconfig] PASSED      [ 95%]
+tests/test_parsenotebook.py::test_muggle[import ipytest] PASSED          [ 96%]
+tests/test_parsenotebook.py::test_muggle[import ipytest as ipt] PASSED   [ 97%]
+tests/test_parsenotebook.py::test_muggle[from ipytest import] PASSED     [ 98%]
+tests/test_parsenotebook.py::test_muggle[from ipytest import as] PASSED  [ 99%]
+tests/test_parsenotebook.py::test_muggle[import from non-magic module] PASSED [100%]
+
+=================================== FAILURES ===================================
+_____________________________ Cell6::test_failure ______________________________
+
+    def test_failure():
+>       assert False
+E       assert False
+
+tests/notebook_2tests.ipynb[Cell6]:8: AssertionError
+=========================== short test summary info ============================
+FAILED tests/notebook_2tests.ipynb[Cell6]::test_failure - assert False
+=================== 1 failed, 86 passed, 34 skipped in 3.54s ===================
+Finished running tests!
