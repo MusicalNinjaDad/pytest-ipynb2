@@ -23,9 +23,9 @@ sys.path.append(os.fspath(script_dir / "lib" / "python"))
 WORKSPACE_DIR = Path(os.getenv("WORKSPACE_DIR", Path.home()))
 log_dir = WORKSPACE_DIR / ".logs"
 log_dir.mkdir(parents=True, exist_ok=True)
-log = logging.getLogger("vscode_pytest")
+log = logging.getLogger(__name__)
 
-handler_file = logging.FileHandler(log_dir / "vscode_pytest_adapter.log")
+handler_file = logging.FileHandler(log_dir / "pytest_ipynb2.log")
 handler_stream = logging.StreamHandler()
 
 formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
