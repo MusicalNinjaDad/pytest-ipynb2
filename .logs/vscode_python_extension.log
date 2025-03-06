@@ -1,0 +1,217 @@
+2025-03-06 16:24:00.026 [debug] Received shell integration sequence for bash
+2025-03-06 16:24:06.358 [debug] Found cached env for /workspaces/pytest-ipynb2/.venv/bin/python
+2025-03-06 16:24:06.360 [debug] Found cached env for /workspaces/pytest-ipynb2/.venv/bin/python
+2025-03-06 16:24:06.401 [debug] Starting Test Result named pipe
+2025-03-06 16:24:06.405 [debug] Test Results named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 connected
+2025-03-06 16:24:06.408 [debug] could not find a pixi interpreter for the interpreter at /workspaces/pytest-ipynb2/.venv/bin/python
+2025-03-06 16:24:06.538 [debug] Activation Commands received source /workspaces/pytest-ipynb2/.venv/bin/activate for shell bash, resource /workspaces/pytest-ipynb2 and interpreter /workspaces/pytest-ipynb2/.venv/bin/python
+2025-03-06 16:24:06.538 [debug] Activating Environment to capture Environment variables, . /workspaces/pytest-ipynb2/.venv/bin/activate && echo 'e8b39361-0157-4923-80e1-22d70d46dee6' && python /home/pytest-ipynb2/.vscode-server/extensions/ms-python.python-2025.2.0-linux-x64/python_files/printEnvVariables.py
+2025-03-06 16:24:06.538 [info] > . ./.venv/bin/activate && echo 'e8b39361-0157-4923-80e1-22d70d46dee6' && python ~/.vscode-server/extensions/ms-python.python-2025.2.0-linux-x64/python_files/printEnvVariables.py
+2025-03-06 16:24:06.538 [info] shell: bash
+2025-03-06 16:24:06.594 [debug] Executable path for pytest execution: /workspaces/pytest-ipynb2/.venv/bin/python.
+2025-03-06 16:24:06.595 [warning] Unknown command line option passed into args parser for tests '-vv'. Please report on https://github.com/Microsoft/vscode-python/issues/new
+2025-03-06 16:24:06.595 [info] arg: --rootdir already exists in args, not adding.
+2025-03-06 16:24:06.595 [info] Attempting to use temp directory for test ids file, file name: test-ids-2be9d15456c1fb77f4d8.txt
+2025-03-06 16:24:06.611 [info] All environment variables set for pytest execution, PYTHONPATH: "/home/pytest-ipynb2/.vscode-server/extensions/ms-python.python-2025.2.0-linux-x64/python_files"
+2025-03-06 16:24:06.611 [info] Running pytest with arguments: /home/pytest-ipynb2/.vscode-server/extensions/ms-python.python-2025.2.0-linux-x64/python_files/vscode_pytest/run_pytest_script.py -vv --rootdir=/workspaces/pytest-ipynb2 for workspace /workspaces/pytest-ipynb2 
+
+2025-03-06 16:24:06.611 [info] > ./.venv/bin/python ~/.vscode-server/extensions/ms-python.python-2025.2.0-linux-x64/python_files/vscode_pytest/run_pytest_script.py -vv --rootdir=.
+2025-03-06 16:24:06.611 [info] cwd: .
+2025-03-06 16:24:07.926 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:07.928 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:07.932 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:07.982 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:08.096 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:08.215 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:08.368 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:08.437 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:08.438 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:08.438 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:08.439 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:08.439 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:08.439 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:08.439 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:08.540 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:08.683 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:08.686 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:08.807 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:08.914 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:09.034 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:09.160 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:09.275 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:09.396 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:09.546 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:09.651 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:09.753 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:09.875 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:09.988 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:09.991 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:09.992 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:10.160 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:10.348 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:10.478 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:10.621 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:10.755 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:10.818 [debug] Found cached env for /workspaces/pytest-ipynb2/.venv/bin/python
+2025-03-06 16:24:10.937 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.095 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.096 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.098 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.099 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.102 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.106 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.107 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.111 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.116 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.118 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.119 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.120 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.125 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.128 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.131 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.134 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.137 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.141 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.143 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.144 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.145 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.148 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.151 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.152 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.156 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.158 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.159 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.160 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.161 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.162 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.163 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.164 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.167 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.171 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.174 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.176 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.177 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.178 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.181 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.184 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.186 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.187 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.189 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.190 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.192 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.193 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.194 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.195 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.198 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.199 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.202 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.204 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.209 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.213 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.216 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.221 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.226 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.229 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.232 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.235 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.239 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.243 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.248 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.251 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.255 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.258 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.264 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.267 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.273 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.286 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.287 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.289 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.293 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.299 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.306 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.308 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.317 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.321 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.324 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.328 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.334 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.339 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.343 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.349 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.357 [debug] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 received data
+2025-03-06 16:24:11.679 [debug] Test run finished, subprocess closed.
+2025-03-06 16:24:11.679 [info] Test Result named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7  cancelled
+2025-03-06 16:24:11.679 [debug] Test Results named pipe /tmp/user/1000/python-test-results-8019e4ff973970e67eb7 disposed
+2025-03-06 16:24:11.680 [debug] Finished running tests, ending runInstance.
+2025-03-06 16:24:28.633 [debug] Found cached env for /workspaces/pytest-ipynb2/.venv/bin/python
+2025-03-06 16:24:30.767 [debug] Received shell integration sequence for bash
+2025-03-06 16:24:33.944 [debug] Received shell integration sequence for bash
+2025-03-06 16:24:40.673 [debug] Received shell integration sequence for bash
+2025-03-06 16:24:40.851 [debug] Received shell integration sequence for bash
+2025-03-06 16:24:41.044 [debug] Received shell integration sequence for bash
+2025-03-06 16:24:41.628 [debug] Received shell integration sequence for bash
+2025-03-06 16:24:41.775 [debug] Received shell integration sequence for bash
+2025-03-06 16:24:41.851 [debug] Received shell integration sequence for bash
+2025-03-06 16:24:41.969 [debug] Received shell integration sequence for bash
+2025-03-06 16:24:42.070 [debug] Received shell integration sequence for bash
+2025-03-06 16:24:42.209 [debug] Received shell integration sequence for bash
+2025-03-06 16:24:44.360 [debug] Received shell integration sequence for bash
+2025-03-06 16:24:45.604 [debug] Received shell integration sequence for bash
+2025-03-06 16:24:46.467 [debug] Received shell integration sequence for bash
+2025-03-06 16:24:46.561 [debug] Received shell integration sequence for bash
+2025-03-06 16:24:46.612 [debug] Received shell integration sequence for bash
+2025-03-06 16:24:46.717 [debug] Received shell integration sequence for bash
+2025-03-06 16:24:46.810 [debug] Received shell integration sequence for bash
+2025-03-06 16:24:47.281 [debug] Received shell integration sequence for bash
+2025-03-06 16:24:47.506 [debug] Received shell integration sequence for bash
+2025-03-06 16:24:47.670 [debug] Received shell integration sequence for bash
+2025-03-06 16:24:47.837 [debug] Received shell integration sequence for bash
+2025-03-06 16:24:48.456 [debug] Received shell integration sequence for bash
+2025-03-06 16:24:48.624 [debug] Received shell integration sequence for bash
+2025-03-06 16:24:48.842 [debug] Received shell integration sequence for bash
+2025-03-06 16:24:49.083 [debug] Received shell integration sequence for bash
+2025-03-06 16:24:49.312 [debug] Received shell integration sequence for bash
+2025-03-06 16:24:49.533 [debug] Received shell integration sequence for bash
+2025-03-06 16:24:49.708 [debug] Received shell integration sequence for bash
+2025-03-06 16:24:50.064 [debug] Received shell integration sequence for bash
+2025-03-06 16:24:50.260 [debug] Received shell integration sequence for bash
+2025-03-06 16:24:50.331 [debug] Received shell integration sequence for bash
+2025-03-06 16:24:50.482 [debug] Received shell integration sequence for bash
+2025-03-06 16:24:54.653 [debug] Received shell integration sequence for bash
+2025-03-06 16:24:56.992 [debug] Found cached env for /workspaces/pytest-ipynb2/.venv/bin/python
+2025-03-06 16:24:56.994 [debug] Found cached env for /workspaces/pytest-ipynb2/.venv/bin/python
+2025-03-06 16:24:57.015 [debug] Starting Test Result named pipe
+2025-03-06 16:24:57.017 [debug] Test Results named pipe /tmp/user/1000/python-test-results-b8c8ab28da82b0b9019d connected
+2025-03-06 16:24:57.021 [debug] Executable path for pytest execution: /workspaces/pytest-ipynb2/.venv/bin/python.
+2025-03-06 16:24:57.022 [warning] Unknown command line option passed into args parser for tests '-vv'. Please report on https://github.com/Microsoft/vscode-python/issues/new
+2025-03-06 16:24:57.022 [info] arg: --rootdir already exists in args, not adding.
+2025-03-06 16:24:57.022 [info] Attempting to use temp directory for test ids file, file name: test-ids-bcd2f0a2f9f76a9256d1.txt
+2025-03-06 16:24:57.042 [info] All environment variables set for pytest execution, PYTHONPATH: "/home/pytest-ipynb2/.vscode-server/extensions/ms-python.python-2025.2.0-linux-x64/python_files"
+2025-03-06 16:24:57.042 [info] Running pytest with arguments: /home/pytest-ipynb2/.vscode-server/extensions/ms-python.python-2025.2.0-linux-x64/python_files/vscode_pytest/run_pytest_script.py -vv --rootdir=/workspaces/pytest-ipynb2 for workspace /workspaces/pytest-ipynb2 
+
+2025-03-06 16:24:57.042 [info] > ./.venv/bin/python ~/.vscode-server/extensions/ms-python.python-2025.2.0-linux-x64/python_files/vscode_pytest/run_pytest_script.py -vv --rootdir=.
+2025-03-06 16:24:57.042 [info] cwd: .
+2025-03-06 16:24:58.236 [debug] Test Result named pipe /tmp/user/1000/python-test-results-b8c8ab28da82b0b9019d received data
+2025-03-06 16:24:58.743 [debug] Test run finished, subprocess closed.
+2025-03-06 16:24:58.743 [info] Test Result named pipe /tmp/user/1000/python-test-results-b8c8ab28da82b0b9019d  cancelled
+2025-03-06 16:24:58.743 [debug] Test Results named pipe /tmp/user/1000/python-test-results-b8c8ab28da82b0b9019d disposed
+2025-03-06 16:24:58.743 [debug] Finished running tests, ending runInstance.
+2025-03-06 16:25:00.026 [debug] Received shell integration sequence for bash
+2025-03-06 16:25:24.551 [debug] Received shell integration sequence for bash
+2025-03-06 16:25:24.726 [debug] Received shell integration sequence for bash
+2025-03-06 16:25:25.055 [debug] Received shell integration sequence for bash
+2025-03-06 16:25:25.215 [debug] Received shell integration sequence for bash
+2025-03-06 16:25:25.347 [debug] Received shell integration sequence for bash
+2025-03-06 16:25:25.460 [debug] Received shell integration sequence for bash
+2025-03-06 16:25:25.592 [debug] Received shell integration sequence for bash
+2025-03-06 16:25:26.397 [debug] Received shell integration sequence for bash
+2025-03-06 16:25:26.514 [debug] Received shell integration sequence for bash
+2025-03-06 16:25:26.557 [debug] Received shell integration sequence for bash
+2025-03-06 16:25:26.681 [debug] Received shell integration sequence for bash
+2025-03-06 16:25:26.880 [debug] Received shell integration sequence for bash
+2025-03-06 16:25:27.126 [debug] Received shell integration sequence for bash
+2025-03-06 16:25:27.264 [debug] Received shell integration sequence for bash
+2025-03-06 16:25:27.333 [debug] Received shell integration sequence for bash
+2025-03-06 16:25:29.197 [debug] Received shell integration sequence for bash
+2025-03-06 16:25:33.922 [debug] Finished running tests, ending runInstance.
+2025-03-06 16:25:38.221 [debug] Found cached env for /workspaces/pytest-ipynb2/.venv/bin/python
