@@ -6,10 +6,12 @@ from __future__ import annotations
 import atexit
 import contextlib
 import json
+import logging
 import os
 import pathlib
 import sys
 import traceback
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, Generator, Literal, TypedDict
 
 import pytest
@@ -25,6 +27,18 @@ with contextlib.suppress(ImportError):
 
     USES_PYTEST_DESCRIBE = True
 
+
+WORKSPACE_DIR = Path(os.getenv("WORKSPACE_DIR", Path.home()))
+log_dir = WORKSPACE_DIR / ".logs"
+log_dir.mkdir(parents=True, exist_ok=True)
+log = logging.getLogger(__name__)
+
+handler_file = logging.FileHandler(log_dir / "pytest_ipynb2.log")
+formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+handler_file.setFormatter(formatter)
+
+log.addHandler(handler_file)
+log.setLevel(logging.DEBUG)
 
 class TestData(TypedDict):
     """A general class that all test objects inherit from."""
@@ -64,6 +78,7 @@ SYMLINK_PATH = None
 
 
 def pytest_load_initial_conftests(early_config, parser, args):  # noqa: ARG001
+    log.debug("==pytest_load_initial_conftests called with args: %s==", str(args))
     has_pytest_cov = early_config.pluginmanager.hasplugin("pytest_cov")
     has_cov_arg = any("--cov" in arg for arg in args)
     if has_cov_arg and not has_pytest_cov:
@@ -73,6 +88,7 @@ def pytest_load_initial_conftests(early_config, parser, args):  # noqa: ARG001
 
     global TEST_RUN_PIPE
     TEST_RUN_PIPE = os.getenv("TEST_RUN_PIPE")
+    log.debug("TEST_RUN_PIPE: %s", TEST_RUN_PIPE)
     error_string = (
         "PYTEST ERROR: TEST_RUN_PIPE is not set at the time of pytest starting. "
         "Please confirm this environment variable is not being changed or removed "
@@ -193,7 +209,9 @@ def get_absolute_test_id(test_id: str, test_path: pathlib.Path) -> str:
     test_id -- the pytest id of the test which is relative to the rootdir.
     testPath -- the path to the file the test is located in, as a pathlib.Path object.
     """
+    log.debug("==get_absolute_test_id called with test_id: %s==", test_id)
     split_id = test_id.split("::")[1:]
+    log.debug("path: %s; split_id: %s", test_path, split_id)
     return "::".join([str(test_path), *split_id])
 
 
@@ -491,6 +509,7 @@ def build_test_tree(session: pytest.Session) -> TestNode:
     Keyword arguments:
     session -- the pytest session object.
     """
+    log.debug("==build_test_tree called==")
     session_node = create_session_node(session)
     session_children_dict: dict[str, TestNode] = {}
     file_nodes_dict: dict[str, TestNode] = {}
@@ -503,6 +522,7 @@ def build_test_tree(session: pytest.Session) -> TestNode:
         session_node["id_"] = os.fspath(SYMLINK_PATH)
 
     for test_case in session.items:
+        log.debug("node name, path, nodeid: %s, %s, %s", test_case.name, test_case.path, test_case.nodeid)
         test_node = create_test_node(test_case)
         if hasattr(test_case, "callspec"):  # This means it is a parameterized test.
             function_name: str = ""
@@ -600,8 +620,9 @@ def build_test_tree(session: pytest.Session) -> TestNode:
                 file_nodes_dict[os.fspath(parent_path)] = parent_test_case
             parent_test_case["children"].append(test_node)
     created_files_folders_dict: dict[str, TestNode] = {}
-    for file_node in file_nodes_dict.values():
+    for fn, file_node in file_nodes_dict.items():
         # Iterate through all the files that exist and construct them into nested folders.
+        log.debug("file_node %s contains: %r", fn, file_node)
         root_folder_node: TestNode
         try:
             root_folder_node: TestNode = build_nested_folders(
@@ -690,10 +711,17 @@ def create_test_node(
     Keyword arguments:
     test_case -- the pytest test case.
     """
+    log.debug("==create_test_node called with test_case: %s==", test_case)
     test_case_loc: str = (
         str(test_case.location[1] + 1) if (test_case.location[1] is not None) else ""
     )
     absolute_test_id = get_absolute_test_id(test_case.nodeid, get_node_path(test_case))
+    log.debug(
+        "creating test node for %s, test_case location: %s, absolute_test_id: %s",
+        test_case.name,
+        test_case.location,
+        absolute_test_id,
+    )
     return {
         "name": test_case.name,
         "path": get_node_path(test_case),
@@ -761,6 +789,7 @@ def create_file_node(calculated_node_path: pathlib.Path) -> TestNode:
     Keyword arguments:
     calculated_node_path -- the pytest file path.
     """
+    log.debug("==create_file_node called with calculated_node_path: %s==", calculated_node_path)
     return {
         "name": calculated_node_path.name,
         "path": calculated_node_path,
@@ -777,6 +806,9 @@ def create_folder_node(folder_name: str, path_iterator: pathlib.Path) -> TestNod
     folderName -- the name of the folder.
     path_iterator -- the path of the folder.
     """
+    log.debug(
+        "==create_folder_node called with folder_name: %s, path_iterator: %s==", folder_name, path_iterator
+    )
     return {
         "name": folder_name,
         "path": path_iterator,
@@ -819,6 +851,7 @@ def get_node_path(node: Any) -> pathlib.Path:
 
     It also evaluates if the node is a symlink and returns the equivalent path.
     """
+    log.debug("==get_node_path called for node: %r==", node)
     node_path = getattr(node, "path", None) or pathlib.Path(node.fspath)
 
     if not node_path:
@@ -846,6 +879,7 @@ def get_node_path(node: Any) -> pathlib.Path:
                 f"Error occurred while calculating symlink equivalent from node path: {e}"
                 f"\n SYMLINK_PATH: {SYMLINK_PATH}, \n node path: {node_path}, \n cwd: {pathlib.Path.cwd()}"
             ) from e
+    log.debug("get_node_path found node path: %s for node %r", node_path, node)
     return node_path
 
 
@@ -879,6 +913,7 @@ def send_discovery_message(cwd: str, session_node: TestNode) -> None:
         cwd (str): Current working directory.
         session_node (TestNode): Node information of the test session.
     """
+    log.debug("==send_discovery_message called with cwd: %s, session_node: %r==", cwd, session_node)
     payload: DiscoveryPayloadDict = {
         "cwd": cwd,
         "status": "success" if not ERRORS else "error",
@@ -910,6 +945,7 @@ def send_message(
     payload -- the payload data to be sent.
     cls_encoder -- a custom encoder if needed.
     """
+    log.debug("==send_message called with payload: %r==", payload)
     if not TEST_RUN_PIPE:
         error_msg = (
             "PYTEST ERROR: TEST_RUN_PIPE is not set at the time of pytest starting. "
