@@ -23,8 +23,7 @@ clean:
     find . -type f -name "*.so" -delete
 
 clean-logs:
-    rm -rf .logs
-    mkdir -p .logs
+    rm -rf .logs/pytest_ipynb2.log
     touch .logs/pytest_ipynb2.log
 
 # clean, remove existing .venvs and rebuild the venvs with uv sync
