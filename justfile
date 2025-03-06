@@ -17,6 +17,7 @@ clean:
     rm -rf .venv*
     rm -rf pycov
     rm -rf .coverage
+    rm -rf .logs
     find . -depth -type d -name "__pycache__" -exec rm -rf "{}" \;
     find . -depth -type d -path "*.egg-info" -exec rm -rf "{}" \;
     find . -type f -name "*.egg" -delete
