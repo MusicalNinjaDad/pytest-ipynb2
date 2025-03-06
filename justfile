@@ -17,11 +17,15 @@ clean:
     rm -rf .venv*
     rm -rf pycov
     rm -rf .coverage
-    rm -rf .logs
     find . -depth -type d -name "__pycache__" -exec rm -rf "{}" \;
     find . -depth -type d -path "*.egg-info" -exec rm -rf "{}" \;
     find . -type f -name "*.egg" -delete
     find . -type f -name "*.so" -delete
+
+clean-logs:
+    rm -rf .logs
+    mkdir -p .logs
+    touch .logs/pytest_ipynb2.log
 
 # clean, remove existing .venvs and rebuild the venvs with uv sync
 reset: clean install
