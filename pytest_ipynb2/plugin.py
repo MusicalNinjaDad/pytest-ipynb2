@@ -305,7 +305,7 @@ class Cell(IpynbItemMixin, pytest.Module):
         """Rebless children to include our overrides from the Mixin."""
         # TODO(MusicalNinjaDad): #22 Handle Tests grouped in Class
         log.debug("==Collecting from cell: %s==", self.name)
-        log.debug("Module content: %s", self._obj.__dict__.keys())
+        log.debug("Module content: %s", self.obj.__dict__.keys())
         for item in super().collect():
             item_type = type(item)
             log.debug("Found: %s (%s)", item.name, item_type)
