@@ -284,6 +284,7 @@ class Cell(IpynbItemMixin, pytest.Module):
         for cell in cellsabove:
             exec(cell, dummy_module.__dict__)  # noqa: S102
         exec(testcell, dummy_module.__dict__)  # noqa: S102
+        linecache.cache[cell_filename] = (0, None, testcell_source.splitlines(keepends=True), cell_filename)
         return dummy_module
 
     def collect(self) -> Generator[pytest.Function, None, None]:
