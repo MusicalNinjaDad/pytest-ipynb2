@@ -61,19 +61,6 @@ def pytest_configure(config: pytest.Config) -> None:
 class CellPath(Path):
     """Provide handling of Cells specified as `path/to/file[Celln]`."""
 
-    def __str__(self) -> str:
-        """Wrap path in <> so `inspect.getsource` notices it's special."""
-        return f"<{super().__str__()}>"
-
-    def __fspath__(self) -> str:
-        """Return the same as `str` due to pytest wierdness."""
-        # TODO: #32 Change `CellPath.__fspath__` to return path to notebook when pytest fixes their path handling.
-        # Ideally we would `return str(self.get_notebookpath(str(self)))` here but ...
-        # `_pytest._code.code.Traceback.cut()` compares `os.fspath(path)` with `str(code.path)`
-        # so `str` & `__fspath__` must return same value or the TracebackEntry is not identified
-        # as relevant and we end up with the full unfiltered traceback on test failures.
-        return str(self)
-
     def __eq__(self, other: object) -> bool:
         """Equality testing handled by `pathlib.Path`."""
         return Path(self) == other
@@ -107,22 +94,20 @@ class CellPath(Path):
     def is_cellpath(path: str) -> bool:
         """Determine whether a str is a valid representation of our pseudo-path."""
         return (
-            path.startswith("<")
-            and path.endswith(">")
-            and path.split(".")[-1].startswith("ipynb")
-            and path.split(f"[{CELL_PREFIX}")[-1].removesuffix("]>").isdigit()
+            path.split(".")[-1].startswith("ipynb")
+            and path.split(f"[{CELL_PREFIX}")[-1].removesuffix("]").isdigit()
         )
 
     @classmethod
     def get_notebookpath(cls, path: str) -> Path:
         """Return the real path of the notebook based on a pseudo-path."""
-        notebookpath = path.removeprefix("<").split(f"[{CELL_PREFIX}")[0]
+        notebookpath = path.split(f"[{CELL_PREFIX}")[0]
         return Path(notebookpath)
 
     @classmethod
     def get_cellid(cls, path: str) -> int:
         """Return the Cell id from the pseudo-path."""
-        cellid = path.split(f"[{CELL_PREFIX}")[-1].removesuffix("]>")
+        cellid = path.split(f"[{CELL_PREFIX}")[-1].removesuffix("]")
         return int(cellid)
 
     @classmethod

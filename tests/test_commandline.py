@@ -25,7 +25,7 @@ def test_runnotebook(example_dir: ExampleDir):
     [
         ExampleDirSpec(
             files=[Path("tests/assets/notebook_2tests.ipynb").absolute()],
-            args=["<notebook_2tests.ipynb[Cell4]>"],
+            args=["notebook_2tests.ipynb[Cell4]"],
         ),
     ],
     indirect=True,
@@ -40,7 +40,7 @@ def test_cell(example_dir: ExampleDir):
     [
         ExampleDirSpec(
             files=[Path("tests/assets/notebook_2tests.ipynb").absolute()],
-            args=["<notebook_2tests.ipynb[Cell4]>::test_adder"],
+            args=["notebook_2tests.ipynb[Cell4]::test_adder"],
         ),
     ],
     indirect=True,
