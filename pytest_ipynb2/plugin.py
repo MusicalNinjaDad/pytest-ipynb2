@@ -49,6 +49,7 @@ CELL_PREFIX: Final[str] = "Cell"
 
 log = logging.getLogger(__name__)
 
+
 @pytest.hookimpl(trylast=True)
 def pytest_configure(config: pytest.Config) -> None:
     """Set up logging for the plugin."""
@@ -93,10 +94,7 @@ class CellPath(Path):
     @staticmethod
     def is_cellpath(path: str) -> bool:
         """Determine whether a str is a valid representation of our pseudo-path."""
-        return (
-            path.split(".")[-1].startswith("ipynb")
-            and path.split(f"[{CELL_PREFIX}")[-1].removesuffix("]").isdigit()
-        )
+        return path.split(".")[-1].startswith("ipynb") and path.split(f"[{CELL_PREFIX}")[-1].removesuffix("]").isdigit()
 
     @classmethod
     def get_notebookpath(cls, path: str) -> Path:
@@ -324,7 +322,7 @@ def pytest_collect_file(file_path: Path, parent: pytest.Collector) -> Notebook |
 
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
 def pytest_load_initial_conftests(early_config, parser, args: list[str]) -> Generator[None, None, None]:  # noqa: ANN001, ARG001
-    """Convert any CellPaths passed as commandline args to nodeids."""    
+    """Convert any CellPaths passed as commandline args to nodeids."""
     # Use workspace directory for logs
     WORKSPACE_DIR = Path(os.getenv("WORKSPACE_DIR", Path.cwd()))  # noqa: N806
     log_dir = WORKSPACE_DIR / ".logs"
@@ -339,7 +337,7 @@ def pytest_load_initial_conftests(early_config, parser, args: list[str]) -> Gene
     log.addHandler(handler)
     if Path(log_dir / "DEBUG").exists():
         log.setLevel(logging.DEBUG)
-    
+
     log.debug("==pytest_load_initial_conftests started==")
     log.debug("Original command line args: %s", args)
     for idx, arg in enumerate(args):
