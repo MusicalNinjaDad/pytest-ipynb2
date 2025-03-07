@@ -175,7 +175,7 @@ class CellPath(Path):
             except AttributeError:
                 with suppress(AttributeError):  # in case this is not a `str` but some other `PathLike`
                     if CellPath.is_cellpath(path):
-                        return CellPath(path.removeprefix("<").removesuffix(">")).absolute()
+                        return CellPath(path).absolute()
             return _pytest_absolutepath(path)
             # pytype: enable=attribute-error
 
