@@ -79,7 +79,7 @@ class CellPath(Path):
 
         def relative_to(self, other: PathLike, *args: Any, **kwargs: Any) -> Self:
             """Relative_to only works out-of-the-box on python 3.13 and above."""
-            return type(self)(f"{self.notebook.relative_to(other, *args, **kwargs)}::{self.cell}")
+            return type(self)(f"{self.notebook.relative_to(other, *args, **kwargs)}[{self.cell}]")
 
     @cached_property
     def notebook(self) -> Path:
