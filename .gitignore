@@ -174,3 +174,5 @@ cython_debug/
 _build
 
 !.logs/*.log
+
+**/envVars.txt
