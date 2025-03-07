@@ -34,7 +34,8 @@ handler_stream.setFormatter(formatter)
 
 log.addHandler(handler_file)
 log.addHandler(handler_stream)
-log.setLevel(logging.DEBUG)
+if Path(log_dir / "DEBUG").exists():
+    log.setLevel(logging.DEBUG)
 
 
 def run_pytest(args):

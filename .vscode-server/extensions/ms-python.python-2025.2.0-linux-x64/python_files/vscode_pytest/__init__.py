@@ -38,7 +38,8 @@ formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(messag
 handler_file.setFormatter(formatter)
 
 log.addHandler(handler_file)
-log.setLevel(logging.DEBUG)
+if Path(log_dir / "DEBUG").exists():
+    log.setLevel(logging.DEBUG)
 
 class TestData(TypedDict):
     """A general class that all test objects inherit from."""

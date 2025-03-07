@@ -338,9 +338,7 @@ def pytest_collect_file(file_path: Path, parent: pytest.Collector) -> Notebook |
 
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
 def pytest_load_initial_conftests(early_config, parser, args: list[str]) -> Generator[None, None, None]:  # noqa: ANN001, ARG001
-    """Convert any CellPaths passed as commandline args to nodeids."""
-    log = logging.getLogger(__name__)
-    
+    """Convert any CellPaths passed as commandline args to nodeids."""    
     # Use workspace directory for logs
     WORKSPACE_DIR = Path(os.getenv("WORKSPACE_DIR", Path.cwd()))  # noqa: N806
     log_dir = WORKSPACE_DIR / ".logs"
@@ -353,7 +351,8 @@ def pytest_load_initial_conftests(early_config, parser, args: list[str]) -> Gene
         ),
     )
     log.addHandler(handler)
-    log.setLevel(logging.DEBUG)
+    if Path(log_dir / "DEBUG").exists():
+        log.setLevel(logging.DEBUG)
     
     log.debug("==pytest_load_initial_conftests started==")
     log.debug("Original command line args: %s", args)
