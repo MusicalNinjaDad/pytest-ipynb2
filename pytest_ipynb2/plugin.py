@@ -73,15 +73,15 @@ class CellPath(Path):
     @cached_property
     def notebook(self) -> Path:
         """Path of the notebook."""
-        return type(self).get_notebookpath(str(self))
+        return self.get_notebookpath(str(self))
 
     @cached_property
     def cell(self) -> str:
         """The cell specifier (e.g. "Cell0")."""
-        return f"{CELL_PREFIX}{type(self).get_cellid(str(self))}"
+        return f"{CELL_PREFIX}{self.get_cellid(str(self))}"
 
-    @staticmethod
-    def is_cellpath(path: str) -> bool:
+    @classmethod
+    def is_cellpath(cls, path: str) -> bool:
         """Determine whether a str is a valid representation of our pseudo-path."""
         return path.split(".")[-1].startswith("ipynb") and path.split(f"[{CELL_PREFIX}")[-1].removesuffix("]").isdigit()
 
