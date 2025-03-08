@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [unreleased]
 
+### Fixed
+
+- Integration with vscode Test Explorer
+
 ### Changed
 
 - CellPath now uses subscript format `path/to/notebook.ipynb[Celln]`
