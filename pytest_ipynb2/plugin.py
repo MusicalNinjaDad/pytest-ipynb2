@@ -123,23 +123,9 @@ class CellPath(Path):
         return "::".join((notebookpath, cell, *nodepath))
 
     @staticmethod
-    def patch_pytest_pathlib() -> dict[tuple[ModuleType, str], FunctionType]:
+    def patch_pytest_absolutepath() -> dict[tuple[ModuleType, str], FunctionType]:
         """Patch _pytest.pathlib functions."""
         original_functions = {}
-
-        original_functions[(_pytest.pathlib, "commonpath")] = _pytest_commonpath = _pytest.pathlib.commonpath
-
-        def _commonpath(path1: CellPath | os.PathLike, path2: CellPath | os.PathLike) -> Path | None:
-            """Let pytest handle this with wierd logic, but just give it the notebook path so it can manage."""
-            # pytype: disable=attribute-error
-            with suppress(AttributeError):
-                path1 = path1.notebook
-            with suppress(AttributeError):
-                path2 = path2.notebook
-            # pytype: enable=attribute-error
-            return _pytest_commonpath(path1, path2)
-
-        _pytest.pathlib.commonpath = _commonpath
 
         # pytest has some unique handling to get the absolute path of a file. Possbily no longer needed with later
         # versions of pathlib? Hopefully we will be able to remove this patch with a later version of pytest.
@@ -286,7 +272,7 @@ class Cell(IpynbItemMixin, pytest.Module):
 def pytest_sessionstart(session: pytest.Session) -> None:
     """Monkeypatch a few things to handle CellPath."""
     session.stash[ipynb2_monkeypatches] = {}
-    session.stash[ipynb2_monkeypatches] |= CellPath.patch_pytest_pathlib()
+    session.stash[ipynb2_monkeypatches] |= CellPath.patch_pytest_absolutepath()
 
 
 def pytest_sessionfinish(session: pytest.Session, exitstatus: int | pytest.ExitCode) -> None:  # noqa: ARG001
