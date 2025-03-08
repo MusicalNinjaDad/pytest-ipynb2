@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import sys
+import types
 from contextlib import suppress
 from functools import cached_property
 from pathlib import Path
@@ -11,9 +12,12 @@ import _pytest.nodes
 import _pytest.pathlib
 
 if TYPE_CHECKING:
+    from collections.abc import Generator
     from os import PathLike
     from types import FunctionType, ModuleType
     from typing import Any, Final, Self
+
+    import pytest
 
 CELL_PREFIX: Final[str] = "Cell"
 
@@ -105,6 +109,15 @@ class CellPath(Path):
             # `TerminalReporter._locationline` adds a `<-` section if `nodeid.split("::")[0] != location[0]`.
             # Verbosity<2 tests runs are grouped by location[0] in the testlog.
             return self.path, 0, f"{self.path.cell}::{self.name}"
+        
+        def collect(self) -> Generator[pytest.Function, None, None]:
+            """Rebless children to include our overrides from the Mixin."""
+            # TODO(MusicalNinjaDad): #22 Handle Tests grouped in Class
+            for item in super().collect():
+                item_type = type(item)
+                type_with_mixin = types.new_class(item_type.__name__, (CellPath.PytestItemMixin, item_type))
+                item.__class__ = type_with_mixin
+                yield item
 
     @staticmethod
     def patch_pytest_absolutepath() -> dict[tuple[ModuleType, str], FunctionType]:

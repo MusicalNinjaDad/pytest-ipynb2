@@ -13,7 +13,6 @@ import importlib.util
 import linecache
 import os
 import sys
-import types
 from pathlib import Path
 from types import FunctionType, ModuleType
 from typing import TYPE_CHECKING
@@ -112,15 +111,6 @@ class Cell(CellPath.PytestItemMixin, pytest.Module):
     `pytest` will recognise these cells as `pytest.Module`s and use standard collection on them as it would any other
     python module.
     """
-
-    def collect(self) -> Generator[pytest.Function, None, None]:
-        """Rebless children to include our overrides from the Mixin."""
-        # TODO(MusicalNinjaDad): #22 Handle Tests grouped in Class
-        for item in super().collect():
-            item_type = type(item)
-            type_with_mixin = types.new_class(item_type.__name__, (CellPath.PytestItemMixin, item_type))
-            item.__class__ = type_with_mixin
-            yield item
 
     def __repr__(self) -> str:
         """Don't duplicate the word "Cell" in the repr."""
