@@ -11,7 +11,6 @@ from __future__ import annotations
 import ast
 import importlib.util
 import linecache
-import logging
 import os
 import sys
 import types
@@ -47,17 +46,6 @@ ipynb2_monkeypatches = pytest.StashKey[dict[tuple[ModuleType, str], FunctionType
 """Original functions indexed by `(module, functionname)` to allow `setattr(module, functionname, original)`."""
 
 CELL_PREFIX: Final[str] = "Cell"
-
-log = logging.getLogger(__name__)
-
-
-@pytest.hookimpl(trylast=True)
-def pytest_configure(config: pytest.Config) -> None:
-    """Set up logging for the plugin."""
-    log.debug("==pytest_configure finished==")
-    log.debug("Plugin configured with pytest %s", config.option.version)
-    log.debug("Plugins activated: %s", config.pluginmanager.list_plugin_distinfo())
-    log.debug("Working directory: %s", Path.cwd())
 
 
 class CellPath(Path):
@@ -258,16 +246,11 @@ class Cell(IpynbItemMixin, pytest.Module):
     def collect(self) -> Generator[pytest.Function, None, None]:
         """Rebless children to include our overrides from the Mixin."""
         # TODO(MusicalNinjaDad): #22 Handle Tests grouped in Class
-        log.debug("==Collecting from cell: %s==", self.name)
-        log.debug("Module content: %s", self.obj.__dict__.keys())
         for item in super().collect():
             item_type = type(item)
-            log.debug("Found: %s (%s)", item.name, item_type)
             type_with_mixin = types.new_class(item_type.__name__, (IpynbItemMixin, item_type))
             item.__class__ = type_with_mixin
-            log.debug("Reblessed to: %s", item.__class__)
             yield item
-        log.debug("==Finished collecting from cell: %s==", self.name)
 
 
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)  # ensure exeution order before any other plugins
@@ -305,38 +288,8 @@ def pytest_load_initial_conftests(early_config, parser, args: list[str]) -> Gene
     # TODO: #50 handle `path/to/notebook.ipynb[Celln]::test_func` in `_pytest.main.resolve_collection_argument`
     # Relying on pytest accepting `path/to/notebook.ipynb::Celln::test_func` as a valid nodeid may be a source of
     # future bugs.
-    WORKSPACE_DIR = Path(os.getenv("WORKSPACE_DIR", Path.cwd()))  # noqa: N806
-    log_dir = WORKSPACE_DIR / ".logs"
-    log_dir.mkdir(parents=True, exist_ok=True)
 
-    handler = logging.FileHandler(log_dir / "pytest_ipynb2.log")
-    handler.setFormatter(
-        logging.Formatter(
-            "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-        ),
-    )
-    log.addHandler(handler)
-    if Path(log_dir / "DEBUG").exists():
-        log.setLevel(logging.DEBUG)
-
-    log.debug("==pytest_load_initial_conftests started==")
-    log.debug("Original command line args: %s", args)
     for idx, arg in enumerate(args):
         if CellPath.is_cellpath(arg.split("::")[0]):
             args[idx] = CellPath.to_nodeid(arg)
-    log.debug("Updated command line args: %s", args)
     yield
-    log.debug("==pytest_load_initial_conftests finished==")
-    log.debug("Config: %s", early_config)
-
-
-@pytest.hookimpl(tryfirst=True, hookwrapper=True)
-def pytest_cmdline_parse(pluginmanager: pytest.PytestPluginManager, args: list[str]) -> Generator[None, None, None]:
-    """Add logging for command line parsing."""
-    log.debug("==pytest_cmdline_parse started==")
-    log.debug("Command line args: %s", args)
-    log.debug("Plugin manager: %s", pluginmanager.list_plugin_distinfo())
-    yield
-    log.debug("==pytest_cmdline_parse finished==")
-    log.debug("Command line args: %s", args)
-    log.debug("Plugin manager: %s", pluginmanager.list_plugin_distinfo())

@@ -1,7 +1,0 @@
-vscode details for test_failure after running all tests
-
-</workspaces/pytest-ipynb2/tests/notebook_2tests.ipynb[Cell6]>::test_failure failed: def test_failure():
->       assert False
-E       assert False
-
-tests/notebook_2tests.ipynb[Cell6]:8: AssertionError
