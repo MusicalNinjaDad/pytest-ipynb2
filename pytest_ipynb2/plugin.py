@@ -44,6 +44,7 @@ if sys.version_info < (3, 12):  # pragma: no cover
 ipynb2_notebook = pytest.StashKey[_ParsedNotebook]()
 ipynb2_cellid = pytest.StashKey[int]()
 ipynb2_monkeypatches = pytest.StashKey[dict[tuple[ModuleType, str], FunctionType]]()
+"""Original functions indexed by `(module, functionname)` to allow `setattr(module, functionname, original)`."""
 
 CELL_PREFIX: Final[str] = "Cell"
 
