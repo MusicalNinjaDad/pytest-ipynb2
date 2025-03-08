@@ -123,24 +123,6 @@ class CellPath(Path):
         return "::".join((notebookpath, cell, *nodepath))
 
     @staticmethod
-    def patch_linecache() -> dict[tuple[ModuleType, str], FunctionType]:
-        """Patch linecache.getlines to handle CellPaths (like doctest does)."""
-        original_functions = {}
-
-        original_functions[linecache, "getlines"] = _linecache_getlines_std = linecache.getlines
-
-        def _linecache_getlines_ipynb2(filename: str, module_globals: dict | None = None) -> list[str]:
-            if CellPath.is_cellpath(filename):
-                notebook = CellPath.get_notebookpath(filename)
-                cellid = CellPath.get_cellid(filename)
-                return list(_ParsedNotebook(notebook).muggled_testcells[cellid])
-            return _linecache_getlines_std(filename=filename, module_globals=module_globals)
-
-        linecache.getlines = _linecache_getlines_ipynb2
-
-        return original_functions
-
-    @staticmethod
     def patch_pytest_pathlib() -> dict[tuple[ModuleType, str], FunctionType]:
         """Patch _pytest.pathlib functions."""
         original_functions = {}
@@ -256,8 +238,9 @@ class Cell(IpynbItemMixin, pytest.Module):
         - loads the cell's source
         - applies assertion rewriting
         - creates a pseudo-module for the cell, with a pseudo-filename
-        - executes all non-test code cells above
-        - then executes the test cell
+        - executes all non-test code cells above inside the pseudo-module.__dict__
+        - then executes the test cell inside the pseudo-module.__dict__
+        - finally adds the test cell to the linecache so that inspect can find the source
         """
         notebook = self.stash[ipynb2_notebook]
         cellid = self.stash[ipynb2_cellid]
@@ -302,7 +285,7 @@ class Cell(IpynbItemMixin, pytest.Module):
 
 def pytest_sessionstart(session: pytest.Session) -> None:
     """Monkeypatch a few things to handle CellPath."""
-    session.stash[ipynb2_monkeypatches] = CellPath.patch_linecache()
+    session.stash[ipynb2_monkeypatches] = {}
     session.stash[ipynb2_monkeypatches] |= CellPath.patch_pytest_pathlib()
 
 
