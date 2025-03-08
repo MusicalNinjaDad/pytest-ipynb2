@@ -23,7 +23,7 @@ import _pytest.nodes
 import _pytest.pathlib
 import pytest
 
-from ._cellpath import CELL_PREFIX, CellPath, PytestItemMixin
+from ._cellpath import CELL_PREFIX, CellPath
 from ._parser import Notebook as _ParsedNotebook
 
 if TYPE_CHECKING:
@@ -104,7 +104,7 @@ class Notebook(pytest.File):
             yield cell
 
 
-class Cell(PytestItemMixin, pytest.Module):
+class Cell(CellPath.PytestItemMixin, pytest.Module):
     """
     A collector for jupyter notebook cells.
 

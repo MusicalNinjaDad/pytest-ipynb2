@@ -85,6 +85,40 @@ class CellPath(Path):
         cell = f"{CELL_PREFIX}{cls.get_cellid(cellpath)}"
         return "::".join((notebookpath, cell, *nodepath))
 
+    class PytestItemMixin:
+        """Provides various overrides to handle our pseudo-path."""
+
+        path: CellPath
+        name: str
+
+        def reportinfo(self) -> tuple[Path, int, str]:
+            """
+            Returns tuple of notebook path, (linenumber=)0, Celln::testname.
+
+            `reportinfo` is used by `location` and included as the header line in the report:
+                ```
+                ==== FAILURES ====
+                ___ reportinfo[2] ___
+                ```
+            """
+            # `nodes.Item.location` calls `absolutepath()` and then `main._node_location_to_relpath` which caches the
+            # results in `_bestrelpathcache[node_path]` very early in the test process.
+            # As we provide the full CellPath as reportinfo[0] we need to patch `_pytest.nodes.absolutepath` in
+            # `CellPath.patch_pytest_pathlib` (above)
+            #
+            # `TerminalReporter._locationline` adds a `<-` section if `nodeid.split("::")[0] != location[0]`.
+            # Verbosity<2 tests runs are grouped by location[0] in the testlog.
+            return self.path, 0, f"{self.path.cell}::{self.name}"
+        
+        def collect(self) -> Generator[pytest.Function, None, None]:
+            """Rebless children to include our overrides from the Mixin."""
+            # TODO(MusicalNinjaDad): #22 Handle Tests grouped in Class
+            for item in super().collect():
+                item_type = type(item)
+                type_with_mixin = types.new_class(item_type.__name__, (CellPath.PytestItemMixin, item_type))
+                item.__class__ = type_with_mixin
+                yield item
+
     @staticmethod
     def patch_pytest_absolutepath() -> dict[tuple[ModuleType, str], FunctionType]:
         """Patch _pytest.pathlib functions."""
@@ -120,38 +154,3 @@ class CellPath(Path):
         _pytest.nodes.absolutepath = _absolutepath
 
         return original_functions
-
-
-class PytestItemMixin:
-    """Provides various overrides to handle our pseudo-path."""
-
-    path: CellPath
-    name: str
-
-    def reportinfo(self) -> tuple[Path, int, str]:
-        """
-        Returns tuple of notebook path, (linenumber=)0, Celln::testname.
-
-        `reportinfo` is used by `location` and included as the header line in the report:
-            ```
-            ==== FAILURES ====
-            ___ reportinfo[2] ___
-            ```
-        """
-        # `nodes.Item.location` calls `absolutepath()` and then `main._node_location_to_relpath` which caches the
-        # results in `_bestrelpathcache[node_path]` very early in the test process.
-        # As we provide the full CellPath as reportinfo[0] we need to patch `_pytest.nodes.absolutepath` in
-        # `CellPath.patch_pytest_pathlib` (above)
-        #
-        # `TerminalReporter._locationline` adds a `<-` section if `nodeid.split("::")[0] != location[0]`.
-        # Verbosity<2 tests runs are grouped by location[0] in the testlog.
-        return self.path, 0, f"{self.path.cell}::{self.name}"
-    
-    def collect(self) -> Generator[pytest.Function, None, None]:
-        """Rebless children to include our overrides from the Mixin."""
-        # TODO(MusicalNinjaDad): #22 Handle Tests grouped in Class
-        for item in super().collect():
-            item_type = type(item)
-            type_with_mixin = types.new_class(item_type.__name__, (PytestItemMixin, item_type))
-            item.__class__ = type_with_mixin
-            yield item
