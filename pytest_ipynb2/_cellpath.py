@@ -88,6 +88,7 @@ class CellPath(Path):
     class PytestItemMixin:
         """Provides various overrides to handle our pseudo-path."""
 
+        # TODO: #51 Use metaclass to remove direct references to `CellPath` in `CellPath.PytestItemMixin`
         path: CellPath
         name: str
 
