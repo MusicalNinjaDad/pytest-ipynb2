@@ -21,6 +21,11 @@ if TYPE_CHECKING:
 
 CELL_PREFIX: Final[str] = "Cell"
 
+if sys.version_info < (3, 12):  # pragma: no cover
+    # Can't subclass `pathlib.Path` directly in python < 3.12
+    _Path = Path
+    Path: Final[type] = type(_Path())
+
 
 class CellPath(Path):
     """Provide handling of Cells specified as `path/to/file[Celln]`."""
@@ -110,7 +115,7 @@ class CellPath(Path):
             # `TerminalReporter._locationline` adds a `<-` section if `nodeid.split("::")[0] != location[0]`.
             # Verbosity<2 tests runs are grouped by location[0] in the testlog.
             return self.path, 0, f"{self.path.cell}::{self.name}"
-        
+
         def collect(self) -> Generator[pytest.Function, None, None]:
             """Rebless children to include our overrides from the Mixin."""
             # TODO(MusicalNinjaDad): #22 Handle Tests grouped in Class

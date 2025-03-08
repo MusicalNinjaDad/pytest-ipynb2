@@ -12,8 +12,6 @@ import ast
 import importlib.util
 import linecache
 import os
-import sys
-from pathlib import Path
 from types import FunctionType, ModuleType
 from typing import TYPE_CHECKING
 
@@ -28,12 +26,7 @@ from ._parser import Notebook as _ParsedNotebook
 
 if TYPE_CHECKING:
     from collections.abc import Generator
-    from typing import Final
-
-
-if sys.version_info < (3, 12):  # pragma: no cover
-    _Path = Path
-    Path: Final[type] = type(_Path())
+    from pathlib import Path
 
 
 ipynb2_notebook = pytest.StashKey[_ParsedNotebook]()
