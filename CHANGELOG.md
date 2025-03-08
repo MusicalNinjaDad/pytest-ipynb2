@@ -9,11 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Integration with vscode Test Explorer
+- Integration with vscode Test Explorer [#52][pr-52]
 
 ### Changed
 
-- CellPath now uses subscript format `path/to/notebook.ipynb[Celln]`
+- CellPath now uses subscript format `path/to/notebook.ipynb[Celln]` [#52][pr-52]
+
+[pr-52]: https://github.com/MusicalNinjaDad/pytest-ipynb2/pull/52
 
 ## [0.4.0] - 2025-03-03
 
