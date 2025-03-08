@@ -119,7 +119,7 @@ class CellPath(Path):
         def collect(self) -> Generator[pytest.Function, None, None]:
             """Rebless children to include our overrides from the Mixin."""
             # TODO(MusicalNinjaDad): #22 Handle Tests grouped in Class
-            for item in super().collect():
+            for item in super().collect(): # pytype: disable=attribute-error
                 item_type = type(item)
                 type_with_mixin = types.new_class(item_type.__name__, (CellPath.PytestItemMixin, item_type))
                 item.__class__ = type_with_mixin
