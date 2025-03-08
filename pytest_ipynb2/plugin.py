@@ -269,14 +269,17 @@ class Cell(IpynbItemMixin, pytest.Module):
         log.debug("==Finished collecting from cell: %s==", self.name)
 
 
-def pytest_sessionstart(session: pytest.Session) -> None:
-    """Monkeypatch a few things to handle CellPath."""
-    session.stash[ipynb2_monkeypatches] = {}
-    session.stash[ipynb2_monkeypatches] |= CellPath.patch_pytest_absolutepath()
+@pytest.hookimpl(tryfirst=True, hookwrapper=True)  # ensure exeution order before any other plugins
+def pytest_sessionstart(session: pytest.Session) -> Generator[None, None, None]:
+    """Monkeypatch pytest to handle CellPath, store patches in stash to revert later."""
+    session.stash[ipynb2_monkeypatches] = CellPath.patch_pytest_absolutepath()
+    yield
 
 
-def pytest_sessionfinish(session: pytest.Session, exitstatus: int | pytest.ExitCode) -> None:  # noqa: ARG001
-    """Revert Monkeypatches - for complete safety."""
+@pytest.hookimpl(tryfirst=True, hookwrapper=True)  # ensure exeution order after any other plugins
+def pytest_sessionfinish(session: pytest.Session, exitstatus: int | pytest.ExitCode) -> Generator[None, None, None]:  # noqa: ARG001
+    """Revert Monkeypatches based on stashed versions."""
+    yield
     for (module, attr), orig in session.stash[ipynb2_monkeypatches].items():
         setattr(module, attr, orig)
 
@@ -293,9 +296,9 @@ def pytest_collect_file(file_path: Path, parent: pytest.Collector) -> Notebook |
 def pytest_load_initial_conftests(early_config, parser, args: list[str]) -> Generator[None, None, None]:  # noqa: ANN001, ARG001
     """
     Convert any CellPaths passed as commandline args to "::"-separated nodeids.
-    
+
     Even though we are using `path/to/notebook.ipynb[Celln]::test_func` as nodeid format, pytest will still accept
-    `path/to/notebook.ipynb::Celln::test_func` as a valid nodeid. For unknown reasons, 
+    `path/to/notebook.ipynb::Celln::test_func` as a valid nodeid. For unknown reasons,
     `_pytest.main.resolve_collection_argument` removes anything after the first `[`
     """
     # TODO: #50 handle `path/to/notebook.ipynb[Celln]::test_func` in `_pytest.main.resolve_collection_argument`
