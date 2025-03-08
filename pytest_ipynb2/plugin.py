@@ -322,8 +322,16 @@ def pytest_collect_file(file_path: Path, parent: pytest.Collector) -> Notebook |
 
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
 def pytest_load_initial_conftests(early_config, parser, args: list[str]) -> Generator[None, None, None]:  # noqa: ANN001, ARG001
-    """Convert any CellPaths passed as commandline args to nodeids."""
-    # Use workspace directory for logs
+    """
+    Convert any CellPaths passed as commandline args to "::"-separated nodeids.
+    
+    Even though we are using `path/to/notebook.ipynb[Celln]::test_func` as nodeid format, pytest will still accept
+    `path/to/notebook.ipynb::Celln::test_func` as a valid nodeid. For unknown reasons, 
+    `_pytest.main.resolve_collection_argument` removes anything after the first `[`
+    """
+    # TODO: #50 handle `path/to/notebook.ipynb[Celln]::test_func` in `_pytest.main.resolve_collection_argument`
+    # Relying on pytest accepting `path/to/notebook.ipynb::Celln::test_func` as a valid nodeid may be a source of
+    # future bugs.
     WORKSPACE_DIR = Path(os.getenv("WORKSPACE_DIR", Path.cwd()))  # noqa: N806
     log_dir = WORKSPACE_DIR / ".logs"
     log_dir.mkdir(parents=True, exist_ok=True)
