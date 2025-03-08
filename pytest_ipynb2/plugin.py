@@ -43,8 +43,6 @@ ipynb2_monkeypatches = pytest.StashKey[dict[tuple[ModuleType, str], FunctionType
 """Original functions indexed by `(module, functionname)` to allow `setattr(module, functionname, original)`."""
 
 
-
-
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
 def pytest_load_initial_conftests(early_config, parser, args: list[str]) -> Generator[None, None, None]:  # noqa: ANN001, ARG001
     """
@@ -164,5 +162,3 @@ class Cell(CellPath.PytestItemMixin, pytest.Module):
         exec(testcell, dummy_module.__dict__)  # noqa: S102
         linecache.cache[cell_filename] = (0, None, testcell_source.splitlines(keepends=True), cell_filename)
         return dummy_module
-
-

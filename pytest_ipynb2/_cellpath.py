@@ -17,6 +17,7 @@ if TYPE_CHECKING:
 
 CELL_PREFIX: Final[str] = "Cell"
 
+
 class CellPath(Path):
     """Provide handling of Cells specified as `path/to/file[Celln]`."""
 
@@ -79,7 +80,7 @@ class CellPath(Path):
         notebookpath = f"{cls.get_notebookpath(cellpath)}"
         cell = f"{CELL_PREFIX}{cls.get_cellid(cellpath)}"
         return "::".join((notebookpath, cell, *nodepath))
-    
+
     class PytestItemMixin:
         """Provides various overrides to handle our pseudo-path."""
 
@@ -140,4 +141,3 @@ class CellPath(Path):
         _pytest.nodes.absolutepath = _absolutepath
 
         return original_functions
-
