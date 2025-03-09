@@ -20,16 +20,9 @@ Usage is very simple:
     pip install pytest-ipynb2
     ```
 
-1. Enable by adding to the default options in `pyproject.toml`:
+1. That's it! pytest will now collect and execute any tests in jupyter notebooks when run from the command line or IDE.
 
-    ```toml
-    [tool.pytest.ini_options]
-      addopts = [
-        "-p pytest_ipynb2.plugin",
-      ]
-    ```
-
-1. That's it! pytest will now collect and execute any tests in jupyter notebooks when run form the command line or IDE.
+1. If you want to run a specific test you can pass it on the command line in the format `pytest path/to/notebook.ipynb[Cell3]::test_name`
 
 ## Test identification
 

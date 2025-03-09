@@ -72,7 +72,6 @@ def expected_tree(request: pytest.FixtureRequest, example_dir: ExampleDir) -> Co
         pytest.param(
             ExampleDirSpec(
                 files=[Path("tests/assets/notebook.ipynb").absolute()],
-                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
             ),
             "notebook",
             id="Simple Notebook",
@@ -80,7 +79,6 @@ def expected_tree(request: pytest.FixtureRequest, example_dir: ExampleDir) -> Co
         pytest.param(
             ExampleDirSpec(
                 files=[Path("tests/assets/notebook_2tests.ipynb").absolute()],
-                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
             ),
             "notebook_2tests",
             id="Notebook 2 tests",
@@ -91,7 +89,6 @@ def expected_tree(request: pytest.FixtureRequest, example_dir: ExampleDir) -> Co
                     Path("tests/assets/notebook_2tests.ipynb").absolute(),
                     Path("tests/assets/notebook.ipynb").absolute(),
                 ],
-                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
             ),
             "both notebooks",
             id="Both notebooks - unsorted",
@@ -109,7 +106,6 @@ def test_cell_collected(example_dir: ExampleDir, expected_tree: CollectionTree):
         pytest.param(
             ExampleDirSpec(
                 files=[Path("tests/assets/notebook.ipynb").absolute()],
-                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
             ),
             id="Simple Notebook",
         ),
@@ -130,7 +126,6 @@ def test_notebook_collection(example_dir: ExampleDir):
         pytest.param(
             ExampleDirSpec(
                 files=[Path("tests/assets/notebook.ipynb").absolute()],
-                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
             ),
             id="Simple Notebook",
         ),
@@ -152,7 +147,6 @@ def test_cell_collection(example_dir: ExampleDir):
         pytest.param(
             ExampleDirSpec(
                 files=[Path("tests/assets/notebook.ipynb").absolute()],
-                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
             ),
             id="Simple Notebook",
         ),
@@ -167,7 +161,7 @@ def test_functions(example_dir: ExampleDir):
     assert len(functions) == 2
     assert [f.name for f in functions] == ["test_adder", "test_globals"]
     assert [repr(f) for f in functions] == ["<Function test_adder>", "<Function test_globals>"]
-    assert [f.nodeid for f in functions] == ["notebook.ipynb::Cell4::test_adder", "notebook.ipynb::Cell4::test_globals"]
+    assert [f.nodeid for f in functions] == ["notebook.ipynb[Cell4]::test_adder", "notebook.ipynb[Cell4]::test_globals"]
 
 
 @pytest.mark.parametrize(
@@ -176,7 +170,6 @@ def test_functions(example_dir: ExampleDir):
         pytest.param(
             ExampleDirSpec(
                 files=[Path("tests/assets/notebook.ipynb").absolute()],
-                conftest="pytest_plugins = ['pytest_ipynb2.plugin']",
             ),
             id="Simple Notebook",
         ),

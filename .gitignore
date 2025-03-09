@@ -172,3 +172,7 @@ cython_debug/
 
 # Jupyter Book (via myst) build outputs
 _build
+
+!.logs/*.log
+
+**/envVars.txt

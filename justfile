@@ -22,6 +22,10 @@ clean:
     find . -type f -name "*.egg" -delete
     find . -type f -name "*.so" -delete
 
+clean-logs:
+    rm -rf .logs/pytest_ipynb2.log
+    touch .logs/pytest_ipynb2.log
+
 # clean, remove existing .venvs and rebuild the venvs with uv sync
 reset: clean install
 
@@ -73,3 +77,9 @@ show-cov:
 # serve python docs on localhost:3000
 docs:
   uv run mkdocs serve
+
+# use our versions of vscode extensions 
+symlink-vscode:
+  rm -rf ~/.vscode-server/extensions/ms-python.python-2025.2.0-linux-x64
+  ln -s /workspaces/pytest-ipynb2/.vscode-server/extensions/ms-python.python-2025.2.0-linux-x64 \
+      ~/.vscode-server/extensions/ms-python.python-2025.2.0-linux-x64

@@ -32,6 +32,9 @@
 [tool.setuptools.dynamic]
     version = { file = "__pyversion__" }
 
+[project.entry-points.pytest11]
+    pytest-ipynb2 = "pytest_ipynb2.plugin"
+
 # ===========================
 #       Build, package
 # ===========================
@@ -123,7 +126,7 @@
     line-length = 120
     format.skip-magic-trailing-comma = false
     format.quote-style = "double"
-    extend-exclude = ["tests/assets"]
+    extend-exclude = ["tests/assets", ".*"]
 
 [tool.ruff.lint]
     select = ["ALL"]

@@ -197,9 +197,10 @@ class ExampleDir:
     pytester: pytest.Pytester
     path: Path | None = None
 
-    def __init__(self, pytester: pytest.Pytester) -> None:
+    def __init__(self, pytester: pytest.Pytester, args: list[str]) -> None:
         self.pytester = pytester
         self.path = self.pytester.path
+        self.args = args
 
     @cached_property
     def dir_node(self) -> pytest.Dir:
@@ -211,7 +212,7 @@ class ExampleDir:
 
     @cached_property
     def runresult(self) -> pytest.RunResult:
-        return self.pytester.runpytest()
+        return self.pytester.runpytest(*self.args)
 
 
 @dataclass(kw_only=True)
@@ -223,6 +224,7 @@ class ExampleDirSpec:
     ini: str = ""
     files: list[Path] = field(default_factory=list)
     notebooks: dict[str, list[str]] = field(default_factory=dict)
+    args: list[str] = field(default_factory=list)
 
     def __hash__(self) -> int:
         files = tuple(self.files)
@@ -270,7 +272,7 @@ def example_dir(
                 cellnode = nbformat.v4.new_code_cell(cellsource)
                 nbnode.cells.append(cellnode)
             nbformat.write(nb=nbnode, fp=pytester.path / example.path / f"{notebook}.ipynb")
-        cached_dir = example_dir_cache[example] = ExampleDir(pytester=pytester)
+        cached_dir = example_dir_cache[example] = ExampleDir(pytester=pytester, args=example.args)
     elif request.config.get_verbosity() >= 3:  # noqa: PLR2004 # pragma: no cover
         # 1st keyword is the test name (incl. any parametrized id)
         msg = f"Using cached {cached_dir.path} for {next(iter(request.keywords))}"
