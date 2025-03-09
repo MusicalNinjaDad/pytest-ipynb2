@@ -7,28 +7,35 @@ on:
       - '.github/workflows/check-coverage.yml'
       - 'codecov.yml'
 
-env:
-  python-version: '3.13'
-
 permissions:
   id-token: write
 
 jobs:
   python:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [
+            "3.9",
+            "3.10",
+            "3.11",
+            "3.12",
+            "3.13"
+        ]
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Python
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ env.python-version }}
+          python-version: ${{ matrix.python-version }}
       - name: Install uv
         uses: astral-sh/setup-uv@v5
         with:
-          python-version: ${{ env.python-version }}
-      - name: Test with pytest
+          python-version: ${{ matrix.python-version }}
+      - name: Run coverage
         run: |
-          uv run --no-default-groups --group cov pytest --cov --cov-report=xml --cov-context=test # Context info not yet supported in cobertura (or any other common format between pytest-cov and codecov.io)
+          uv run --no-default-groups --group cov coverage run --context=${{ matrix.python-version }} -m pytest
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v5
         with:

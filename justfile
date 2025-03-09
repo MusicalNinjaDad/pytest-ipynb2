@@ -68,7 +68,15 @@ format:
 
 #run coverage analysis on python code
 cov:
-  uv run pytest --cov --cov-report html:pycov --cov-report term --cov-context=test
+  uv run coverage erase
+  rm -rf pycov
+  uv run --python 3.13 coverage run --context=3.13 -m pytest 
+  UV_PROJECT_ENVIRONMENT="./.venv-3.12" uv run --python 3.12 coverage run --context=3.12 --append -m pytest
+  UV_PROJECT_ENVIRONMENT="./.venv-3.11" uv run --python 3.11 coverage run --context=3.11 --append -m pytest
+  UV_PROJECT_ENVIRONMENT="./.venv-3.10" uv run --python 3.10 coverage run --context=3.10 --append -m pytest
+  UV_PROJECT_ENVIRONMENT="./.venv-3.9" uv run --python 3.9 coverage run --context=3.9 --append -m pytest
+  uv run coverage report
+  uv run coverage html --show-contexts -d pycov
 
 # serve python coverage results on localhost:8000 (doesn't run coverage analysis)
 show-cov:

@@ -64,7 +64,7 @@
     ]
     test = ["pytest-doctest-mkdocstrings"]
     cov_unique = [
-        "pytest-cov",
+        "coverage",
     ]
     cov = [
         { include-group = "test" },
@@ -103,6 +103,7 @@
 [tool.coverage.run]
     branch = true
     source = ["pytest_ipynb2"]
+    dynamic_context = "test_function"
 
 [tool.coverage.report]
     exclude_also = [
