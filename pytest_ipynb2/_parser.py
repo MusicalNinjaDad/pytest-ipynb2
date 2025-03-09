@@ -11,12 +11,8 @@ import nbformat
 
 if TYPE_CHECKING:
     from collections.abc import Collection, Generator, Iterator, Sequence
-    from contextlib import suppress
     from pathlib import Path
-    from typing import SupportsIndex
-
-    with suppress(ImportError):  # not type-checking on python < 3.11
-        from typing import Self
+    from typing import Self, SupportsIndex
 
 
 class MagicFinder(ast.NodeVisitor):
