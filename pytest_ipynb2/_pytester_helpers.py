@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     with suppress(ImportError):
         from typing import Self  # not type-checking on python < 3.11 so don't care if this fails
 
-if sys.version_info < (3, 10):  # dataclass does not offer kw_only on python < 3.10 # pragma: no cover
+if sys.version_info < (3, 10):  # dataclass does not offer kw_only on python < 3.10
     _dataclass = dataclass
 
     def dataclass(*args, **kwargs):  # noqa: ANN002, ANN003
@@ -184,7 +184,7 @@ class CollectionTree:
         return f"{self.node!r}\n{children_repr}\n"
 
 
-class ExampleDir:
+class ExampleDir: # pragma: no cover
     """
     A directory containing example files and the associated pytester instance.
 
@@ -243,7 +243,7 @@ class ExampleDirRequest(FunctionRequest):
 
 
 @pytest.fixture(scope="module")
-def example_dir_cache() -> dict[ExampleDirSpec, ExampleDir]:
+def example_dir_cache() -> dict[ExampleDirSpec, ExampleDir]: # pragma: no cover
     return {}
 
 
@@ -257,10 +257,10 @@ def example_dir(
     example = request.param
     if (cached_dir := example_dir_cache.get(example)) is None:
         (pytester.path / example.path).mkdir(parents=True, exist_ok=True)
-        if example.conftest:
+        if example.conftest: # pragma: no cover
             pytester.makeconftest(request.param.conftest)
 
-        if example.ini:
+        if example.ini: # pragma: no cover
             pytester.makeini(f"[pytest]\n{example.ini}")
 
         for filetocopy in example.files:
@@ -285,7 +285,7 @@ def add_ipytest_magic(source: str) -> str:
     return f"%%ipytest\n\n{source}"
 
 
-def pytest_configure(config: pytest.Config) -> None:  # pragma: no cover
+def pytest_configure(config: pytest.Config) -> None:
     # Tests will be needed if this ever becomes public functionality
     """Register autoskip & xfail_for marks."""
     config.addinivalue_line("markers", "autoskip: automatically skip test if expected results not provided")

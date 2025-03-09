@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 
 CELL_PREFIX: Final[str] = "Cell"
 
-if sys.version_info < (3, 12):  # pragma: no cover
+if sys.version_info < (3, 12):
     # Can't subclass `pathlib.Path` directly in python < 3.12
     _Path = Path
     Path: Final[type] = type(_Path())
@@ -43,7 +43,7 @@ class CellPath(Path):
         # TODO: #33 Extend `CellPath.exists` to also check that the cell exists (if performance allows)
         return self.notebook.exists(*args, **kwargs)
 
-    if sys.version_info < (3, 13):  # pragma: no cover
+    if sys.version_info < (3, 13):
 
         def relative_to(self, other: PathLike, *args: Any, **kwargs: Any) -> Self:
             """Relative_to only works out-of-the-box on python 3.13 and above."""
