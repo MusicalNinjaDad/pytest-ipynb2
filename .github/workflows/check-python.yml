@@ -31,7 +31,7 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install uv
-      uses: astral-sh/setup-uv@v5
+      uses: astral-sh/setup-uv@v6
       with:
         python-version: ${{ matrix.python-version }}
     - name: Test with pytest
@@ -51,7 +51,7 @@ jobs:
           echo "ruff_args=--config ruff-main.toml" >> $GITHUB_ENV
         fi
     - name: Install uv
-      uses: astral-sh/setup-uv@v5
+      uses: astral-sh/setup-uv@v6
       with:
         python-version: ${{ env.python-version }}
     - name: lint with ruff ${{ env.ruff_args }}
@@ -70,7 +70,7 @@ jobs:
       with:
         python-version: ${{ env.python-version }}
     - name: Install uv
-      uses: astral-sh/setup-uv@v5
+      uses: astral-sh/setup-uv@v6
       with:
         python-version: ${{ env.python-version }}
     - name: Run pytype
